@@ -1,5 +1,17 @@
+:root {
+  --night-bg: #080711;
+  --night-surface: #141224;
+  --night-surface-strong: #201a35;
+  --night-text: #f8f4ff;
+  --night-muted: #c7bdd8;
+  --night-accent: #f7a8ff;
+  --night-accent-strong: #8f7bff;
+}
+
 html {
   font-size: 14px;
+  min-height: 100%;
+  position: relative;
 }
 
 @media (min-width: 768px) {
@@ -8,24 +20,95 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
+  background:
+    radial-gradient(circle at top left, rgba(143, 123, 255, 0.32), transparent 34rem),
+    radial-gradient(circle at 85% 15%, rgba(247, 168, 255, 0.22), transparent 28rem),
+    var(--night-bg);
+  color: var(--night-text);
   margin-bottom: 60px;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+.navbar,
+.footer {
+  background: rgba(8, 7, 17, 0.88) !important;
+  backdrop-filter: blur(16px);
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link,
+.footer,
+.footer a {
+  color: var(--night-text) !important;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem var(--night-bg), 0 0 0 0.25rem var(--night-accent);
+}
+
+.hero-section {
+  background: linear-gradient(135deg, rgba(32, 26, 53, 0.95), rgba(93, 54, 140, 0.82));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.35);
+}
+
+.hero-copy,
+.content-card p,
+.event-card p {
+  color: var(--night-muted);
+}
+
+.eyebrow {
+  color: var(--night-accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.content-card,
+.event-card,
+.mission-card {
+  background: rgba(20, 18, 36, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.content-card,
+.event-card {
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.content-card:hover,
+.event-card:hover {
+  border-color: rgba(247, 168, 255, 0.38);
+  transform: translateY(-0.2rem);
+}
+
+.text-accent {
+  color: var(--night-accent);
+}
+
+.date-chip {
+  background: rgba(247, 168, 255, 0.14);
+  border: 1px solid rgba(247, 168, 255, 0.32);
+  border-radius: 999px;
+  color: var(--night-text);
+  font-weight: 700;
+  padding: 0.45rem 0.8rem;
+  white-space: nowrap;
+}
+
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
