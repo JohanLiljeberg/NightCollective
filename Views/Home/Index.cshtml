@@ -1,8 +1,105 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model Night.ViewModels.HomeIndexViewModel
+@{
+    ViewData["Title"] = "Games as Art Collective";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero-section rounded-4 p-4 p-lg-5 mb-5">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <p class="eyebrow mb-2">Independent games · playful art · community</p>
+            <h1 class="display-3 fw-bold mb-3">@Model.HeroTitle</h1>
+            <p class="lead mb-4">@Model.HeroSubtitle</p>
+            <p class="hero-copy mb-4">@Model.HeroDescription</p>
+            <div class="d-flex flex-wrap gap-3">
+                <a class="btn btn-primary btn-lg" href="#projects">Explore featured work</a>
+                <a class="btn btn-outline-light btn-lg" href="#events">Join the next salon</a>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="mission-card p-4 rounded-4">
+                <h2 class="h4">Our starting point</h2>
+                <p class="mb-0">Build a welcoming archive, showcase, and event home for creators who use games as a medium for expression.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-5" aria-labelledby="mission-heading">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="content-card h-100 p-4 rounded-4">
+                <h2 id="mission-heading" class="h4">Celebrate making</h2>
+                <p>Share works in progress, postmortems, and process notes so game creation feels visible and approachable.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-card h-100 p-4 rounded-4">
+                <h2 class="h4">Curate games as art</h2>
+                <p>Frame games alongside installation, performance, sound, poetry, and visual practice.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-card h-100 p-4 rounded-4">
+                <h2 class="h4">Gather the collective</h2>
+                <p>Host salons, showcases, and collaborative experiments for artists, developers, and curious players.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="projects" class="mb-5" aria-labelledby="projects-heading">
+    <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
+        <div>
+            <p class="eyebrow mb-1">Featured work</p>
+            <h2 id="projects-heading" class="mb-0">Playable artworks</h2>
+        </div>
+    </div>
+    <div class="row g-4">
+        @foreach (var project in Model.FeaturedProjects)
+        {
+            <div class="col-md-4">
+                <article class="content-card h-100 p-4 rounded-4">
+                    <span class="badge rounded-pill text-bg-dark mb-3">@project.Medium</span>
+                    <h3 class="h4">@project.Title</h3>
+                    <p class="text-accent mb-2">@project.Creator</p>
+                    <p class="mb-0">@project.Description</p>
+                </article>
+            </div>
+        }
+    </div>
+</section>
+
+<section id="events" class="mb-5" aria-labelledby="events-heading">
+    <p class="eyebrow mb-1">Gatherings</p>
+    <h2 id="events-heading" class="mb-3">Upcoming community touchpoints</h2>
+    <div class="row g-4">
+        @foreach (var collectiveEvent in Model.UpcomingEvents)
+        {
+            <div class="col-lg-6">
+                <article class="event-card h-100 p-4 rounded-4">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
+                        <div>
+                            <h3 class="h4">@collectiveEvent.Title</h3>
+                            <p class="mb-2">@collectiveEvent.Description</p>
+                            <p class="mb-0 text-accent">@collectiveEvent.Location</p>
+                        </div>
+                        <span class="date-chip align-self-start">@collectiveEvent.DateLabel</span>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+</section>
+
+<section class="mb-5" aria-labelledby="collective-heading">
+    <div class="content-card p-4 rounded-4">
+        <p class="eyebrow mb-1">Collective profile</p>
+        <h2 id="collective-heading">Who this site is for</h2>
+        @foreach (var member in Model.Members)
+        {
+            <h3 class="h5 mb-1">@member.Name</h3>
+            <p class="text-accent mb-2">@member.Role</p>
+            <p class="mb-0">@member.Bio</p>
+        }
+    </div>
+</section>
