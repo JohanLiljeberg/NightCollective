@@ -2,11 +2,13 @@ namespace Night.Models;
 
 public class CollectiveProject
 {
-    public required string Title { get; init; }
+    public int Id { get; set; }
 
-    public required string Creator { get; init; }
+    public required string Title { get; set; }
 
-    public required string Description { get; init; }
+    public required string Creator { get; set; }
 
-    public required string Medium { get; init; }
+    public required string Description { get; set; }
+
+    public required string Medium { get; set; }
 }

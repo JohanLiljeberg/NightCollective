@@ -2,9 +2,11 @@ namespace Night.Models;
 
 public class Developer
 {
-    public required string Name { get; init; }
+    public int Id { get; set; }
 
-    public required string Role { get; init; }
+    public required string Name { get; set; }
 
-    public required string Bio { get; init; }
+    public required string Role { get; set; }
+
+    public required string Bio { get; set; }
 }
