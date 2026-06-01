@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using Night.Data;
 using Night.Repositories;
 using Night.Services;
 
@@ -5,9 +7,13 @@ namespace Night.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddNightCollectiveServices(this IServiceCollection services)
+    public static IServiceCollection AddNightCollectiveServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton<ICollectiveRepository, InMemoryCollectiveRepository>();
+        var connectionString = configuration.GetConnectionString("NightCollectiveDatabase")
+            ?? throw new InvalidOperationException("Connection string 'NightCollectiveDatabase' was not found.");
+
+        services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+        services.AddScoped<ICollectiveRepository, SqlCollectiveRepository>();
         services.AddScoped<ICollectiveService, CollectiveService>();
 
         return services;
