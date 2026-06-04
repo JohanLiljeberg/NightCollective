@@ -8,7 +8,7 @@ public class HomeIndexViewModel
 
     public string HeroSubtitle { get; init; } = "Games as art.";
 
-    public string HeroDescription { get; init; } = "Nightjar is a non-profit organization striving to be a democratic game publisher. To be precise, we are a local community of weird game makers who care deeply about the artistry of video games.";
+    public string HeroDescription { get; init; } = "test";
 
     public IReadOnlyCollection<CollectiveProject> FeaturedProjects { get; init; } = [];
 

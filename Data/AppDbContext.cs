@@ -87,7 +87,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             {
                 Id = 1,
                 Name = "Night Collective",
-                Role = "Nightjar is a non-profit organization striving to be a democratic game publisher. To be precise, we are a local community of weird game makers who care deeply about the artistry of video games.",
+                Role = " Creator",
                 Bio = "Games are art."
             });
         });
@@ -106,7 +106,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Id = 1,
                 Name = "Night Collective",
                 Image = "/images/collective-members/night-collective.jpg",
-                Position = "Curators, developers, artists, and players",
+                Position = "Curator",
                 Quote = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms."
             });
         });
