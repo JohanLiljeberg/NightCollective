@@ -6,9 +6,9 @@ public class HomeIndexViewModel
 {
     public string HeroTitle { get; init; } = "Nightjar Collective";
 
-    public string HeroSubtitle { get; init; } = "Celebrating game creation and games as art.";
+    public string HeroSubtitle { get; init; } = "Games as art.";
 
-    public string HeroDescription { get; init; } = "We are a collective of makers, curators, and players building a home for experimental games, playful installations, and the communities around them.";
+    public string HeroDescription { get; init; } = "Nightjar is a non-profit organization striving to be a democratic game publisher. To be precise, we are a local community of weird game makers who care deeply about the artistry of video games.";
 
     public IReadOnlyCollection<CollectiveProject> FeaturedProjects { get; init; } = [];
 
