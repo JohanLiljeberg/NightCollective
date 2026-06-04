@@ -22,11 +22,12 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
             .ToList();
     }
 
-    public IReadOnlyCollection<Developer> GetMembers()
+    public IReadOnlyCollection<CollectiveMember> GetCollectiveMembers()
     {
-        return dbContext.Developers
+        return dbContext.CollectiveMembers
             .AsNoTracking()
-            .OrderBy(developer => developer.Id)
+            .Include(member => member.Games)
+            .OrderBy(member => member.Id)
             .ToList();
     }
 }

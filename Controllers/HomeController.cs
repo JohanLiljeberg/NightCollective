@@ -14,6 +14,13 @@ public class HomeController(ICollectiveService collectiveService) : Controller
         return View(viewModel);
     }
 
+    public IActionResult Members()
+    {
+        var members = collectiveService.GetCollectiveMembers();
+
+        return View(members);
+    }
+
     public IActionResult Privacy()
     {
         return View();

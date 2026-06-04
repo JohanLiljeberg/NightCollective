@@ -11,6 +11,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Developer> Developers => Set<Developer>();
 
+    public DbSet<CollectiveMember> CollectiveMembers => Set<CollectiveMember>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -87,6 +89,25 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Name = "Night Collective",
                 Role = "Nightjar is a non-profit organization striving to be a democratic game publisher. To be precise, we are a local community of weird game makers who care deeply about the artistry of video games.",
                 Bio = "Games are art."
+            });
+        });
+
+        modelBuilder.Entity<CollectiveMember>(entity =>
+        {
+            entity.Property(member => member.Name).HasMaxLength(120).IsRequired();
+            entity.Property(member => member.Image).HasMaxLength(240).IsRequired();
+            entity.Property(member => member.Position).HasMaxLength(160).IsRequired();
+            entity.Property(member => member.Quote).HasMaxLength(600).IsRequired();
+
+            entity.HasMany(member => member.Games).WithOne();
+
+            entity.HasData(new CollectiveMember
+            {
+                Id = 1,
+                Name = "Night Collective",
+                Image = "/images/collective-members/night-collective.jpg",
+                Position = "Curators, developers, artists, and players",
+                Quote = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms."
             });
         });
     }

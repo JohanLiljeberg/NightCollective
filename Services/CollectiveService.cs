@@ -1,3 +1,4 @@
+using Night.Models;
 using Night.Repositories;
 using Night.ViewModels;
 
@@ -11,7 +12,12 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
         {
             FeaturedProjects = collectiveRepository.GetFeaturedProjects(),
             UpcomingEvents = collectiveRepository.GetUpcomingEvents(),
-            Members = collectiveRepository.GetMembers()
+            Members = collectiveRepository.GetCollectiveMembers()
         };
+    }
+
+    public IReadOnlyCollection<CollectiveMember> GetCollectiveMembers()
+    {
+        return collectiveRepository.GetCollectiveMembers();
     }
 }
