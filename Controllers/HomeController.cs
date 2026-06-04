@@ -1,25 +1,27 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Night.Models;
-using System.Diagnostics;
+using Night.Services;
 
-namespace Night.Controllers
+namespace Night.Controllers;
+
+public class HomeController(ICollectiveService collectiveService) : Controller
 {
-    public class HomeController : Controller
+    public IActionResult Index()
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
+        var viewModel = collectiveService.GetHomePageContent();
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+        return View(viewModel);
+    }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+    public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }
