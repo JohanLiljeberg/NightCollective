@@ -14,5 +14,5 @@ public class HomeIndexViewModel
 
     public IReadOnlyCollection<CollectiveEvent> UpcomingEvents { get; init; } = [];
 
-    public IReadOnlyCollection<Developer> Members { get; init; } = [];
+    public IReadOnlyCollection<CollectiveMember> Members { get; init; } = [];
 }

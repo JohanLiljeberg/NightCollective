@@ -6,7 +6,7 @@
 
         public string Name { get; set; } = string.Empty;
 
-        public string Image { get; set; }
+        public string Image { get; set; } = string.Empty;
 
         public string Position { get; set; } = string.Empty;
 

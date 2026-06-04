@@ -8,5 +8,5 @@ public interface ICollectiveRepository
 
     IReadOnlyCollection<CollectiveEvent> GetUpcomingEvents();
 
-    IReadOnlyCollection<Developer> GetMembers();
+    IReadOnlyCollection<CollectiveMember> GetCollectiveMembers();
 }

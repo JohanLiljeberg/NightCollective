@@ -47,13 +47,15 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
         }
     ];
 
-    private static readonly IReadOnlyCollection<Developer> Members =
+    private static readonly IReadOnlyCollection<CollectiveMember> CollectiveMembers =
     [
-        new Developer
+        new CollectiveMember
         {
+            Id = 1,
             Name = "Night Collective",
-            Role = "Curators, developers, artists, and players",
-            Bio = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms."
+            Image = "/images/collective-members/night-collective.jpg",
+            Position = "Curators, developers, artists, and players",
+            Quote = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms."
         }
     ];
 
@@ -61,5 +63,5 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
 
     public IReadOnlyCollection<CollectiveEvent> GetUpcomingEvents() => UpcomingEvents;
 
-    public IReadOnlyCollection<Developer> GetMembers() => Members;
+    public IReadOnlyCollection<CollectiveMember> GetCollectiveMembers() => CollectiveMembers;
 }
