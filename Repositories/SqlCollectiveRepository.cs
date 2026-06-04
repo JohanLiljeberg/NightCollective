@@ -24,10 +24,16 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
 
     public IReadOnlyCollection<CollectiveMember> GetCollectiveMembers()
     {
+        int pageSize = 10;
+        int pageNumber = 0; 
+
         return dbContext.CollectiveMembers
             .AsNoTracking()
             .Include(member => member.Games)
+            .AsSplitQuery()
             .OrderBy(member => member.Id)
+            .Skip(pageNumber * pageSize)
+            .Take(pageSize)
             .ToList();
     }
 }
