@@ -4,7 +4,7 @@ namespace Night.ViewModels;
 
 public class HomeIndexViewModel
 {
-    public string HeroTitle { get; init; } = "Night Collective";
+    public string HeroTitle { get; init; } = "Nightjar Collective";
 
     public string HeroSubtitle { get; init; } = "Celebrating game creation and games as art.";
 

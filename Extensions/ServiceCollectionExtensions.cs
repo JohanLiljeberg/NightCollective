@@ -10,7 +10,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddNightCollectiveServices(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("NightCollectiveDatabase")
-            ?? throw new InvalidOperationException("Connection string 'NightCollectiveDatabase' was not found.");
+            ?? configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string 'NightCollectiveDatabase' or 'DefaultConnection' was not found.");
 
         services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
         services.AddScoped<ICollectiveRepository, SqlCollectiveRepository>();
