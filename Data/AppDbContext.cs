@@ -35,7 +35,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 {
                     Id = 2,
                     Title = "Arcade Reliquary",
-                    Creator = "Night Collective Studio",
+                    Creator = "APT Studio",
                     Medium = "Playable installation",
                     Description = "A cabinet-scale exhibition that treats high scores, rituals, and glitches as community folklore."
                 },
@@ -60,10 +60,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 new CollectiveEvent
                 {
                     Id = 1,
-                    Title = "Monthly Play Salon",
-                    DateLabel = "First Friday",
+                    Title = "Monthly Gamejam",
+                    DateLabel = "Friday",
                     Location = "Online + local pop-up",
-                    Description = "A gentle critique circle for prototypes, visual experiments, and strange playable ideas."
+                    Description = "A monthly gamejam that anyone can join. New promt everytime!"
                 },
                 new CollectiveEvent
                 {
@@ -85,8 +85,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             {
                 Id = 1,
                 Name = "Night Collective",
-                Role = "Curators, developers, artists, and players",
-                Bio = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms."
+                Role = "Nightjar is a non-profit organization striving to be a democratic game publisher. To be precise, we are a local community of weird game makers who care deeply about the artistry of video games.",
+                Bio = "Games are art."
             });
         });
     }

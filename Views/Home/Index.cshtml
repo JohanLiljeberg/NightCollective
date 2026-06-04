@@ -1,24 +1,24 @@
 @model Night.ViewModels.HomeIndexViewModel
 @{
-    ViewData["Title"] = "Games as Art Collective";
+    ViewData["Title"] = "Games as Art";
 }
 
 <section class="hero-section rounded-4 p-4 p-lg-5 mb-5">
     <div class="row align-items-center g-4">
         <div class="col-lg-8">
-            <p class="eyebrow mb-2">Independent games · playful art · community</p>
+            <p class="eyebrow mb-2">~ Your game — Our passion ~</p>
             <h1 class="display-3 fw-bold mb-3">@Model.HeroTitle</h1>
             <p class="lead mb-4">@Model.HeroSubtitle</p>
             <p class="hero-copy mb-4">@Model.HeroDescription</p>
             <div class="d-flex flex-wrap gap-3">
-                <a class="btn btn-primary btn-lg" href="#projects">Explore featured work</a>
-                <a class="btn btn-outline-light btn-lg" href="#events">Join the next salon</a>
+                <a class="btn btn-primary btn-lg" href="#projects">Explore featured games</a>
+                <a class="btn btn-outline-light btn-lg" href="#events">Join the next event</a>
             </div>
         </div>
         <div class="col-lg-4">
             <div class="mission-card p-4 rounded-4">
-                <h2 class="h4">Our starting point</h2>
-                <p class="mb-0">Build a welcoming archive, showcase, and event home for creators who use games as a medium for expression.</p>
+                <h2 class="h4">The Vision</h2>
+                <p class="mb-0">Cooperative Publishing, ride the highs and weather the lows - Together</p>
             </div>
         </div>
     </div>
@@ -28,20 +28,20 @@
     <div class="row g-4">
         <div class="col-md-4">
             <div class="content-card h-100 p-4 rounded-4">
-                <h2 id="mission-heading" class="h4">Celebrate making</h2>
-                <p>Share works in progress, postmortems, and process notes so game creation feels visible and approachable.</p>
+                <h2 id="mission-heading" class="h4">What are you working on?</h2>
+                <p>Share works in progress.</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="content-card h-100 p-4 rounded-4">
-                <h2 class="h4">Curate games as art</h2>
-                <p>Frame games alongside installation, performance, sound, poetry, and visual practice.</p>
+                <h2 class="h4">Featured GAMES</h2>
+                <p>Showcase</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="content-card h-100 p-4 rounded-4">
-                <h2 class="h4">Gather the collective</h2>
-                <p>Host salons, showcases, and collaborative experiments for artists, developers, and curious players.</p>
+                <h2 class="h4">ENTER THE JAR</h2>
+                <p>Host EVENTS, showcases, and collaborative experiments for artists, developers, and players.</p>
             </div>
         </div>
     </div>
@@ -51,7 +51,7 @@
     <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
         <div>
             <p class="eyebrow mb-1">Featured work</p>
-            <h2 id="projects-heading" class="mb-0">Playable artworks</h2>
+            <h2 id="projects-heading" class="mb-0">Showcase</h2>
         </div>
     </div>
     <div class="row g-4">
@@ -71,7 +71,7 @@
 
 <section id="events" class="mb-5" aria-labelledby="events-heading">
     <p class="eyebrow mb-1">Gatherings</p>
-    <h2 id="events-heading" class="mb-3">Upcoming community touchpoints</h2>
+    <h2 id="events-heading" class="mb-3">Upcoming community events</h2>
     <div class="row g-4">
         @foreach (var collectiveEvent in Model.UpcomingEvents)
         {
