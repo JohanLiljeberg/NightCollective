@@ -1,5 +1,19 @@
+:root {
+  --night-cream: #fdfded;
+  --night-purple: #4b19a3;
+  --night-lavender: #dad4ed;
+  --night-purple-dark: #2f0c6f;
+  --night-purple-soft: #6b35c3;
+  --night-text: #241b36;
+  --night-muted: #5f5473;
+  --night-card: rgba(253, 253, 237, 0.92);
+  --night-border: rgba(75, 25, 163, 0.2);
+}
+
 html {
   font-size: 14px;
+  min-height: 100%;
+  position: relative;
 }
 
 @media (min-width: 768px) {
@@ -8,24 +22,145 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
+  background:
+    linear-gradient(180deg, var(--night-cream) 0 42%, var(--night-purple) 42% 70%, var(--night-lavender) 70% 100%);
+  color: var(--night-text);
   margin-bottom: 60px;
+  min-height: 100vh;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+.navbar,
+.footer {
+  background: rgba(253, 253, 237, 0.92) !important;
+  backdrop-filter: blur(16px);
+  border-color: var(--night-border) !important;
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link,
+.footer,
+.footer a {
+  color: var(--night-purple-dark) !important;
+}
+
+.navbar .navbar-brand {
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.navbar-toggler {
+  border-color: var(--night-border);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--night-purple);
+  --bs-btn-border-color: var(--night-purple);
+  --bs-btn-hover-bg: var(--night-purple-dark);
+  --bs-btn-hover-border-color: var(--night-purple-dark);
+  --bs-btn-active-bg: var(--night-purple-dark);
+  --bs-btn-active-border-color: var(--night-purple-dark);
+}
+
+.btn-outline-light {
+  --bs-btn-color: var(--night-cream);
+  --bs-btn-border-color: var(--night-lavender);
+  --bs-btn-hover-color: var(--night-purple-dark);
+  --bs-btn-hover-bg: var(--night-lavender);
+  --bs-btn-hover-border-color: var(--night-lavender);
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem var(--night-cream), 0 0 0 0.25rem rgba(75, 25, 163, 0.42);
+}
+
+.hero-section {
+  background:
+    linear-gradient(135deg, rgba(75, 25, 163, 0.95), rgba(47, 12, 111, 0.86)),
+    var(--night-purple);
+  border: 1px solid rgba(253, 253, 237, 0.32);
+  box-shadow: 0 1.5rem 4rem rgba(47, 12, 111, 0.35);
+  color: var(--night-cream);
+}
+
+.hero-copy,
+.hero-section .lead,
+.hero-section .mission-card p {
+  color: var(--night-lavender);
+}
+
+.content-card p,
+.event-card p {
+  color: var(--night-muted);
+}
+
+.eyebrow {
+  color: var(--night-purple-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hero-section .eyebrow {
+  color: var(--night-lavender);
+}
+
+.content-card,
+.event-card,
+.mission-card {
+  background: var(--night-card);
+  border: 1px solid var(--night-border);
+  box-shadow: 0 1rem 2.5rem rgba(47, 12, 111, 0.12);
+}
+
+.mission-card {
+  background: rgba(253, 253, 237, 0.12);
+  border-color: rgba(253, 253, 237, 0.28);
+}
+
+.content-card,
+.event-card {
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.content-card:hover,
+.event-card:hover {
+  border-color: rgba(75, 25, 163, 0.48);
+  box-shadow: 0 1.25rem 3rem rgba(47, 12, 111, 0.18);
+  transform: translateY(-0.2rem);
+}
+
+.text-accent {
+  color: var(--night-purple) !important;
+}
+
+.badge.text-bg-dark {
+  background-color: var(--night-purple) !important;
+  color: var(--night-cream) !important;
+}
+
+.date-chip {
+  background: rgba(218, 212, 237, 0.78);
+  border: 1px solid rgba(75, 25, 163, 0.28);
+  border-radius: 999px;
+  color: var(--night-purple-dark);
+  font-weight: 700;
+  padding: 0.45rem 0.8rem;
+  white-space: nowrap;
+}
+
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
