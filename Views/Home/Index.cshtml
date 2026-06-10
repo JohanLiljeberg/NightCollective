@@ -12,7 +12,7 @@
             <p class="hero-copy mb-4">@Model.HeroDescription</p>
             <div class="d-flex flex-wrap gap-3">
                 <a class="btn btn-primary btn-lg" href="#projects">Explore featured games</a>
-                <a class="btn btn-outline-light btn-lg" href="#events">Join the next event</a>
+                <a class="btn btn-outline-light btn-lg" asp-controller="Events" asp-action="Index">Join the next event</a>
             </div>
         </div>
         <div class="col-lg-4">
@@ -70,22 +70,18 @@
 </section>
 
 <section id="events" class="mb-5" aria-labelledby="events-heading">
-    <p class="eyebrow mb-1">Gatherings</p>
-    <h2 id="events-heading" class="mb-3">Upcoming community events</h2>
+    <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
+        <div>
+            <p class="eyebrow mb-1">Gatherings</p>
+            <h2 id="events-heading" class="mb-0">Upcoming community events</h2>
+        </div>
+        <a class="btn btn-primary" asp-controller="Events" asp-action="Index">See all events</a>
+    </div>
     <div class="row g-4">
-        @foreach (var collectiveEvent in Model.UpcomingEvents)
+        @foreach (var collectiveEvent in Model.UpcomingEvents.Take(2))
         {
             <div class="col-lg-6">
-                <article class="event-card h-100 p-4 rounded-4">
-                    <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
-                        <div>
-                            <h3 class="h4">@collectiveEvent.Title</h3>
-                            <p class="mb-2">@collectiveEvent.Description</p>
-                            <p class="mb-0 text-accent">@collectiveEvent.Location</p>
-                        </div>
-                        <span class="date-chip align-self-start">@collectiveEvent.DateLabel</span>
-                    </div>
-                </article>
+                @await Component.InvokeAsync("EventCardVC", new { collectiveEvent })
             </div>
         }
     </div>

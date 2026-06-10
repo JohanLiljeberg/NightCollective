@@ -7,16 +7,16 @@ namespace Night.Controllers;
 
 public class HomeController(ICollectiveService collectiveService) : Controller
 {
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        var viewModel = collectiveService.GetHomePageContent();
+        var viewModel = await collectiveService.GetHomePageContentAsync();
 
         return View(viewModel);
     }
 
-    public IActionResult Members()
+    public async Task<IActionResult> Members()
     {
-        var members = collectiveService.GetCollectiveMembers();
+        var members = await collectiveService.GetCollectiveMembersAsync();
 
         return View(members);
     }

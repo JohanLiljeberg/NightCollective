@@ -1,0 +1,20 @@
+@model Night.ViewModels.EventViewModel
+
+<article class="event-card h-100 overflow-hidden rounded-4">
+    <img class="event-card-image w-100" src="@Model.ImageUrl" alt="Event artwork for @Model.Title" />
+    <div class="p-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
+            <div>
+                <h3 class="h4">@Model.Title</h3>
+                <p class="mb-2">@Model.Description</p>
+                <p class="mb-0 text-accent">@Model.Location</p>
+            </div>
+            <span class="date-chip align-self-start">@Model.DateDisplay</span>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <a class="btn btn-primary btn-sm" asp-controller="Events" asp-action="Details" asp-route-id="@Model.Id">View details</a>
+            <a class="btn btn-outline-secondary btn-sm" asp-controller="Events" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+            <a class="btn btn-outline-danger btn-sm" asp-controller="Events" asp-action="Delete" asp-route-id="@Model.Id">Remove</a>
+        </div>
+    </div>
+</article>

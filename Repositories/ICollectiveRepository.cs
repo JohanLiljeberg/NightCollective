@@ -4,9 +4,11 @@ namespace Night.Repositories;
 
 public interface ICollectiveRepository
 {
-    IReadOnlyCollection<CollectiveProject> GetFeaturedProjects();
+    Task<IReadOnlyCollection<CollectiveProject>> GetFeaturedProjectsAsync();
 
-    IReadOnlyCollection<CollectiveEvent> GetUpcomingEvents();
+    Task<IReadOnlyCollection<CollectiveEvent>> GetUpcomingEventsAsync(DateTime fromDate);
 
-    IReadOnlyCollection<CollectiveMember> GetCollectiveMembers();
+    Task<CollectiveEvent?> GetNextUpcomingEventAsync(DateTime fromDate);
+
+    Task<IReadOnlyCollection<CollectiveMember>> GetCollectiveMembersAsync();
 }
