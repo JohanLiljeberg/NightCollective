@@ -22,11 +22,18 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
             .ToList();
     }
 
-    public IReadOnlyCollection<Developer> GetMembers()
+    public IReadOnlyCollection<CollectiveMember> GetCollectiveMembers()
     {
-        return dbContext.Developers
+        int pageSize = 10;
+        int pageNumber = 0; 
+
+        return dbContext.CollectiveMembers
             .AsNoTracking()
-            .OrderBy(developer => developer.Id)
+            .Include(member => member.Games)
+            .AsSplitQuery()
+            .OrderBy(member => member.Id)
+            .Skip(pageNumber * pageSize)
+            .Take(pageSize)
             .ToList();
     }
 }

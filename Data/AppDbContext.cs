@@ -11,6 +11,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Developer> Developers => Set<Developer>();
 
+    public DbSet<CollectiveMember> CollectiveMembers => Set<CollectiveMember>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -35,7 +37,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 {
                     Id = 2,
                     Title = "Arcade Reliquary",
-                    Creator = "Night Collective Studio",
+                    Creator = "APT Studio",
                     Medium = "Playable installation",
                     Description = "A cabinet-scale exhibition that treats high scores, rituals, and glitches as community folklore."
                 },
@@ -60,10 +62,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 new CollectiveEvent
                 {
                     Id = 1,
-                    Title = "Monthly Play Salon",
-                    DateLabel = "First Friday",
+                    Title = "Monthly Gamejam",
+                    DateLabel = "Friday",
                     Location = "Online + local pop-up",
-                    Description = "A gentle critique circle for prototypes, visual experiments, and strange playable ideas."
+                    Description = "A monthly gamejam that anyone can join. New promt everytime!"
                 },
                 new CollectiveEvent
                 {
@@ -85,8 +87,27 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             {
                 Id = 1,
                 Name = "Night Collective",
-                Role = "Curators, developers, artists, and players",
-                Bio = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms."
+                Role = " Creator",
+                Bio = "Games are art."
+            });
+        });
+
+        modelBuilder.Entity<CollectiveMember>(entity =>
+        {
+            entity.Property(member => member.Name).HasMaxLength(120).IsRequired();
+            entity.Property(member => member.Image).HasMaxLength(240).IsRequired();
+            entity.Property(member => member.Position).HasMaxLength(160).IsRequired();
+            entity.Property(member => member.Quote).HasMaxLength(600).IsRequired();
+
+            entity.HasMany(member => member.Games).WithOne();
+
+            entity.HasData(new CollectiveMember
+            {
+                Id = 1,
+                Name = "Night Collective",
+                Image = "/images/collective-members/night-collective.jpg",
+                Position = "Curator",
+                Quote = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms."
             });
         });
     }
