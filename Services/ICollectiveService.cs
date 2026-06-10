@@ -1,11 +1,12 @@
-using Night.Models;
 using Night.ViewModels;
 
 namespace Night.Services;
 
 public interface ICollectiveService
 {
-    HomeIndexViewModel GetHomePageContent();
+    Task<HomeIndexViewModel> GetHomePageContentAsync();
 
-    IReadOnlyCollection<CollectiveMember> GetCollectiveMembers();
+    Task<IReadOnlyCollection<CollectiveMemberViewModel>> GetCollectiveMembersAsync();
+
+    Task<EventBasicInfoViewModel?> GetNextUpcomingEventBasicInfoAsync();
 }

@@ -6,34 +6,46 @@ namespace Night.Repositories;
 
 public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveRepository
 {
-    public IReadOnlyCollection<CollectiveProject> GetFeaturedProjects()
+    public async Task<IReadOnlyCollection<CollectiveProject>> GetFeaturedProjectsAsync()
     {
-        return dbContext.CollectiveProjects
+        return await dbContext.CollectiveProjects
             .AsNoTracking()
             .OrderBy(project => project.Id)
-            .ToList();
+            .ToListAsync();
     }
 
-    public IReadOnlyCollection<CollectiveEvent> GetUpcomingEvents()
+    public async Task<IReadOnlyCollection<CollectiveEvent>> GetUpcomingEventsAsync(DateTime fromDate)
     {
-        return dbContext.CollectiveEvents
+        return await dbContext.CollectiveEvents
             .AsNoTracking()
-            .OrderBy(collectiveEvent => collectiveEvent.Id)
-            .ToList();
+            .Where(collectiveEvent => collectiveEvent.Date >= fromDate.Date)
+            .OrderBy(collectiveEvent => collectiveEvent.Date)
+            .ThenBy(collectiveEvent => collectiveEvent.Title)
+            .ToListAsync();
     }
 
-    public IReadOnlyCollection<CollectiveMember> GetCollectiveMembers()
+    public async Task<CollectiveEvent?> GetNextUpcomingEventAsync(DateTime fromDate)
+    {
+        return await dbContext.CollectiveEvents
+            .AsNoTracking()
+            .Where(collectiveEvent => collectiveEvent.Date >= fromDate.Date)
+            .OrderBy(collectiveEvent => collectiveEvent.Date)
+            .ThenBy(collectiveEvent => collectiveEvent.Title)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<IReadOnlyCollection<CollectiveMember>> GetCollectiveMembersAsync()
     {
         int pageSize = 10;
-        int pageNumber = 0; 
+        int pageNumber = 0;
 
-        return dbContext.CollectiveMembers
+        return await dbContext.CollectiveMembers
             .AsNoTracking()
             .Include(member => member.Games)
             .AsSplitQuery()
             .OrderBy(member => member.Id)
             .Skip(pageNumber * pageSize)
             .Take(pageSize)
-            .ToList();
+            .ToListAsync();
     }
 }

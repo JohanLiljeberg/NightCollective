@@ -8,7 +8,7 @@ builder.Services.AddNightCollectiveServices(builder.Configuration);
 
 var app = builder.Build();
 
-app.EnsureNightCollectiveDatabase();
+await app.EnsureNightCollectiveDatabaseAsync();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
