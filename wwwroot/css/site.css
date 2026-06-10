@@ -164,3 +164,25 @@ body {
 .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+.collective-member-card {
+  background: var(--night-card);
+  border: 1px solid var(--night-border) !important;
+  border-radius: 1rem;
+  box-shadow: 0 1rem 2.5rem rgba(47, 12, 111, 0.12);
+  color: var(--night-text);
+}
+
+.collective-member-image {
+  aspect-ratio: 4 / 3;
+  background:
+    radial-gradient(circle at 25% 20%, rgba(218, 212, 237, 0.95), transparent 28%),
+    linear-gradient(135deg, rgba(75, 25, 163, 0.92), rgba(47, 12, 111, 0.9));
+  object-fit: cover;
+}
+
+.collective-member-quote {
+  border-left: 0.25rem solid var(--night-purple-soft);
+  color: var(--night-muted);
+  padding-left: 1rem;
+}

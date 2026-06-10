@@ -1,0 +1,33 @@
+@model Night.Models.CollectiveMember
+
+<article class="collective-member-card card h-100 border-0 overflow-hidden">
+    <img class="collective-member-image card-img-top" src="@Model.Image" alt="Portrait or artwork for @Model.Name" />
+    <div class="card-body d-flex flex-column p-4">
+        <p class="eyebrow mb-2">Collective member</p>
+        <h2 class="h4 card-title mb-2">@Model.Name</h2>
+        <p class="text-accent fw-semibold mb-3">@Model.Position</p>
+        <blockquote class="collective-member-quote mb-4">
+            <p class="mb-0">“@Model.Quote”</p>
+        </blockquote>
+
+        <div class="mt-auto">
+            <h3 class="h6 text-uppercase text-muted mb-2">Games</h3>
+            @if (Model.Games.Any())
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var game in Model.Games)
+                    {
+                        <li class="d-flex justify-content-between gap-3 border-top py-2">
+                            <span>@game.Title</span>
+                            <span class="text-muted">@game.ReleaseYear</span>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted mb-0">No games listed yet.</p>
+            }
+        </div>
+    </div>
+</article>
