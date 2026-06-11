@@ -5,7 +5,7 @@
 namespace Night.Migrations
 {
     /// <inheritdoc />
-    public partial class members : Migration
+    public partial class Members : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
