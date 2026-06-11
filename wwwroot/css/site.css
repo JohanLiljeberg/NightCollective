@@ -186,3 +186,43 @@ body {
   color: var(--night-muted);
   padding-left: 1rem;
 }
+
+.next-event-notice {
+  background: rgba(47, 12, 111, 0.95);
+  border-bottom: 1px solid rgba(253, 253, 237, 0.22);
+  color: var(--night-cream);
+}
+
+.next-event-notice .eyebrow,
+.next-event-notice .next-event-link {
+  color: var(--night-cream);
+}
+
+.next-event-link {
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.next-event-link:hover {
+  color: var(--night-lavender);
+}
+
+.event-card-image {
+  aspect-ratio: 16 / 9;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(218, 212, 237, 0.96), transparent 28%),
+    linear-gradient(135deg, rgba(75, 25, 163, 0.9), rgba(47, 12, 111, 0.88));
+  object-fit: cover;
+}
+
+.event-detail-image {
+  aspect-ratio: 21 / 9;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(218, 212, 237, 0.96), transparent 28%),
+    linear-gradient(135deg, rgba(75, 25, 163, 0.9), rgba(47, 12, 111, 0.88));
+  object-fit: cover;
+}
+
+.event-form .form-control {
+  border-color: var(--night-border);
+}

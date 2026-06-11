@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Games as Art Showcase event artwork</title>
+  <desc id="desc">Gallery frames and glowing pixels on a lavender background.</desc>
+  <rect width="1200" height="675" fill="#dad4ed"/>
+  <rect x="80" y="80" width="1040" height="515" rx="42" fill="#fdfded" opacity=".88"/>
+  <rect x="150" y="150" width="250" height="250" rx="18" fill="#4b19a3"/>
+  <rect x="475" y="135" width="250" height="280" rx="18" fill="#6b35c3"/>
+  <rect x="800" y="150" width="250" height="250" rx="18" fill="#2f0c6f"/>
+  <circle cx="275" cy="275" r="65" fill="#fdfded" opacity=".9"/>
+  <path d="M525 350 L600 210 L675 350 Z" fill="#fdfded" opacity=".9"/>
+  <rect x="880" y="225" width="90" height="90" fill="#fdfded" opacity=".9"/>
+  <text x="120" y="610" fill="#2f0c6f" font-family="Arial, sans-serif" font-size="58" font-weight="700">Games as Art Showcase</text>
+</svg>

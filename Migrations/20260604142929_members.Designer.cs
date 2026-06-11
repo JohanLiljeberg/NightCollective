@@ -12,7 +12,7 @@ namespace Night.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20260604142929_members")]
-    partial class members
+    partial class Members
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -267,7 +267,7 @@ namespace Night.Migrations
                 {
                     b.Navigation("Games");
                 });
-#pragma warning restore 612, 618
+
         }
     }
 }

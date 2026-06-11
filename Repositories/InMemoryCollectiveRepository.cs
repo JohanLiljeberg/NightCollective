@@ -33,17 +33,21 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
     [
         new CollectiveEvent
         {
+            Id = 1,
             Title = "Monthly Play Salon",
-            DateLabel = "First Friday",
+            Date = new DateTime(2026, 7, 3),
             Location = "Online + local pop-up",
-            Description = "A gentle critique circle for prototypes, visual experiments, and strange playable ideas."
+            Description = "A gentle critique circle for prototypes, visual experiments, and strange playable ideas.",
+            ImageUrl = "/images/events/monthly-gamejam.svg"
         },
         new CollectiveEvent
         {
+            Id = 2,
             Title = "Games as Art Showcase",
-            DateLabel = "Summer 2026",
+            Date = new DateTime(2026, 8, 14),
             Location = "Community gallery",
-            Description = "A curated evening celebrating independent game creation, installations, talks, and live demos."
+            Description = "A curated evening celebrating independent game creation, installations, talks, and live demos.",
+            ImageUrl = "/images/events/games-as-art-showcase.svg"
         }
     ];
 
@@ -59,9 +63,27 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
         }
     ];
 
-    public IReadOnlyCollection<CollectiveProject> GetFeaturedProjects() => FeaturedProjects;
+    public Task<IReadOnlyCollection<CollectiveProject>> GetFeaturedProjectsAsync() => Task.FromResult(FeaturedProjects);
 
-    public IReadOnlyCollection<CollectiveEvent> GetUpcomingEvents() => UpcomingEvents;
+    public Task<IReadOnlyCollection<CollectiveEvent>> GetUpcomingEventsAsync(DateTime fromDate)
+    {
+        var events = UpcomingEvents
+            .Where(collectiveEvent => collectiveEvent.Date >= fromDate.Date)
+            .OrderBy(collectiveEvent => collectiveEvent.Date)
+            .ToList();
 
-    public IReadOnlyCollection<CollectiveMember> GetCollectiveMembers() => CollectiveMembers;
+        return Task.FromResult<IReadOnlyCollection<CollectiveEvent>>(events);
+    }
+
+    public Task<CollectiveEvent?> GetNextUpcomingEventAsync(DateTime fromDate)
+    {
+        var collectiveEvent = UpcomingEvents
+            .Where(item => item.Date >= fromDate.Date)
+            .OrderBy(item => item.Date)
+            .FirstOrDefault();
+
+        return Task.FromResult(collectiveEvent);
+    }
+
+    public Task<IReadOnlyCollection<CollectiveMember>> GetCollectiveMembersAsync() => Task.FromResult(CollectiveMembers);
 }

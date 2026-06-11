@@ -54,26 +54,28 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<CollectiveEvent>(entity =>
         {
             entity.Property(collectiveEvent => collectiveEvent.Title).HasMaxLength(120).IsRequired();
-            entity.Property(collectiveEvent => collectiveEvent.DateLabel).HasMaxLength(80).IsRequired();
-            entity.Property(collectiveEvent => collectiveEvent.Description).HasMaxLength(600).IsRequired();
             entity.Property(collectiveEvent => collectiveEvent.Location).HasMaxLength(160).IsRequired();
+            entity.Property(collectiveEvent => collectiveEvent.Description).HasMaxLength(600).IsRequired();
+            entity.Property(collectiveEvent => collectiveEvent.ImageUrl).HasMaxLength(240).IsRequired();
 
             entity.HasData(
                 new CollectiveEvent
                 {
                     Id = 1,
                     Title = "Monthly Gamejam",
-                    DateLabel = "Friday",
+                    Date = new DateTime(2026, 7, 3),
                     Location = "Online + local pop-up",
-                    Description = "A monthly gamejam that anyone can join. New promt everytime!"
+                    Description = "A monthly gamejam that anyone can join. New promt everytime!",
+                    ImageUrl = "/images/events/monthly-gamejam.svg"
                 },
                 new CollectiveEvent
                 {
                     Id = 2,
                     Title = "Games as Art Showcase",
-                    DateLabel = "Summer 2026",
+                    Date = new DateTime(2026, 8, 14),
                     Location = "Community gallery",
-                    Description = "A curated evening celebrating independent game creation, installations, talks, and live demos."
+                    Description = "A curated evening celebrating independent game creation, installations, talks, and live demos.",
+                    ImageUrl = "/images/events/games-as-art-showcase.svg"
                 });
         });
 

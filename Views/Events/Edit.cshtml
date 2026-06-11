@@ -1,0 +1,14 @@
+@model Night.ViewModels.EventFormViewModel
+@{
+    ViewData["Title"] = "Edit Event";
+}
+
+<section class="content-card rounded-4 p-4 p-lg-5 mb-5" aria-labelledby="edit-event-heading">
+    <p class="eyebrow mb-1">Public action</p>
+    <h1 id="edit-event-heading" class="display-6 fw-bold mb-4">Edit event</h1>
+    <partial name="_EventForm" model="Model" />
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
