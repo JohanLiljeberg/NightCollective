@@ -56,9 +56,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(collectiveEvent => collectiveEvent.Title).HasMaxLength(120).IsRequired();
             entity.Property(collectiveEvent => collectiveEvent.Location).HasMaxLength(160).IsRequired();
             entity.Property(collectiveEvent => collectiveEvent.Description).HasMaxLength(600).IsRequired();
-            entity.Property(collectiveEvent => collectiveEvent.ImageUrl).HasMaxLength(240).IsRequired();
+            entity.Property(collectiveEvent => collectiveEvent.ImageSmallUrl).HasMaxLength(240);
+            entity.Property(collectiveEvent => collectiveEvent.ImageMediumUrl).HasMaxLength(240);
+            entity.Property(collectiveEvent => collectiveEvent.ImageLargeUrl).HasMaxLength(240);
 
-            entity.HasData(
+                entity.HasData(
                 new CollectiveEvent
                 {
                     Id = 1,
@@ -66,7 +68,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                     Date = new DateTime(2026, 7, 3),
                     Location = "Online + local pop-up",
                     Description = "A monthly gamejam that anyone can join. New promt everytime!",
-                    ImageUrl = "/images/events/monthly-gamejam.svg"
+                    ImageSmallUrl = "/images/events/monthly-gamejam/monthly-gamejam_sm.webp",
+                    ImageMediumUrl = "/images/events/monthly-gamejam/monthly-gamejam_md.webp",
+                    ImageLargeUrl = "/images/events/monthly-gamejam/monthly-gamejam_lg.webp"
                 },
                 new CollectiveEvent
                 {
@@ -75,7 +79,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                     Date = new DateTime(2026, 8, 14),
                     Location = "Community gallery",
                     Description = "A curated evening celebrating independent game creation, installations, talks, and live demos.",
-                    ImageUrl = "/images/events/games-as-art-showcase.svg"
+                    ImageSmallUrl = "/images/events/games-as-art-showcase/games-as-art-showcase_sm.webp",
+                    ImageMediumUrl = "/images/events/games-as-art-showcase/games-as-art-showcase_md.webp",
+                    ImageLargeUrl = "/images/events/games-as-art-showcase/games-as-art-showcase_lg.webp"
                 });
         });
 

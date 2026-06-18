@@ -4,8 +4,9 @@ using Night.ViewModels;
 
 namespace Night.Services;
 
-public class EventService(IEventRepository eventRepository) : IEventService
+public class EventService(IEventRepository eventRepository, IImageService imageService) : IEventService
 {
+    private readonly IImageService _imageService = imageService;
     public async Task<IReadOnlyCollection<EventViewModel>> GetUpcomingEventsAsync()
     {
         return (await eventRepository.GetUpcomingAsync(DateTime.Today)).Select(MapEvent).ToList();
@@ -32,12 +33,12 @@ public class EventService(IEventRepository eventRepository) : IEventService
 
     public async Task CreateEventAsync(EventFormViewModel viewModel)
     {
-        await eventRepository.AddAsync(MapEntity(viewModel));
+        await eventRepository.AddAsync(await MapEntity(viewModel));
     }
 
     public async Task UpdateEventAsync(EventFormViewModel viewModel)
     {
-        await eventRepository.UpdateAsync(MapEntity(viewModel));
+        await eventRepository.UpdateAsync(await MapEntity(viewModel));
     }
 
     public async Task DeleteEventAsync(int id)
@@ -54,7 +55,9 @@ public class EventService(IEventRepository eventRepository) : IEventService
             Date = collectiveEvent.Date,
             Location = collectiveEvent.Location,
             Description = collectiveEvent.Description,
-            ImageUrl = collectiveEvent.ImageUrl
+            ImageSmallUrl = collectiveEvent.ImageSmallUrl ?? string.Empty,
+            ImageMediumUrl = collectiveEvent.ImageMediumUrl ?? string.Empty,
+            ImageLargeUrl = collectiveEvent.ImageLargeUrl ?? string.Empty
         };
     }
 
@@ -67,12 +70,24 @@ public class EventService(IEventRepository eventRepository) : IEventService
             Date = collectiveEvent.Date,
             Location = collectiveEvent.Location,
             Description = collectiveEvent.Description,
-            ImageUrl = collectiveEvent.ImageUrl
+            ImageUrl = collectiveEvent.ImageMediumUrl ?? collectiveEvent.ImageSmallUrl ?? collectiveEvent.ImageLargeUrl ?? string.Empty
         };
     }
 
-    private static CollectiveEvent MapEntity(EventFormViewModel viewModel)
+    private async Task<CollectiveEvent> MapEntity(EventFormViewModel viewModel)
     {
+        var imageUrl = viewModel.ImageUrl;
+
+        if (viewModel.ImageFile is not null)
+        {
+            var sizes = await _imageService.UploadImageAsync(viewModel.ImageFile, ImageType.Events);
+            if (sizes is not null)
+            {
+                // prefer medium URL for listing
+                imageUrl = sizes.MediumUrl;
+            }
+        }
+
         return new CollectiveEvent
         {
             Id = viewModel.Id,
@@ -80,7 +95,9 @@ public class EventService(IEventRepository eventRepository) : IEventService
             Date = viewModel.Date,
             Location = viewModel.Location,
             Description = viewModel.Description,
-            ImageUrl = viewModel.ImageUrl
+            ImageSmallUrl = null,
+            ImageMediumUrl = imageUrl,
+            ImageLargeUrl = null
         };
     }
 }

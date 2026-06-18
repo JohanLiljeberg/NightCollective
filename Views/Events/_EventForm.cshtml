@@ -1,6 +1,6 @@
 @model Night.ViewModels.EventFormViewModel
 
-<form asp-controller="Events" method="post" class="event-form">
+<form asp-controller="Events" method="post" class="event-form" enctype="multipart/form-data">
     <input asp-for="Id" type="hidden" />
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
@@ -30,7 +30,8 @@
 
     <div class="mb-4">
         <label asp-for="ImageUrl" class="form-label"></label>
-        <input asp-for="ImageUrl" class="form-control" placeholder="/images/events/example.svg" />
+        <input asp-for="ImageUrl" class="form-control mb-2" placeholder="/images/events/example.svg" />
+        <input asp-for="ImageFile" type="file" class="form-control" />
         <span asp-validation-for="ImageUrl" class="text-danger"></span>
     </div>
 
