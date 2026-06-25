@@ -76,15 +76,30 @@ public class EventService(IEventRepository eventRepository, IImageService imageS
 
     private async Task<CollectiveEvent> MapEntity(EventFormViewModel viewModel)
     {
-        var imageUrl = viewModel.ImageUrl;
+        string? smallUrl = null;
+        string? mediumUrl = null;
+        string? largeUrl = null;
 
-        if (viewModel.ImageFile is not null)
+        if (viewModel.ImageFile is not null && viewModel.ImageFile.Length > 0)
         {
+            // File upload takes precedence
             var sizes = await _imageService.UploadImageAsync(viewModel.ImageFile, ImageType.Events);
             if (sizes is not null)
             {
-                // prefer medium URL for listing
-                imageUrl = sizes.MediumUrl;
+                smallUrl = sizes.SmallUrl;
+                mediumUrl = sizes.MediumUrl;
+                largeUrl = sizes.LargeUrl;
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(viewModel.ImageUrl))
+        {
+            // Download URL and process into 3 sizes
+            var sizes = await _imageService.DownloadAndProcessUrlAsync(viewModel.ImageUrl, ImageType.Events);
+            if (sizes is not null)
+            {
+                smallUrl = sizes.SmallUrl;
+                mediumUrl = sizes.MediumUrl;
+                largeUrl = sizes.LargeUrl;
             }
         }
 
@@ -95,9 +110,9 @@ public class EventService(IEventRepository eventRepository, IImageService imageS
             Date = viewModel.Date,
             Location = viewModel.Location,
             Description = viewModel.Description,
-            ImageSmallUrl = null,
-            ImageMediumUrl = imageUrl,
-            ImageLargeUrl = null
+            ImageSmallUrl = smallUrl,
+            ImageMediumUrl = mediumUrl,
+            ImageLargeUrl = largeUrl
         };
     }
 }

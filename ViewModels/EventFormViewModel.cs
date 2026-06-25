@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
+using Night.Validators;
 
 namespace Night.ViewModels;
 
@@ -7,28 +8,24 @@ public class EventFormViewModel
 {
     public int Id { get; init; }
 
-    [Required]
     [StringLength(120)]
     public string Title { get; init; } = string.Empty;
 
-    [Required]
     [DataType(DataType.Date)]
+    [FutureDate]
     public DateTime Date { get; init; } = DateTime.Today;
 
-    [Required]
     [StringLength(160)]
     public string Location { get; init; } = string.Empty;
 
-    [Required]
     [StringLength(600)]
     [DataType(DataType.MultilineText)]
     public string Description { get; init; } = string.Empty;
 
-    // Either provide an image file upload or an ImageUrl. Both are optional but one should be supplied when creating an event.
-    [StringLength(240)]
+    // Either file upload or URL (validated in controller, not via attribute)
     [Display(Name = "Image URL or path")]
-    public string ImageUrl { get; init; } = string.Empty;
+    public string? ImageUrl { get; init; }
 
-    // Optional file upload for event image. The form will send multipart/form-data when a file is included.
+    [Display(Name = "Upload image file")]
     public IFormFile? ImageFile { get; init; }
 }

@@ -12,6 +12,7 @@
     public interface IImageService
     { 
         Task<ImageSizeUrls?> UploadImageAsync(IFormFile? file, ImageType type);
+        Task<ImageSizeUrls?> DownloadAndProcessUrlAsync(string imageUrl, ImageType type);
         void DeleteImage(ImageSizeUrls relativeUrl);
     }
 }

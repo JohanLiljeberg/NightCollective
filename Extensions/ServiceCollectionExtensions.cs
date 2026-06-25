@@ -20,7 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICollectiveService, CollectiveService>();
         services.AddScoped<IEventService, EventService>();
         services.AddScoped<IDatabaseInitializerService, DatabaseInitializerService>();
-        services.AddSingleton<IImageService, ImageService>();
+        services.AddHttpClient<IImageService, ImageService>();
 
         return services;
     }
