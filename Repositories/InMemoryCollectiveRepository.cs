@@ -38,7 +38,9 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
             Date = new DateTime(2026, 7, 3),
             Location = "Online + local pop-up",
             Description = "A gentle critique circle for prototypes, visual experiments, and strange playable ideas.",
-            ImageUrl = "/images/events/monthly-gamejam.svg"
+            ImageSmallUrl = "/images/events/monthly-gamejam/monthly-gamejam_sm.webp",
+            ImageMediumUrl = "/images/events/monthly-gamejam/monthly-gamejam_md.webp",
+            ImageLargeUrl = "/images/events/monthly-gamejam/monthly-gamejam_lg.webp"
         },
         new CollectiveEvent
         {
@@ -47,7 +49,9 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
             Date = new DateTime(2026, 8, 14),
             Location = "Community gallery",
             Description = "A curated evening celebrating independent game creation, installations, talks, and live demos.",
-            ImageUrl = "/images/events/games-as-art-showcase.svg"
+            ImageSmallUrl = "/images/events/games-as-art-showcase/games-as-art-showcase_sm.webp",
+            ImageMediumUrl = "/images/events/games-as-art-showcase/games-as-art-showcase_md.webp",
+            ImageLargeUrl = "/images/events/games-as-art-showcase/games-as-art-showcase_lg.webp"
         }
     ];
 

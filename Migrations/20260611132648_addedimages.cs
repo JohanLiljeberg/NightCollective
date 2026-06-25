@@ -29,19 +29,40 @@ namespace Night.Migrations
                 nullable: false,
                 defaultValue: false);
 
+            migrationBuilder.AddColumn<string>(
+                name: "ImageSmallUrl",
+                table: "CollectiveEvents",
+                type: "nvarchar(240)",
+                maxLength: 240,
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "ImageMediumUrl",
+                table: "CollectiveEvents",
+                type: "nvarchar(240)",
+                maxLength: 240,
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "ImageLargeUrl",
+                table: "CollectiveEvents",
+                type: "nvarchar(240)",
+                maxLength: 240,
+                nullable: true);
+
             migrationBuilder.UpdateData(
                 table: "CollectiveEvents",
                 keyColumn: "Id",
                 keyValue: 1,
-                column: "IsArchived",
-                value: false);
+                columns: new[] { "IsArchived", "ImageSmallUrl", "ImageMediumUrl", "ImageLargeUrl" },
+                values: new object[] { false, "/images/events/monthly-gamejam/monthly-gamejam_sm.webp", "/images/events/monthly-gamejam/monthly-gamejam_md.webp", "/images/events/monthly-gamejam/monthly-gamejam_lg.webp" });
 
             migrationBuilder.UpdateData(
                 table: "CollectiveEvents",
                 keyColumn: "Id",
                 keyValue: 2,
-                column: "IsArchived",
-                value: false);
+                columns: new[] { "IsArchived", "ImageSmallUrl", "ImageMediumUrl", "ImageLargeUrl" },
+                values: new object[] { false, "/images/events/games-as-art-showcase/games-as-art-showcase_sm.webp", "/images/events/games-as-art-showcase/games-as-art-showcase_md.webp", "/images/events/games-as-art-showcase/games-as-art-showcase_lg.webp" });
 
             migrationBuilder.UpdateData(
                 table: "Developers",
@@ -84,6 +105,18 @@ namespace Night.Migrations
 
             migrationBuilder.DropColumn(
                 name: "IsArchived",
+                table: "CollectiveEvents");
+
+            migrationBuilder.DropColumn(
+                name: "ImageSmallUrl",
+                table: "CollectiveEvents");
+
+            migrationBuilder.DropColumn(
+                name: "ImageMediumUrl",
+                table: "CollectiveEvents");
+
+            migrationBuilder.DropColumn(
+                name: "ImageLargeUrl",
                 table: "CollectiveEvents");
         }
     }

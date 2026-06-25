@@ -50,7 +50,9 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
             Date = collectiveEvent.Date,
             Location = collectiveEvent.Location,
             Description = collectiveEvent.Description,
-            ImageUrl = collectiveEvent.ImageUrl
+            ImageSmallUrl = collectiveEvent.ImageSmallUrl ?? string.Empty,
+            ImageMediumUrl = collectiveEvent.ImageMediumUrl ?? string.Empty,
+            ImageLargeUrl = collectiveEvent.ImageLargeUrl ?? string.Empty
         };
     }
 

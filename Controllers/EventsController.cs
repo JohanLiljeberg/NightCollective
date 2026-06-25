@@ -4,7 +4,7 @@ using Night.ViewModels;
 
 namespace Night.Controllers;
 
-public class EventsController(IEventService eventService) : Controller
+public class EventsController(IEventService eventService, IImageService imageService) : Controller
 {
     public async Task<IActionResult> Index()
     {

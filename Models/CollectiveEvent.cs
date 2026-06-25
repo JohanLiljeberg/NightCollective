@@ -12,7 +12,10 @@ public class CollectiveEvent
 
     public required string Description { get; set; }
 
-    public required string ImageUrl { get; set; }
+    // Responsive image URLs (small / medium / large)
+    public string? ImageSmallUrl { get; set; }
+    public string? ImageMediumUrl { get; set; }
+    public string? ImageLargeUrl { get; set; }
 
     public bool IsArchived { get; set; }
 }

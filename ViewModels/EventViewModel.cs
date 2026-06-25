@@ -16,5 +16,11 @@ public class EventViewModel
 
     public string Description { get; init; } = string.Empty;
 
-    public string ImageUrl { get; init; } = string.Empty;
+    // Responsive image URLs
+    public string ImageSmallUrl { get; init; } = string.Empty;
+    public string ImageMediumUrl { get; init; } = string.Empty;
+    public string ImageLargeUrl { get; init; } = string.Empty;
+
+    // Backwards compatible single URL (medium by default)
+    public string ImageUrl => ImageMediumUrl ?? ImageSmallUrl ?? ImageLargeUrl ?? string.Empty;
 }

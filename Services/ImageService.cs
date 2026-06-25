@@ -1,99 +1,103 @@
-﻿//using Microsoft.AspNetCore.Hosting;
-//using Microsoft.AspNetCore.Http;
-//using SixLabors.ImageSharp;
-//using SixLabors.ImageSharp.Processing;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
-//namespace Night.Services
-//{
-//    public class ImageService : IImageService
-//    {
-//        private readonly IWebHostEnvironment _environment;
+namespace Night.Services
+{
+    public class ImageService : IImageService
+    {
+        private readonly IWebHostEnvironment _environment;
 
-//        private const int WidthSmall = 400;
-//        private const int WidthMedium = 800;
-//        private const int WidthLarge = 1200;
-//        public ImageService(IWebHostEnvironment environment)
-//        {
-//            _environment = environment;
-//        }
+        private const int WidthSmall = 400;
+        private const int WidthMedium = 800;
+        private const int WidthLarge = 1200;
+        public ImageService(IWebHostEnvironment environment)
+        {
+            _environment = environment;
+        }
 
-//        public async Task<ImageSizeUrls?> UploadImageAsync(IFormFile? file, ImageType type)
-//        {
-//            if (file == null || file.Length == 0) return null;
+        public async Task<ImageSizeUrls?> UploadImageAsync(IFormFile? file, ImageType type)
+        {
+            if (file == null || file.Length == 0) return null;
 
-           
-//            string subFolder = type switch
-//            {
-//                ImageType.Games => "images/games",
-//                ImageType.Developers => "images/developers",
-//                ImageType.Events => "images/events",
-//                _ => "images/misc"
-//            };
 
-//            var targetFolder = Path.Combine(_environment.WebRootPath, subFolder);
-//            if (!Directory.Exists(targetFolder))
-//            {
-//                Directory.CreateDirectory(targetFolder);
-//            }
+            string subFolder = type switch
+            {
+                ImageType.Games => "images/games",
+                ImageType.Developers => "images/developers",
+                ImageType.Events => "images/events",
+                _ => "images/misc"
+            };
 
-         
-//            var baseFileName = Guid.NewGuid().ToString();
-//            var smallName = $"{baseFileName}_sm.webp";
-//            var mediumName = $"{baseFileName}_md.webp";
-//            var largeName = $"{baseFileName}_lg.webp";
+            var targetFolder = Path.Combine(_environment.WebRootPath, subFolder);
+            if (!Directory.Exists(targetFolder))
+            {
+                Directory.CreateDirectory(targetFolder);
+            }
 
-          
-//            using var stream = file.OpenReadStream();
-//            using var image = await Image.LoadAsync(stream);
 
-       
-//            await SaveResizedWebPAsync(image, Path.Combine(targetFolder, smallName), WidthSmall);
-//            await SaveResizedWebPAsync(image, Path.Combine(targetFolder, mediumName), WidthMedium);
-//            await SaveResizedWebPAsync(image, Path.Combine(targetFolder, largeName), WidthLarge);
+            var baseFileName = Guid.NewGuid().ToString();
+            // create a folder per image to contain the different sizes
+            var imageFolder = Path.Combine(targetFolder, baseFileName);
+            if (!Directory.Exists(imageFolder)) Directory.CreateDirectory(imageFolder);
 
-//            return new ImageSizeUrls(
-//                SmallUrl: $"/{subFolder}/{smallName}",
-//                MediumUrl: $"/{subFolder}/{mediumName}",
-//                LargeUrl: $"/{subFolder}/{largeName}"
-//            );
-//        }
+            var smallName = $"{baseFileName}_sm.webp";
+            var mediumName = $"{baseFileName}_md.webp";
+            var largeName = $"{baseFileName}_lg.webp";
 
-//        private async Task SaveResizedWebPAsync(Image sourceImage, string outputPath, int targetWidth)
-//        {
-        
-//            using var clonedImage = sourceImage.Clone(ctx =>
-//            {
-//                if (sourceImage.Width > targetWidth)
-//                {
-//                    ctx.Resize(new ResizeOptions
-//                    {
-                   
-//                        Size = new Size(targetWidth, 0),
-//                        Mode = ResizeMode.Max
-//                    });
-//                }
-//            });
 
- 
-//            await clonedImage.SaveAsWebpAsync(outputPath);
-//        }
+            using var stream = file.OpenReadStream();
+            using var image = await Image.LoadAsync(stream);
 
-//        public void DeleteImage(ImageSizeUrls? urls)
-//        {
-//            if (urls == null) return;
-//            DeleteFileFromUrl(urls.SmallUrl);
-//            DeleteFileFromUrl(urls.MediumUrl);
-//            DeleteFileFromUrl(urls.LargeUrl);
-//        }
 
-//        private void DeleteFileFromUrl(string? url)
-//        {
-//            if (string.IsNullOrEmpty(url)) return;
-//            var physicalPath = Path.Combine(_environment.WebRootPath, url.TrimStart('/'));
-//            if (File.Exists(physicalPath))
-//            {
-//                File.Delete(physicalPath);
-//            }
-//        }
-//    }
-//}
+            await SaveResizedWebPAsync(image, Path.Combine(imageFolder, smallName), WidthSmall);
+            await SaveResizedWebPAsync(image, Path.Combine(imageFolder, mediumName), WidthMedium);
+            await SaveResizedWebPAsync(image, Path.Combine(imageFolder, largeName), WidthLarge);
+
+            return new ImageSizeUrls(
+                SmallUrl: $"/{subFolder}/{baseFileName}/{smallName}",
+                MediumUrl: $"/{subFolder}/{baseFileName}/{mediumName}",
+                LargeUrl: $"/{subFolder}/{baseFileName}/{largeName}"
+            );
+        }
+
+        private async Task SaveResizedWebPAsync(Image sourceImage, string outputPath, int targetWidth)
+        {
+
+            using var clonedImage = sourceImage.Clone(ctx =>
+            {
+                if (sourceImage.Width > targetWidth)
+                {
+                    ctx.Resize(new ResizeOptions
+                    {
+
+                        Size = new Size(targetWidth, 0),
+                        Mode = ResizeMode.Max
+                    });
+                }
+            });
+
+
+            await clonedImage.SaveAsWebpAsync(outputPath);
+        }
+
+        public void DeleteImage(ImageSizeUrls? urls)
+        {
+            if (urls == null) return;
+            DeleteFileFromUrl(urls.SmallUrl);
+            DeleteFileFromUrl(urls.MediumUrl);
+            DeleteFileFromUrl(urls.LargeUrl);
+        }
+
+        private void DeleteFileFromUrl(string? url)
+        {
+            if (string.IsNullOrEmpty(url)) return;
+            var physicalPath = Path.Combine(_environment.WebRootPath, url.TrimStart('/'));
+            if (File.Exists(physicalPath))
+            {
+                File.Delete(physicalPath);
+            }
+        }
+    }
+}

@@ -1,7 +1,11 @@
 @model Night.ViewModels.EventViewModel
 
 <article class="event-card h-100 overflow-hidden rounded-4">
-    <img class="event-card-image w-100" src="@Model.ImageUrl" alt="Event artwork for @Model.Title" />
+    <picture>
+        <source media="(max-width: 575px)" srcset="@Model.ImageUrl.Replace("_md.webp", "_sm.webp")" />
+        <source media="(max-width: 991px)" srcset="@Model.ImageUrl" />
+        <img class="event-card-image w-100" src="@Model.ImageUrl" alt="Event artwork for @Model.Title" />
+    </picture>
     <div class="p-4">
         <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
             <div>
