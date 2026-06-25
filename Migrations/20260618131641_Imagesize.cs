@@ -10,30 +10,13 @@ namespace Night.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "ImageUrl",
-                table: "CollectiveEvents");
-
-            migrationBuilder.AddColumn<string>(
-                name: "ImageLargeUrl",
-                table: "CollectiveEvents",
-                type: "nvarchar(240)",
-                maxLength: 240,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "ImageMediumUrl",
-                table: "CollectiveEvents",
-                type: "nvarchar(240)",
-                maxLength: 240,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "ImageSmallUrl",
-                table: "CollectiveEvents",
-                type: "nvarchar(240)",
-                maxLength: 240,
-                nullable: true);
+            migrationBuilder.Sql(
+                """
+                IF COL_LENGTH(N'CollectiveEvents', N'ImageUrl') IS NOT NULL
+                BEGIN
+                    ALTER TABLE [CollectiveEvents] DROP COLUMN [ImageUrl];
+                END
+                """);
 
             migrationBuilder.UpdateData(
                 table: "CollectiveEvents",
@@ -53,25 +36,14 @@ namespace Night.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "ImageLargeUrl",
-                table: "CollectiveEvents");
-
-            migrationBuilder.DropColumn(
-                name: "ImageMediumUrl",
-                table: "CollectiveEvents");
-
-            migrationBuilder.DropColumn(
-                name: "ImageSmallUrl",
-                table: "CollectiveEvents");
-
-            migrationBuilder.AddColumn<string>(
-                name: "ImageUrl",
-                table: "CollectiveEvents",
-                type: "nvarchar(240)",
-                maxLength: 240,
-                nullable: false,
-                defaultValue: "");
+            migrationBuilder.Sql(
+                """
+                IF COL_LENGTH(N'CollectiveEvents', N'ImageUrl') IS NULL
+                BEGIN
+                    ALTER TABLE [CollectiveEvents] ADD [ImageUrl] nvarchar(240) NOT NULL CONSTRAINT [DF_CollectiveEvents_ImageUrl] DEFAULT N'';
+                    ALTER TABLE [CollectiveEvents] DROP CONSTRAINT [DF_CollectiveEvents_ImageUrl];
+                END
+                """);
 
             migrationBuilder.UpdateData(
                 table: "CollectiveEvents",
