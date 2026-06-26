@@ -1,0 +1,17 @@
+﻿@model ResponsiveImageModel
+
+<picture>
+    @if (!string.IsNullOrEmpty(Model.ImageLargeUrl))
+    {
+        <source srcset="@Model.ImageLargeUrl" media="(min-width: 1200px)" type="image/webp">
+        <source srcset="@Model.ImageMediumUrl" media="(min-width: 768px)" type="image/webp">
+    }
+    <source srcset="@Model.ImageSmallUrl ?? Model.Image" type="image/webp">
+
+    <img src="@(Model.ImageSmallUrl ?? Model.Image)"
+         class="img-fluid"
+         alt="@Model.AltText"
+         loading="lazy"
+         width="400" height="300"
+         style="aspect-ratio: 4/3; object-fit: cover;">
+</picture>

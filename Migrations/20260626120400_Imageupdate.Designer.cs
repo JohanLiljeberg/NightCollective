@@ -12,8 +12,8 @@ using Night.Data;
 namespace Night.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260611132648_addedimages")]
-    partial class addedimages
+    [Migration("20260626120400_Imageupdate")]
+    partial class Imageupdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,7 +50,6 @@ namespace Night.Migrations
                         .HasColumnType("nvarchar(240)");
 
                     b.Property<string>("ImageSmallUrl")
-                        .IsRequired()
                         .HasMaxLength(240)
                         .HasColumnType("nvarchar(240)");
 

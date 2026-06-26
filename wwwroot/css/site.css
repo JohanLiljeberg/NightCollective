@@ -226,3 +226,12 @@ body {
 .event-form .form-control {
   border-color: var(--night-border);
 }
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+.card-img-top {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}

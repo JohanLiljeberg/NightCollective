@@ -12,8 +12,8 @@ using Night.Data;
 namespace Night.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260611132648_addedimages")]
-    partial class addedimages
+    [Migration("20260626113157_responsiveImages")]
+    partial class responsiveImages
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,7 +50,6 @@ namespace Night.Migrations
                         .HasColumnType("nvarchar(240)");
 
                     b.Property<string>("ImageSmallUrl")
-                        .IsRequired()
                         .HasMaxLength(240)
                         .HasColumnType("nvarchar(240)");
 
@@ -108,6 +107,18 @@ namespace Night.Migrations
 
                     b.Property<string>("Image")
                         .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("nvarchar(240)");
+
+                    b.Property<string>("ImageLargeUrl")
+                        .HasMaxLength(240)
+                        .HasColumnType("nvarchar(240)");
+
+                    b.Property<string>("ImageMediumUrl")
+                        .HasMaxLength(240)
+                        .HasColumnType("nvarchar(240)");
+
+                    b.Property<string>("ImageSmallUrl")
                         .HasMaxLength(240)
                         .HasColumnType("nvarchar(240)");
 
@@ -267,6 +278,18 @@ namespace Night.Migrations
                     b.Property<string>("Image")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageLargeUrl")
+                        .HasMaxLength(240)
+                        .HasColumnType("nvarchar(240)");
+
+                    b.Property<string>("ImageMediumUrl")
+                        .HasMaxLength(240)
+                        .HasColumnType("nvarchar(240)");
+
+                    b.Property<string>("ImageSmallUrl")
+                        .HasMaxLength(240)
+                        .HasColumnType("nvarchar(240)");
 
                     b.Property<int>("Platforms")
                         .HasColumnType("int");
