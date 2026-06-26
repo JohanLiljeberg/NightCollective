@@ -18,19 +18,28 @@ namespace Night.Migrations
                 END
                 """);
 
+            // Optional: Update seed data (already in your migration)
             migrationBuilder.UpdateData(
                 table: "CollectiveEvents",
                 keyColumn: "Id",
                 keyValue: 1,
                 columns: new[] { "ImageLargeUrl", "ImageMediumUrl", "ImageSmallUrl" },
-                values: new object[] { "/images/events/monthly-gamejam/monthly-gamejam_lg.webp", "/images/events/monthly-gamejam/monthly-gamejam_md.webp", "/images/events/monthly-gamejam/monthly-gamejam_sm.webp" });
+                values: new object[] {
+            "/images/events/monthly-gamejam/monthly-gamejam_lg.webp",
+            "/images/events/monthly-gamejam/monthly-gamejam_md.webp",
+            "/images/events/monthly-gamejam/monthly-gamejam_sm.webp"
+                });
 
             migrationBuilder.UpdateData(
                 table: "CollectiveEvents",
                 keyColumn: "Id",
                 keyValue: 2,
                 columns: new[] { "ImageLargeUrl", "ImageMediumUrl", "ImageSmallUrl" },
-                values: new object[] { "/images/events/games-as-art-showcase/games-as-art-showcase_lg.webp", "/images/events/games-as-art-showcase/games-as-art-showcase_md.webp", "/images/events/games-as-art-showcase/games-as-art-showcase_sm.webp" });
+                values: new object[] {
+            "/images/events/games-as-art-showcase/games-as-art-showcase_lg.webp",
+            "/images/events/games-as-art-showcase/games-as-art-showcase_md.webp",
+            "/images/events/games-as-art-showcase/games-as-art-showcase_sm.webp"
+                });
         }
 
         /// <inheritdoc />

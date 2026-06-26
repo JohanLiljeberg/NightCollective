@@ -41,7 +41,15 @@ namespace Night.Migrations
                         .HasMaxLength(600)
                         .HasColumnType("nvarchar(600)");
 
-                    b.Property<string>("ImageUrl")
+                    b.Property<string>("ImageLargeUrl")
+                        .HasMaxLength(240)
+                        .HasColumnType("nvarchar(240)");
+
+                    b.Property<string>("ImageMediumUrl")
+                        .HasMaxLength(240)
+                        .HasColumnType("nvarchar(240)");
+
+                    b.Property<string>("ImageSmallUrl")
                         .IsRequired()
                         .HasMaxLength(240)
                         .HasColumnType("nvarchar(240)");
@@ -69,7 +77,9 @@ namespace Night.Migrations
                             Id = 1,
                             Date = new DateTime(2026, 7, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "A monthly gamejam that anyone can join. New promt everytime!",
-                            ImageUrl = "/images/events/monthly-gamejam.svg",
+                            ImageLargeUrl = "/images/events/monthly-gamejam/monthly-gamejam_lg.webp",
+                            ImageMediumUrl = "/images/events/monthly-gamejam/monthly-gamejam_md.webp",
+                            ImageSmallUrl = "/images/events/monthly-gamejam/monthly-gamejam_sm.webp",
                             IsArchived = false,
                             Location = "Online + local pop-up",
                             Title = "Monthly Gamejam"
@@ -79,7 +89,9 @@ namespace Night.Migrations
                             Id = 2,
                             Date = new DateTime(2026, 8, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "A curated evening celebrating independent game creation, installations, talks, and live demos.",
-                            ImageUrl = "/images/events/games-as-art-showcase.svg",
+                            ImageLargeUrl = "/images/events/games-as-art-showcase/games-as-art-showcase_lg.webp",
+                            ImageMediumUrl = "/images/events/games-as-art-showcase/games-as-art-showcase_md.webp",
+                            ImageSmallUrl = "/images/events/games-as-art-showcase/games-as-art-showcase_sm.webp",
                             IsArchived = false,
                             Location = "Community gallery",
                             Title = "Games as Art Showcase"

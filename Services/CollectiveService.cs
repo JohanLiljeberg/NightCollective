@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Night.Models;
 using Night.Repositories;
 using Night.ViewModels;
@@ -71,35 +72,41 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
 
     public async Task<EventBasicInfoViewModel?> GetNextUpcomingEventBasicInfoAsync()
     {
-        var collectiveEvent = await collectiveRepository.GetNextUpcomingEventAsync(DateTime.Today);
+        var members = (await collectiveRepository.GetCollectiveMembersAsync()).Select(MapMember).ToList();
+        var games = (await collectiveRepository.GetGamesAsync()).Select(MapGame).ToList();
 
-        return collectiveEvent is null ? null : MapEventBasicInfo(collectiveEvent);
-    }
-
-    private static ProjectCardViewModel MapProject(CollectiveProject project)
-    {
-        return new ProjectCardViewModel
+        return new MembersPageViewModel
         {
-            Title = project.Title,
-            Creator = project.Creator,
-            Medium = project.Medium,
-            Description = project.Description
+            Members = members,
+            Games = games,
+            MemberOptions = members.Select(member => new SelectListItem(member.Name, member.Id.ToString())).ToList(),
+            GameForm = new GameFormViewModel { CollectiveMemberId = members.FirstOrDefault()?.Id ?? 0 }
         };
     }
 
-    private static EventViewModel MapEvent(CollectiveEvent collectiveEvent)
+    public async Task AddCollectiveMemberAsync(CollectiveMemberFormViewModel viewModel)
     {
-        return new EventViewModel
+        await collectiveRepository.AddCollectiveMemberAsync(new CollectiveMember
         {
-            Id = collectiveEvent.Id,
-            Title = collectiveEvent.Title,
-            Date = collectiveEvent.Date,
-            Location = collectiveEvent.Location,
-            Description = collectiveEvent.Description,
-            ImageSmallUrl = collectiveEvent.ImageSmallUrl ?? string.Empty,
-            ImageMediumUrl = collectiveEvent.ImageMediumUrl ?? string.Empty,
-            ImageLargeUrl = collectiveEvent.ImageLargeUrl ?? string.Empty
-        };
+            Name = viewModel.Name,
+            Image = viewModel.Image,
+            Position = viewModel.Position,
+            Quote = viewModel.Quote
+        });
+    }
+
+    public async Task UpdateCollectiveMemberAsync(CollectiveMemberFormViewModel viewModel)
+    {
+        if (viewModel.Id is null) return;
+
+        await collectiveRepository.UpdateCollectiveMemberAsync(new CollectiveMember
+        {
+            Id = viewModel.Id.Value,
+            Name = viewModel.Name,
+            Image = viewModel.Image,
+            Position = viewModel.Position,
+            Quote = viewModel.Quote
+        });
     }
 
     private static GameViewModel MapGame(Game game)
@@ -125,15 +132,10 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
 
     private static EventBasicInfoViewModel MapEventBasicInfo(CollectiveEvent collectiveEvent)
     {
-        return new EventBasicInfoViewModel
-        {
-            Id = collectiveEvent.Id,
-            Title = collectiveEvent.Title,
-            Date = collectiveEvent.Date
-        };
+        await collectiveRepository.AddGameAsync(MapGameForm(viewModel), viewModel.CollectiveMemberId);
     }
 
-    private static CollectiveMemberViewModel MapMember(CollectiveMember member)
+    public async Task UpdateGameAsync(GameFormViewModel viewModel)
     {
         return new CollectiveMemberViewModel
         {
@@ -144,4 +146,66 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
             Games = member.Games.Select(MapGame).ToList()
         };
     }
+
+    private static ProjectCardViewModel MapProject(CollectiveProject project) => new()
+    {
+        Title = project.Title,
+        Creator = project.Creator,
+        Medium = project.Medium,
+        Description = project.Description
+    };
+
+    private static EventViewModel MapEvent(CollectiveEvent collectiveEvent) => new()
+    {
+        Id = collectiveEvent.Id,
+        Title = collectiveEvent.Title,
+        Date = collectiveEvent.Date,
+        Location = collectiveEvent.Location,
+        Description = collectiveEvent.Description,
+        ImageSmallUrl = collectiveEvent.ImageSmallUrl ?? string.Empty,
+        ImageMediumUrl = collectiveEvent.ImageMediumUrl ?? string.Empty,
+        ImageLargeUrl = collectiveEvent.ImageLargeUrl ?? string.Empty
+    };
+
+    private static EventBasicInfoViewModel MapEventBasicInfo(CollectiveEvent collectiveEvent) => new()
+    {
+        Id = collectiveEvent.Id,
+        Title = collectiveEvent.Title,
+        Date = collectiveEvent.Date
+    };
+
+    private static CollectiveMemberViewModel MapMember(CollectiveMember member) => new()
+    {
+        Id = member.Id,
+        Name = member.Name,
+        Image = member.Image,
+        Position = member.Position,
+        Quote = member.Quote,
+        Games = member.Games.Select(MapGame).ToList()
+    };
+
+    private static GameViewModel MapGame(Game game) => new()
+    {
+        Id = game.Id,
+        Title = game.Title,
+        ReleaseYear = game.ReleaseYear,
+        Image = game.Image,
+        DeveloperPublisher = game.DeveloperPublisher,
+        Platforms = game.Platforms.ToString(),
+        GenreGameplayType = game.GenreGameplayType.ToString(),
+        FromCollective = game.FromCollective,
+        CollectiveMemberId = game.CollectiveMemberId,
+        CollectiveMemberName = game.CollectiveMember?.Name ?? string.Empty
+    };
+
+    private static Game MapGameForm(GameFormViewModel viewModel) => new()
+    {
+        Title = viewModel.Title,
+        Image = viewModel.Image,
+        ReleaseYear = viewModel.ReleaseYear,
+        DeveloperPublisher = viewModel.DeveloperPublisher,
+        Platforms = viewModel.Platforms,
+        GenreGameplayType = viewModel.GenreGameplayType,
+        FromCollective = viewModel.FromCollective
+    };
 }

@@ -7,6 +7,9 @@
         public string Title { get; set; } = string.Empty;
 
         public string Image { get; set; } = string.Empty;
+        public string? ImageSmallUrl { get; set; }
+        public string? ImageMediumUrl { get; set; }
+        public string? ImageLargeUrl { get; set; }
 
         public int ReleaseYear { get; set; } 
 
@@ -17,6 +20,10 @@
         public genreGameplayType GenreGameplayType { get; set; } = genreGameplayType.Action;
 
         public bool FromCollective{ get; set; }  
+
+        public int? CollectiveMemberId { get; set; }
+
+        public CollectiveMember? CollectiveMember { get; set; }
     }
 
    public enum Platforms

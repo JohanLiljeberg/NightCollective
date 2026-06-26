@@ -55,7 +55,7 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
         }
     ];
 
-    private static readonly IReadOnlyCollection<CollectiveMember> CollectiveMembers =
+    private static readonly List<CollectiveMember> CollectiveMembers =
     [
         new CollectiveMember
         {

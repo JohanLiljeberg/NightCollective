@@ -36,16 +36,11 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
 
     public async Task<IReadOnlyCollection<CollectiveMember>> GetCollectiveMembersAsync()
     {
-        int pageSize = 10;
-        int pageNumber = 0;
-
         return await dbContext.CollectiveMembers
             .AsNoTracking()
             .Include(member => member.Games)
             .AsSplitQuery()
-            .OrderBy(member => member.Id)
-            .Skip(pageNumber * pageSize)
-            .Take(pageSize)
+            .OrderBy(member => member.Name)
             .ToListAsync();
     }
 

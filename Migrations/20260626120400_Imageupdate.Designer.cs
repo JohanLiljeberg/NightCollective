@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Night.Data;
 
@@ -11,9 +12,11 @@ using Night.Data;
 namespace Night.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260626120400_Imageupdate")]
+    partial class Imageupdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,15 +109,6 @@ namespace Night.Migrations
                         .IsRequired()
                         .HasMaxLength(240)
                         .HasColumnType("nvarchar(240)");
-
-                    b.Property<string>("ImageLargeUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageMediumUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageSmallUrl")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -253,13 +247,15 @@ namespace Night.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CollectiveMemberId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("DeveloperId")
                         .HasColumnType("int");
 
                     b.Property<string>("DeveloperPublisher")
                         .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("FromCollective")
                         .HasColumnType("bit");
@@ -269,16 +265,6 @@ namespace Night.Migrations
 
                     b.Property<string>("Image")
                         .IsRequired()
-                        .HasMaxLength(240)
-                        .HasColumnType("nvarchar(240)");
-
-                    b.Property<string>("ImageLargeUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageMediumUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageSmallUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Platforms")
@@ -289,55 +275,26 @@ namespace Night.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CollectiveMemberId");
+
                     b.HasIndex("DeveloperId");
 
-                    b.ToTable("Game", (string)null);
-                });
-
-            modelBuilder.Entity("CollectiveMemberGame", b =>
-                {
-                    b.HasOne("Night.Models.CollectiveMember", null)
-                        .WithMany()
-                        .HasForeignKey("CollectiveMemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Night.Models.Game", null)
-                        .WithMany()
-                        .HasForeignKey("GamesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-
-
-            modelBuilder.Entity("CollectiveMemberGame", b =>
-                {
-                    b.Property<int>("CollectiveMemberId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GamesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CollectiveMemberId", "GamesId");
-
-                    b.HasIndex("GamesId");
-
-                    b.ToTable("CollectiveMemberGame");
+                    b.ToTable("Game");
                 });
 
             modelBuilder.Entity("Night.Models.Game", b =>
                 {
+                    b.HasOne("Night.Models.CollectiveMember", null)
+                        .WithMany("Games")
+                        .HasForeignKey("CollectiveMemberId");
+
                     b.HasOne("Night.Models.Developer", null)
                         .WithMany("Games")
                         .HasForeignKey("DeveloperId");
-
-                    b.Navigation("CollectiveMember");
                 });
 
             modelBuilder.Entity("Night.Models.CollectiveMember", b =>
