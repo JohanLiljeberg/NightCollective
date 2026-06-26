@@ -1,25 +1,116 @@
+@model Night.ViewModels.MembersPageViewModel
+@using Night.Models
+
 <div class="container py-5">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        @foreach (var member in Model)
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+        <div>
+            <p class="eyebrow mb-2">About the collective</p>
+            <h1 class="display-6 fw-bold mb-0">Members & games</h1>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#addMemberOffcanvas" aria-controls="addMemberOffcanvas">Add collective member</button>
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#addGameOffcanvas" aria-controls="addGameOffcanvas">Add game</button>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+        @foreach (var member in Model.Members)
         {
             <div class="col">
-                <div class="card h-100 border-0 shadow-sm">
-                    @await Html.PartialAsync("_ResponsiveImage", new ResponsiveImageModel
-                    {
-                        ImageSmallUrl = member.ImageSmallUrl,
-                        ImageMediumUrl = member.ImageMediumUrl,
-                        ImageLargeUrl = member.ImageLargeUrl,
-                        Image = member.Image,
-                        AltText = member.Name
-                    })
-
-                    <div class="card-body">
-                        <h5 class="card-title">@member.Name</h5>
-                        <p class="text-muted">@member.Position</p>
-                        <p>"@member.Quote"</p>
+                <div class="h-100 position-relative">
+                    <div class="position-absolute top-0 end-0 z-1 m-3">
+                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#editMemberOffcanvas-@member.Id" aria-controls="editMemberOffcanvas-@member.Id">Edit</button>
                     </div>
+                    @await Component.InvokeAsync("CollectiveMemberVC", new { member })
                 </div>
             </div>
         }
     </div>
+
+    <section class="content-card rounded-4 p-4">
+        <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+            <div>
+                <p class="eyebrow mb-2">Game catalogue</p>
+                <h2 class="h4 mb-0">All games</h2>
+            </div>
+            <span class="badge text-bg-dark">@Model.Games.Count games</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Member</th>
+                        <th>Year</th>
+                        <th>Platform</th>
+                        <th>Genre</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var game in Model.Games)
+                {
+                    <tr>
+                        <td class="fw-semibold">@game.Title</td>
+                        <td>@game.CollectiveMemberName</td>
+                        <td>@game.ReleaseYear</td>
+                        <td>@game.Platforms</td>
+                        <td>@game.GenreGameplayType</td>
+                        <td class="text-end"><button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#editGameOffcanvas-@game.Id" aria-controls="editGameOffcanvas-@game.Id">Edit</button></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
 </div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="addMemberOffcanvas" aria-labelledby="addMemberOffcanvasLabel">
+    <div class="offcanvas-header"><h2 class="offcanvas-title h5" id="addMemberOffcanvasLabel">Add collective member</h2><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div>
+    <div class="offcanvas-body">
+        <form asp-action="AddMember" method="post" class="vstack gap-3">
+            @await Html.PartialAsync("_MemberFields", Model.MemberForm)
+            <button class="btn btn-primary" type="submit">Save member</button>
+        </form>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="addGameOffcanvas" aria-labelledby="addGameOffcanvasLabel">
+    <div class="offcanvas-header"><h2 class="offcanvas-title h5" id="addGameOffcanvasLabel">Add game</h2><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div>
+    <div class="offcanvas-body">
+        <form asp-action="AddGame" method="post" class="vstack gap-3">
+            @await Html.PartialAsync("_GameFields", (Model.GameForm, Model.MemberOptions))
+            <button class="btn btn-primary" type="submit">Save game</button>
+        </form>
+    </div>
+</div>
+
+@foreach (var member in Model.Members)
+{
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="editMemberOffcanvas-@member.Id" aria-labelledby="editMemberOffcanvasLabel-@member.Id">
+        <div class="offcanvas-header"><h2 class="offcanvas-title h5" id="editMemberOffcanvasLabel-@member.Id">Edit @member.Name</h2><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div>
+        <div class="offcanvas-body">
+            <form asp-action="EditMember" method="post" class="vstack gap-3">
+                @await Html.PartialAsync("_MemberFields", new Night.ViewModels.CollectiveMemberFormViewModel { Id = member.Id, Name = member.Name, Image = member.Image, Position = member.Position, Quote = member.Quote })
+                <button class="btn btn-primary" type="submit">Update member</button>
+            </form>
+        </div>
+    </div>
+}
+
+@foreach (var game in Model.Games)
+{
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="editGameOffcanvas-@game.Id" aria-labelledby="editGameOffcanvasLabel-@game.Id">
+        <div class="offcanvas-header"><h2 class="offcanvas-title h5" id="editGameOffcanvasLabel-@game.Id">Edit @game.Title</h2><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button></div>
+        <div class="offcanvas-body">
+            <form asp-action="EditGame" method="post" class="vstack gap-3">
+                @await Html.PartialAsync("_GameFields", (new Night.ViewModels.GameFormViewModel { Id = game.Id, Title = game.Title, Image = game.Image, ReleaseYear = game.ReleaseYear, DeveloperPublisher = game.DeveloperPublisher, Platforms = Enum.Parse<Platforms>(game.Platforms), GenreGameplayType = Enum.Parse<genreGameplayType>(game.GenreGameplayType), FromCollective = game.FromCollective, CollectiveMemberId = game.CollectiveMemberId ?? 0 }, Model.MemberOptions))
+                <button class="btn btn-primary" type="submit">Update game</button>
+            </form>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

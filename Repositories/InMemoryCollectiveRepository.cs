@@ -55,7 +55,7 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
         }
     ];
 
-    private static readonly IReadOnlyCollection<CollectiveMember> CollectiveMembers =
+    private static readonly List<CollectiveMember> CollectiveMembers =
     [
         new CollectiveMember
         {
@@ -89,5 +89,54 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
         return Task.FromResult(collectiveEvent);
     }
 
-    public Task<IReadOnlyCollection<CollectiveMember>> GetCollectiveMembersAsync() => Task.FromResult(CollectiveMembers);
+    public Task<IReadOnlyCollection<CollectiveMember>> GetCollectiveMembersAsync() => Task.FromResult<IReadOnlyCollection<CollectiveMember>>(CollectiveMembers);
+
+    public Task<CollectiveMember?> GetCollectiveMemberByIdAsync(int id) =>
+        Task.FromResult(CollectiveMembers.FirstOrDefault(member => member.Id == id));
+
+    public Task AddCollectiveMemberAsync(CollectiveMember member)
+    {
+        member.Id = CollectiveMembers.Count == 0 ? 1 : CollectiveMembers.Max(item => item.Id) + 1;
+        CollectiveMembers.Add(member);
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateCollectiveMemberAsync(CollectiveMember member)
+    {
+        var index = CollectiveMembers.FindIndex(item => item.Id == member.Id);
+        if (index >= 0)
+        {
+            CollectiveMembers[index] = member;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyCollection<Game>> GetGamesAsync() =>
+        Task.FromResult<IReadOnlyCollection<Game>>(CollectiveMembers.SelectMany(member => member.Games).ToList());
+
+    public Task<Game?> GetGameByIdAsync(int id) =>
+        Task.FromResult(CollectiveMembers.SelectMany(member => member.Games).FirstOrDefault(game => game.Id == id));
+
+    public Task AddGameAsync(Game game, int collectiveMemberId)
+    {
+        var member = CollectiveMembers.FirstOrDefault(item => item.Id == collectiveMemberId);
+        if (member is null) return Task.CompletedTask;
+
+        game.Id = game.Id == 0 ? CollectiveMembers.SelectMany(item => item.Games).DefaultIfEmpty().Max(item => item?.Id ?? 0) + 1 : game.Id;
+        game.CollectiveMemberId = collectiveMemberId;
+        game.CollectiveMember = member;
+        member.Games.Add(game);
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateGameAsync(Game game, int collectiveMemberId)
+    {
+        foreach (var member in CollectiveMembers)
+        {
+            member.Games.RemoveAll(item => item.Id == game.Id);
+        }
+
+        return AddGameAsync(game, collectiveMemberId);
+    }
 }

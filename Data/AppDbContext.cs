@@ -13,6 +13,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<CollectiveMember> CollectiveMembers => Set<CollectiveMember>();
 
+    public DbSet<Game> Games => Set<Game>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -107,7 +109,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(member => member.Position).HasMaxLength(160).IsRequired();
             entity.Property(member => member.Quote).HasMaxLength(600).IsRequired();
 
-            entity.HasMany(member => member.Games).WithOne();
+            entity.HasMany(member => member.Games)
+                .WithOne(game => game.CollectiveMember)
+                .HasForeignKey(game => game.CollectiveMemberId);
 
             entity.HasData(new CollectiveMember
             {
@@ -117,6 +121,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Position = "Curator",
                 Quote = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms."
             });
+        });
+
+        modelBuilder.Entity<Game>(entity =>
+        {
+            entity.ToTable("Game");
         });
     }
 }

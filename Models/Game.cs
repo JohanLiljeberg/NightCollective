@@ -17,6 +17,10 @@
         public genreGameplayType GenreGameplayType { get; set; } = genreGameplayType.Action;
 
         public bool FromCollective{ get; set; }  
+
+        public int? CollectiveMemberId { get; set; }
+
+        public CollectiveMember? CollectiveMember { get; set; }
     }
 
    public enum Platforms
