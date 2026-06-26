@@ -1,3 +1,4 @@
+using Night.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Night.ViewModels;
@@ -17,4 +18,7 @@ public class CollectiveMemberFormViewModel
 
     [Required, StringLength(600)]
     public string Quote { get; init; } = string.Empty;
+
+    public List<int> SelectedGameIds { get; set; } = new();
+    public List<Game> AvailableGames { get; set; } = new();
 }
