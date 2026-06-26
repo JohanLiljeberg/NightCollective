@@ -90,4 +90,10 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
     }
 
     public Task<IReadOnlyCollection<CollectiveMember>> GetCollectiveMembersAsync() => Task.FromResult(CollectiveMembers);
+
+    public Task<IReadOnlyCollection<Game>> GetGamesAsync() => Task.FromResult<IReadOnlyCollection<Game>>([]);
+
+    public Task AddGameAsync(Game game) => Task.CompletedTask;
+
+    public Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds) => Task.CompletedTask;
 }

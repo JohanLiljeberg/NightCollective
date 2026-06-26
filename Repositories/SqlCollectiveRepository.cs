@@ -48,4 +48,35 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
             .Take(pageSize)
             .ToListAsync();
     }
+
+    public async Task<IReadOnlyCollection<Game>> GetGamesAsync()
+    {
+        return await dbContext.Games
+            .AsNoTracking()
+            .OrderBy(game => game.Title)
+            .ThenBy(game => game.ReleaseYear)
+            .ToListAsync();
+    }
+
+    public async Task AddGameAsync(Game game)
+    {
+        dbContext.Games.Add(game);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds)
+    {
+        if (gameIds.Count > 0)
+        {
+            var selectedGames = await dbContext.Games
+                .Where(game => gameIds.Contains(game.Id))
+                .ToListAsync();
+
+            member.Games = selectedGames;
+        }
+
+        dbContext.CollectiveMembers.Add(member);
+        await dbContext.SaveChangesAsync();
+    }
+
 }

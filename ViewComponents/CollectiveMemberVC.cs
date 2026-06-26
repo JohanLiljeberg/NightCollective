@@ -5,8 +5,8 @@ namespace Night.ViewComponents;
 
 public class CollectiveMemberVC : ViewComponent
 {
-    public IViewComponentResult Invoke(CollectiveMemberViewModel member)
+    public Task<IViewComponentResult> InvokeAsync(CollectiveMemberViewModel member)
     {
-        return View(member);
+        return Task.FromResult<IViewComponentResult>(View(member));
     }
 }

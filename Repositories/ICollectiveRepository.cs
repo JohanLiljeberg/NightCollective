@@ -11,4 +11,10 @@ public interface ICollectiveRepository
     Task<CollectiveEvent?> GetNextUpcomingEventAsync(DateTime fromDate);
 
     Task<IReadOnlyCollection<CollectiveMember>> GetCollectiveMembersAsync();
+
+    Task<IReadOnlyCollection<Game>> GetGamesAsync();
+
+    Task AddGameAsync(Game game);
+
+    Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds);
 }

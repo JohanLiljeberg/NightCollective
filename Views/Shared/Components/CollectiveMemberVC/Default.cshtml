@@ -14,7 +14,7 @@
             <h3 class="h6 text-uppercase text-muted mb-2">Games</h3>
             @if (Model.Games.Any())
             {
-                <ul class="list-unstyled mb-0">
+                <ul class="list-unstyled mb-3">
                     @foreach (var game in Model.Games)
                     {
                         <li class="d-flex justify-content-between gap-3 border-top py-2">
@@ -23,6 +23,12 @@
                         </li>
                     }
                 </ul>
+                <div class="d-flex flex-wrap gap-2" aria-label="Selected game artwork">
+                    @foreach (var game in Model.Games)
+                    {
+                        <img class="rounded border" src="@game.Image" alt="@game.Title icon" width="44" height="44" />
+                    }
+                </div>
             }
             else
             {
