@@ -10,19 +10,13 @@ namespace Night.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Drop default constraint first (if it exists)
-            migrationBuilder.Sql("""
-        IF OBJECT_ID('DF__Collectiv__Image__4222D4EF', 'D') IS NOT NULL
-            ALTER TABLE [CollectiveEvents] DROP CONSTRAINT [DF__Collectiv__Image__4222D4EF];
-        """);
-
-            // Drop column if it still exists
-            migrationBuilder.Sql("""
-        IF COL_LENGTH(N'CollectiveEvents', N'ImageUrl') IS NOT NULL
-        BEGIN
-            ALTER TABLE [CollectiveEvents] DROP COLUMN [ImageUrl];
-        END
-        """);
+            migrationBuilder.Sql(
+                """
+                IF COL_LENGTH(N'CollectiveEvents', N'ImageUrl') IS NOT NULL
+                BEGIN
+                    ALTER TABLE [CollectiveEvents] DROP COLUMN [ImageUrl];
+                END
+                """);
 
             // Optional: Update seed data (already in your migration)
             migrationBuilder.UpdateData(
@@ -51,13 +45,14 @@ namespace Night.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("""
-        IF COL_LENGTH(N'CollectiveEvents', N'ImageUrl') IS NULL
-        BEGIN
-            ALTER TABLE [CollectiveEvents] ADD [ImageUrl] nvarchar(240) NOT NULL 
-                CONSTRAINT [DF_CollectiveEvents_ImageUrl] DEFAULT N'';
-        END
-        """);
+            migrationBuilder.Sql(
+                """
+                IF COL_LENGTH(N'CollectiveEvents', N'ImageUrl') IS NULL
+                BEGIN
+                    ALTER TABLE [CollectiveEvents] ADD [ImageUrl] nvarchar(240) NOT NULL CONSTRAINT [DF_CollectiveEvents_ImageUrl] DEFAULT N'';
+                    ALTER TABLE [CollectiveEvents] DROP CONSTRAINT [DF_CollectiveEvents_ImageUrl];
+                END
+                """);
 
             migrationBuilder.UpdateData(
                 table: "CollectiveEvents",

@@ -24,53 +24,29 @@ public class HomeController(ICollectiveService collectiveService) : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddMember([Bind(Prefix = "MemberForm")] CollectiveMemberFormViewModel viewModel)
+    public async Task<IActionResult> AddGame([Bind(Prefix = "GameForm")] GameFormViewModel gameForm)
     {
         if (!ModelState.IsValid)
         {
-            return RedirectToAction(nameof(Members));
+            return View("Members", await collectiveService.GetMembersPageAsync());
         }
 
-        await collectiveService.AddCollectiveMemberAsync(viewModel);
+        await collectiveService.AddGameAsync(gameForm);
+
         return RedirectToAction(nameof(Members));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditMember([Bind(Prefix = "MemberForm")] CollectiveMemberFormViewModel viewModel)
+    public async Task<IActionResult> AddMember([Bind(Prefix = "MemberForm")] CollectiveMemberFormViewModel memberForm)
     {
         if (!ModelState.IsValid)
         {
-            return RedirectToAction(nameof(Members));
+            return View("Members", await collectiveService.GetMembersPageAsync());
         }
 
-        await collectiveService.UpdateCollectiveMemberAsync(viewModel);
-        return RedirectToAction(nameof(Members));
-    }
+        await collectiveService.AddCollectiveMemberAsync(memberForm);
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddGame([Bind(Prefix = "GameForm")] GameFormViewModel viewModel)
-    {
-        if (!ModelState.IsValid)
-        {
-            return RedirectToAction(nameof(Members));
-        }
-
-        await collectiveService.AddGameAsync(viewModel);
-        return RedirectToAction(nameof(Members));
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditGame([Bind(Prefix = "GameForm")] GameFormViewModel viewModel)
-    {
-        if (!ModelState.IsValid)
-        {
-            return RedirectToAction(nameof(Members));
-        }
-
-        await collectiveService.UpdateGameAsync(viewModel);
         return RedirectToAction(nameof(Members));
     }
 

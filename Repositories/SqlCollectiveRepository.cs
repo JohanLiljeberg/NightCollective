@@ -44,53 +44,34 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
             .ToListAsync();
     }
 
-    public async Task<CollectiveMember?> GetCollectiveMemberByIdAsync(int id)
-    {
-        return await dbContext.CollectiveMembers
-            .AsNoTracking()
-            .FirstOrDefaultAsync(member => member.Id == id);
-    }
-
-    public async Task AddCollectiveMemberAsync(CollectiveMember member)
-    {
-        dbContext.CollectiveMembers.Add(member);
-        await dbContext.SaveChangesAsync();
-    }
-
-    public async Task UpdateCollectiveMemberAsync(CollectiveMember member)
-    {
-        dbContext.CollectiveMembers.Update(member);
-        await dbContext.SaveChangesAsync();
-    }
-
     public async Task<IReadOnlyCollection<Game>> GetGamesAsync()
     {
         return await dbContext.Games
             .AsNoTracking()
-            .Include(game => game.CollectiveMember)
             .OrderBy(game => game.Title)
+            .ThenBy(game => game.ReleaseYear)
             .ToListAsync();
     }
 
-    public async Task<Game?> GetGameByIdAsync(int id)
+    public async Task AddGameAsync(Game game)
     {
-        return await dbContext.Games
-            .AsNoTracking()
-            .Include(game => game.CollectiveMember)
-            .FirstOrDefaultAsync(game => game.Id == id);
-    }
-
-    public async Task AddGameAsync(Game game, int collectiveMemberId)
-    {
-        game.CollectiveMemberId = collectiveMemberId;
         dbContext.Games.Add(game);
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task UpdateGameAsync(Game game, int collectiveMemberId)
+    public async Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds)
     {
-        game.CollectiveMemberId = collectiveMemberId;
-        dbContext.Games.Update(game);
+        if (gameIds.Count > 0)
+        {
+            var selectedGames = await dbContext.Games
+                .Where(game => gameIds.Contains(game.Id))
+                .ToListAsync();
+
+            member.Games = selectedGames;
+        }
+
+        dbContext.CollectiveMembers.Add(member);
         await dbContext.SaveChangesAsync();
     }
+
 }

@@ -11,6 +11,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Developer> Developers => Set<Developer>();
 
+    public DbSet<Game> Games => Set<Game>();
+
     public DbSet<CollectiveMember> CollectiveMembers => Set<CollectiveMember>();
 
     public DbSet<Game> Games => Set<Game>();
@@ -109,9 +111,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(member => member.Position).HasMaxLength(160).IsRequired();
             entity.Property(member => member.Quote).HasMaxLength(600).IsRequired();
 
-            entity.HasMany(member => member.Games)
-                .WithOne(game => game.CollectiveMember)
-                .HasForeignKey(game => game.CollectiveMemberId);
+            entity.HasMany(member => member.Games).WithMany();
 
             entity.HasData(new CollectiveMember
             {
@@ -125,7 +125,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<Game>(entity =>
         {
-            entity.ToTable("Game");
+            entity.Property(game => game.Title).HasMaxLength(120).IsRequired();
+            entity.Property(game => game.Image).HasMaxLength(240).IsRequired();
+            entity.Property(game => game.DeveloperPublisher).HasMaxLength(160).IsRequired();
         });
     }
 }
