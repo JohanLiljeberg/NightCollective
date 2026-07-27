@@ -5,6 +5,8 @@ namespace Night.ViewModels;
 
 public class GameFormViewModel
 {
+    public int? Id { get; set; }
+
     [Required]
     [StringLength(120)]
     public string Title { get; set; } = string.Empty;

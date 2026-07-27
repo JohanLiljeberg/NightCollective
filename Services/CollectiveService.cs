@@ -23,6 +23,7 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
     {
         var members = (await collectiveRepository.GetCollectiveMembersAsync()).Select(MapMember).ToList();
         var games = (await collectiveRepository.GetGamesAsync()).Select(MapGame).ToList();
+        var availableGames = games.Select(MapGameSelect).ToList();
 
         return new MembersPageViewModel
         {
@@ -30,9 +31,10 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
             Games = games,
             MemberForm = new CollectiveMemberFormViewModel
             {
-                AvailableGames = games.Select(MapGameSelect).ToList()
+                AvailableGames = availableGames
             },
-            GameForm = new GameFormViewModel()
+            GameForm = new GameFormViewModel(),
+            MemberOptions = members.Select(member => new SelectListItem(member.Name, member.Id.ToString())).ToList()
         };
     }
 
@@ -41,110 +43,41 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
         return (await collectiveRepository.GetCollectiveMembersAsync()).Select(MapMember).ToList();
     }
 
-    public async Task AddGameAsync(GameFormViewModel viewModel)
-    {
-        var game = new Game
-        {
-            Title = viewModel.Title,
-            Image = viewModel.Image,
-            ReleaseYear = viewModel.ReleaseYear,
-            DeveloperPublisher = viewModel.DeveloperPublisher,
-            Platforms = viewModel.Platforms,
-            GenreGameplayType = viewModel.GenreGameplayType,
-            FromCollective = viewModel.FromCollective
-        };
-
-        await collectiveRepository.AddGameAsync(game);
-    }
-
-    public async Task AddCollectiveMemberAsync(CollectiveMemberFormViewModel viewModel)
-    {
-        var member = new CollectiveMember
-        {
-            Name = viewModel.Name,
-            Image = viewModel.Image,
-            Position = viewModel.Position,
-            Quote = viewModel.Quote
-        };
-
-        await collectiveRepository.AddCollectiveMemberAsync(member, viewModel.SelectedGameIds);
-    }
-
     public async Task<EventBasicInfoViewModel?> GetNextUpcomingEventBasicInfoAsync()
     {
-        var members = (await collectiveRepository.GetCollectiveMembersAsync()).Select(MapMember).ToList();
-        var games = (await collectiveRepository.GetGamesAsync()).Select(MapGame).ToList();
+        var collectiveEvent = await collectiveRepository.GetNextUpcomingEventAsync(DateTime.Today);
 
-        return new MembersPageViewModel
-        {
-            Members = members,
-            Games = games,
-            MemberOptions = members.Select(member => new SelectListItem(member.Name, member.Id.ToString())).ToList(),
-            GameForm = new GameFormViewModel { CollectiveMemberId = members.FirstOrDefault()?.Id ?? 0 }
-        };
+        return collectiveEvent is null ? null : MapEventBasicInfo(collectiveEvent);
     }
 
     public async Task AddCollectiveMemberAsync(CollectiveMemberFormViewModel viewModel)
     {
-        await collectiveRepository.AddCollectiveMemberAsync(new CollectiveMember
-        {
-            Name = viewModel.Name,
-            Image = viewModel.Image,
-            Position = viewModel.Position,
-            Quote = viewModel.Quote
-        });
+        await collectiveRepository.AddCollectiveMemberAsync(MapMemberForm(viewModel), viewModel.SelectedGameIds);
     }
 
     public async Task UpdateCollectiveMemberAsync(CollectiveMemberFormViewModel viewModel)
     {
-        if (viewModel.Id is null) return;
-
-        await collectiveRepository.UpdateCollectiveMemberAsync(new CollectiveMember
+        if (viewModel.Id is null)
         {
-            Id = viewModel.Id.Value,
-            Name = viewModel.Name,
-            Image = viewModel.Image,
-            Position = viewModel.Position,
-            Quote = viewModel.Quote
-        });
+            return;
+        }
+
+        await collectiveRepository.UpdateCollectiveMemberAsync(MapMemberForm(viewModel), viewModel.SelectedGameIds);
     }
 
-    private static GameViewModel MapGame(Game game)
+    public async Task AddGameAsync(GameFormViewModel viewModel)
     {
-        return new GameViewModel
-        {
-            Id = game.Id,
-            Title = game.Title,
-            ReleaseYear = game.ReleaseYear,
-            Image = game.Image,
-            DeveloperPublisher = game.DeveloperPublisher
-        };
-    }
-
-    private static GameSelectViewModel MapGameSelect(GameViewModel game)
-    {
-        return new GameSelectViewModel
-        {
-            Id = game.Id,
-            Title = game.Title
-        };
-    }
-
-    private static EventBasicInfoViewModel MapEventBasicInfo(CollectiveEvent collectiveEvent)
-    {
-        await collectiveRepository.AddGameAsync(MapGameForm(viewModel), viewModel.CollectiveMemberId);
+        await collectiveRepository.AddGameAsync(MapGameForm(viewModel));
     }
 
     public async Task UpdateGameAsync(GameFormViewModel viewModel)
     {
-        return new CollectiveMemberViewModel
+        if (viewModel.Id is null)
         {
-            Name = member.Name,
-            Image = member.Image,
-            Position = member.Position,
-            Quote = member.Quote,
-            Games = member.Games.Select(MapGame).ToList()
-        };
+            return;
+        }
+
+        await collectiveRepository.UpdateGameAsync(MapGameForm(viewModel));
     }
 
     private static ProjectCardViewModel MapProject(CollectiveProject project) => new()
@@ -181,7 +114,7 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
         Image = member.Image,
         Position = member.Position,
         Quote = member.Quote,
-        Games = member.Games.Select(MapGame).ToList()
+        Games = member.Games.OrderBy(game => game.Title).Select(MapGame).ToList()
     };
 
     private static GameViewModel MapGame(Game game) => new()
@@ -191,15 +124,30 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
         ReleaseYear = game.ReleaseYear,
         Image = game.Image,
         DeveloperPublisher = game.DeveloperPublisher,
-        Platforms = game.Platforms.ToString(),
-        GenreGameplayType = game.GenreGameplayType.ToString(),
+        Platforms = game.Platforms,
+        GenreGameplayType = game.GenreGameplayType,
         FromCollective = game.FromCollective,
-        CollectiveMemberId = game.CollectiveMemberId,
-        CollectiveMemberName = game.CollectiveMember?.Name ?? string.Empty
+        MemberNames = game.Members.OrderBy(member => member.Name).Select(member => member.Name).ToList()
+    };
+
+    private static GameSelectViewModel MapGameSelect(GameViewModel game) => new()
+    {
+        Id = game.Id,
+        Title = game.Title
+    };
+
+    private static CollectiveMember MapMemberForm(CollectiveMemberFormViewModel viewModel) => new()
+    {
+        Id = viewModel.Id ?? 0,
+        Name = viewModel.Name,
+        Image = viewModel.Image,
+        Position = viewModel.Position,
+        Quote = viewModel.Quote
     };
 
     private static Game MapGameForm(GameFormViewModel viewModel) => new()
     {
+        Id = viewModel.Id ?? 0,
         Title = viewModel.Title,
         Image = viewModel.Image,
         ReleaseYear = viewModel.ReleaseYear,
