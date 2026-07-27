@@ -253,6 +253,9 @@ namespace Night.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CollectiveMemberId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("DeveloperId")
                         .HasColumnType("int");
 
@@ -294,6 +297,8 @@ namespace Night.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CollectiveMemberId");
+
                     b.HasIndex("DeveloperId");
 
                     b.ToTable("Game", (string)null);
@@ -333,6 +338,11 @@ namespace Night.Migrations
 
             modelBuilder.Entity("Night.Models.Game", b =>
                 {
+                    b.HasOne("Night.Models.CollectiveMember", "CollectiveMember")
+                        .WithMany()
+                        .HasForeignKey("CollectiveMemberId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Night.Models.Developer", null)
                         .WithMany("Games")
                         .HasForeignKey("DeveloperId");
@@ -340,10 +350,6 @@ namespace Night.Migrations
                     b.Navigation("CollectiveMember");
                 });
 
-            modelBuilder.Entity("Night.Models.CollectiveMember", b =>
-                {
-                    b.Navigation("Games");
-                });
 
             modelBuilder.Entity("Night.Models.Developer", b =>
                 {
