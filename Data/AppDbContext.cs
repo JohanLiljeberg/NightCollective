@@ -111,7 +111,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(member => member.Position).HasMaxLength(160).IsRequired();
             entity.Property(member => member.Quote).HasMaxLength(600).IsRequired();
 
-            entity.HasMany(member => member.Games).WithMany();
+            entity.HasMany(member => member.Games).WithMany(game => game.Members);
 
             entity.HasData(new CollectiveMember
             {

@@ -28,7 +28,7 @@
             </div>
         }
     </div>
-</section>
+</div>
 
 <section class="mb-5" aria-labelledby="member-admin-heading">
     <div class="content-card rounded-4 p-4 p-lg-5">
@@ -133,7 +133,15 @@
                         <img class="card-img-top" src="@game.Image" alt="Artwork for @game.Title" />
                         <div class="card-body">
                             <h3 class="h6 card-title mb-1">@game.Title</h3>
-                            <p class="text-muted mb-0">@game.DeveloperPublisher · @game.ReleaseYear</p>
+                            <p class="text-muted mb-1">@game.DeveloperPublisher · @game.ReleaseYear</p>
+                            @if (game.MemberNames.Any())
+                            {
+                                <p class="small text-muted mb-0">Members: @string.Join(", ", game.MemberNames)</p>
+                            }
+                            else
+                            {
+                                <p class="small text-muted mb-0">External / non-member game</p>
+                            }
                         </div>
                     </article>
                 </div>
