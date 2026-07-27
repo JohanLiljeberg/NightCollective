@@ -133,6 +133,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<Game>(entity =>
         {
+            entity.Ignore(game => game.CollectiveMemberId);
+            entity.Ignore(game => game.CollectiveMember);
+
             entity.Property(game => game.Title).HasMaxLength(120).IsRequired();
             entity.Property(game => game.Image).HasMaxLength(240).IsRequired();
             entity.Property(game => game.DeveloperPublisher).HasMaxLength(160).IsRequired();

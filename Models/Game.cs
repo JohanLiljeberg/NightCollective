@@ -1,4 +1,6 @@
-﻿namespace Night.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Night.Models
 {
     public class Game
     {
@@ -21,8 +23,10 @@
 
         public bool FromCollective { get; set; }
 
+        [NotMapped]
         public int? CollectiveMemberId { get; set; }
 
+        [NotMapped]
         public CollectiveMember? CollectiveMember { get; set; }
 
         public List<CollectiveMember> Members { get; set; } = new();
