@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Night.Models;
 
 namespace Night.ViewModels;
@@ -27,4 +28,10 @@ public class GameFormViewModel
     public genreGameplayType GenreGameplayType { get; set; } = genreGameplayType.Action;
 
     public bool FromCollective { get; set; } = true;
+
+    public List<int> SelectedMemberIds { get; set; } = [];
+
+    public IReadOnlyCollection<SelectListItem> AvailableMembers { get; set; } = [];
+
+    public List<GameMemberContributionFormViewModel> MemberContributions { get; set; } = new();
 }

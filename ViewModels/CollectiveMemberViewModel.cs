@@ -13,4 +13,6 @@ public class CollectiveMemberViewModel
     public string Quote { get; init; } = string.Empty;
 
     public IReadOnlyCollection<GameViewModel> Games { get; init; } = [];
+
+    public IReadOnlyCollection<GameContributionViewModel> GameContributions { get; init; } = [];
 }

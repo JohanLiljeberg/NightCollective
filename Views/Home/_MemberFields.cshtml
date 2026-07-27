@@ -2,19 +2,36 @@
 
 @Html.AntiForgeryToken()
 <input type="hidden" name="MemberForm.Id" value="@Model.Id" />
-<div>
-    <label class="form-label" for="member-name-@Model.Id">Name</label>
-    <input class="form-control" id="member-name-@Model.Id" name="MemberForm.Name" value="@Model.Name" maxlength="120" required />
-</div>
-<div>
-    <label class="form-label" for="member-image-@Model.Id">Image URL</label>
-    <input class="form-control" id="member-image-@Model.Id" name="MemberForm.Image" value="@Model.Image" maxlength="240" required />
-</div>
-<div>
-    <label class="form-label" for="member-position-@Model.Id">Position</label>
-    <input class="form-control" id="member-position-@Model.Id" name="MemberForm.Position" value="@Model.Position" maxlength="160" required />
-</div>
-<div>
-    <label class="form-label" for="member-quote-@Model.Id">Quote</label>
-    <textarea class="form-control" id="member-quote-@Model.Id" name="MemberForm.Quote" rows="4" maxlength="600" required>@Model.Quote</textarea>
+
+<div class="row g-3">
+    <div class="col-12">
+        <label class="form-label" for="member-name-@Model.Id">Name</label>
+        <input class="form-control" id="member-name-@Model.Id" name="MemberForm.Name" value="@Model.Name" maxlength="120" required />
+    </div>
+
+    <div class="col-12">
+        <label class="form-label" for="member-image-@Model.Id">Image URL</label>
+        <input class="form-control" id="member-image-@Model.Id" name="MemberForm.Image" value="@Model.Image" maxlength="240" required />
+    </div>
+
+    <div class="col-12">
+        <label class="form-label" for="member-position-@Model.Id">Position</label>
+        <input class="form-control" id="member-position-@Model.Id" name="MemberForm.Position" value="@Model.Position" maxlength="160" required />
+    </div>
+
+    <div class="col-12">
+        <label class="form-label" for="member-quote-@Model.Id">Quote</label>
+        <textarea class="form-control" id="member-quote-@Model.Id" name="MemberForm.Quote" rows="4" maxlength="600" required>@Model.Quote</textarea>
+    </div>
+
+    <div class="col-12">
+        <label class="form-label" for="member-games-@Model.Id">Games from database</label>
+        <select class="form-select" id="member-games-@Model.Id" name="MemberForm.SelectedGameIds" multiple size="4">
+            @foreach (var game in Model.AvailableGames)
+            {
+                <option value="@game.Id">@game.Title</option>
+            }
+        </select>
+        <div class="form-text">Hold Ctrl (Windows) or Cmd (Mac) to select multiple games</div>
+    </div>
 </div>

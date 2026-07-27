@@ -1,4 +1,5 @@
 using Night.Models;
+using Night.ViewModels;
 
 namespace Night.Repositories;
 
@@ -95,9 +96,30 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
 
     public Task<IReadOnlyCollection<Game>> GetGamesAsync() => Task.FromResult<IReadOnlyCollection<Game>>(Games);
 
-    public Task AddGameAsync(Game game)
+    public Task AddGameAsync(Game game, IReadOnlyCollection<GameMemberContributionFormViewModel> contributions)
     {
         game.Id = Games.Count == 0 ? 1 : Games.Max(item => item.Id) + 1;
+
+        // For in-memory, just add the game with members from contributions
+        var memberIds = contributions.Select(c => c.MemberId).ToList();
+        game.Members = CollectiveMembers.Where(member => memberIds.Contains(member.Id)).ToList();
+
+        // Create contribution relationships
+        foreach (var contribution in contributions)
+        {
+            var gameMemberContribution = new GameMemberContribution
+            {
+                GameId = game.Id,
+                CollectiveMemberId = contribution.MemberId,
+                Game = game,
+                CollectiveMember = CollectiveMembers.First(m => m.Id == contribution.MemberId),
+                InvolvementLevel = contribution.InvolvementLevel,
+                WorkAreas = contribution.SelectedWorkAreas
+            };
+
+            game.MemberContributions.Add(gameMemberContribution);
+        }
+
         Games.Add(game);
 
         return Task.CompletedTask;

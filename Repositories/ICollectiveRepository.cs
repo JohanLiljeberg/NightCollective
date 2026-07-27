@@ -1,4 +1,5 @@
 using Night.Models;
+using Night.ViewModels;
 
 namespace Night.Repositories;
 
@@ -14,7 +15,7 @@ public interface ICollectiveRepository
 
     Task<IReadOnlyCollection<Game>> GetGamesAsync();
 
-    Task AddGameAsync(Game game);
+    Task AddGameAsync(Game game, IReadOnlyCollection<GameMemberContributionFormViewModel> contributions);
 
     Task UpdateGameAsync(Game game);
 

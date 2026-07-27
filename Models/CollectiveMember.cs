@@ -15,4 +15,6 @@ public class CollectiveMember
 
     // Navigation
     public List<Game> Games { get; set; } = new();
+
+    public List<GameMemberContribution> GameContributions { get; set; } = new();
 }

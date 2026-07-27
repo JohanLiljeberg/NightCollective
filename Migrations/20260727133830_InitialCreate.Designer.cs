@@ -12,8 +12,8 @@ using Night.Data;
 namespace Night.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260626132313_Updatemembers")]
-    partial class Updatemembers
+    [Migration("20260727133830_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace Night.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("CollectiveMemberGame", b =>
+                {
+                    b.Property<int>("CollectiveMemberId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GamesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CollectiveMemberId", "GamesId");
+
+                    b.HasIndex("GamesId");
+
+                    b.ToTable("CollectiveMemberGame", (string)null);
+                });
 
             modelBuilder.Entity("Night.Models.CollectiveEvent", b =>
                 {
@@ -256,15 +271,13 @@ namespace Night.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CollectiveMemberId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("DeveloperId")
                         .HasColumnType("int");
 
                     b.Property<string>("DeveloperPublisher")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
 
                     b.Property<bool>("FromCollective")
                         .HasColumnType("bit");
@@ -274,7 +287,8 @@ namespace Night.Migrations
 
                     b.Property<string>("Image")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(240)
+                        .HasColumnType("nvarchar(240)");
 
                     b.Property<string>("ImageLargeUrl")
                         .HasColumnType("nvarchar(max)");
@@ -293,33 +307,36 @@ namespace Night.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CollectiveMemberId");
-
                     b.HasIndex("DeveloperId");
 
-                    b.ToTable("Game", (string)null);
+                    b.ToTable("Games", (string)null);
+                });
+
+            modelBuilder.Entity("CollectiveMemberGame", b =>
+                {
+                    b.HasOne("Night.Models.CollectiveMember", null)
+                        .WithMany()
+                        .HasForeignKey("CollectiveMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Night.Models.Game", null)
+                        .WithMany()
+                        .HasForeignKey("GamesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Night.Models.Game", b =>
                 {
-                    b.HasOne("Night.Models.CollectiveMember", "CollectiveMember")
-                        .WithMany("Games")
-                        .HasForeignKey("CollectiveMemberId");
-
                     b.HasOne("Night.Models.Developer", null)
                         .WithMany("Games")
                         .HasForeignKey("DeveloperId");
-
-                    b.Navigation("CollectiveMember");
-                });
-
-            modelBuilder.Entity("Night.Models.CollectiveMember", b =>
-                {
-                    b.Navigation("Games");
                 });
 
             modelBuilder.Entity("Night.Models.Developer", b =>

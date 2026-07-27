@@ -1,4 +1,6 @@
 @model Night.ViewModels.CollectiveMemberViewModel
+@using Night.Models
+@using Night.Extensions
 
 <article class="collective-member-card card h-100 border-0 overflow-hidden">
     <img class="collective-member-image card-img-top" src="@Model.Image" alt="Portrait or artwork for @Model.Name" />
@@ -7,28 +9,86 @@
         <h2 class="h4 card-title mb-2">@Model.Name</h2>
         <p class="text-accent fw-semibold mb-3">@Model.Position</p>
         <blockquote class="collective-member-quote mb-4">
-            <p class="mb-0">“@Model.Quote”</p>
+            <p class="mb-0">"@Model.Quote"</p>
         </blockquote>
 
         <div class="mt-auto">
-            <h3 class="h6 text-uppercase text-muted mb-2">Games</h3>
-            @if (Model.Games.Any())
+            <h3 class="h6 text-uppercase text-muted mb-2">Games (@Model.GameContributions.Count)</h3>
+            @if (Model.GameContributions.Any())
             {
-                <ul class="list-unstyled mb-3">
-                    @foreach (var game in Model.Games)
-                    {
-                        <li class="d-flex justify-content-between gap-3 border-top py-2">
-                            <span>@game.Title</span>
-                            <span class="text-muted">@game.ReleaseYear</span>
-                        </li>
-                    }
-                </ul>
-                <div class="d-flex flex-wrap gap-2" aria-label="Selected game artwork">
-                    @foreach (var game in Model.Games)
-                    {
-                        <img class="rounded border" src="@game.Image" alt="@game.Title icon" width="44" height="44" />
-                    }
-                </div>
+                @if (Model.GameContributions.Count <= 5)
+                {
+                    <div class="d-flex flex-wrap gap-2" aria-label="Game contributions">
+                        @foreach (var contribution in Model.GameContributions)
+                        {
+                            var workAreasText = string.Join(", ", contribution.WorkAreas.Select(wa => wa.GetIconWithName()));
+                            var tooltipText = $"{contribution.Title} ({contribution.ReleaseYear})\n{contribution.InvolvementLevel}\n{workAreasText}";
+                            <div class="position-relative">
+                                <img class="rounded border" src="@contribution.Image" alt="@contribution.Title" width="64" height="64" title="@tooltipText" data-bs-toggle="tooltip" data-bs-placement="top" />
+                                <div class="position-absolute top-0 end-0 translate-middle" style="font-size: 1.2rem;" title="@contribution.InvolvementLevel">
+                                    @(contribution.InvolvementLevel switch
+                                    {
+                                        InvolvementLevel.Lead => "🥇",
+                                        InvolvementLevel.Major => "🥈",
+                                        InvolvementLevel.Supporting => "🥉",
+                                        _ => ""
+                                    })
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div id="gameCarousel-@Model.Id" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            @for (int i = 0; i < Math.Ceiling(Model.GameContributions.Count / 5.0); i++)
+                            {
+                                <button type="button" data-bs-target="#gameCarousel-@Model.Id" data-bs-slide-to="@i" 
+                                        class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" 
+                                        aria-label="Slide @(i + 1)"></button>
+                            }
+                        </div>
+                        <div class="carousel-inner">
+                            @for (int page = 0; page < Math.Ceiling(Model.GameContributions.Count / 5.0); page++)
+                            {
+                                var pageGames = Model.GameContributions.Skip(page * 5).Take(5);
+                                <div class="carousel-item @(page == 0 ? "active" : "")">
+                                    <div class="d-flex flex-wrap gap-2 justify-content-center p-3" aria-label="Game contributions page @(page + 1)">
+                                        @foreach (var contribution in pageGames)
+                                        {
+                                            var workAreasText = string.Join(", ", contribution.WorkAreas.Select(wa => wa.GetIconWithName()));
+                                            var tooltipText = $"{contribution.Title} ({contribution.ReleaseYear})\n{contribution.InvolvementLevel}\n{workAreasText}";
+                                            <div class="position-relative">
+                                                <img class="rounded border" src="@contribution.Image" alt="@contribution.Title" width="64" height="64" title="@tooltipText" data-bs-toggle="tooltip" data-bs-placement="top" />
+                                                <div class="position-absolute top-0 end-0 translate-middle" style="font-size: 1.2rem;" title="@contribution.InvolvementLevel">
+                                                    @(contribution.InvolvementLevel switch
+                                                    {
+                                                        InvolvementLevel.Lead => "🥇",
+                                                        InvolvementLevel.Major => "🥈",
+                                                        InvolvementLevel.Supporting => "🥉",
+                                                        _ => ""
+                                                    })
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        @if (Model.GameContributions.Count > 5)
+                        {
+                            <button class="carousel-control-prev" type="button" data-bs-target="#gameCarousel-@Model.Id" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#gameCarousel-@Model.Id" data-bs-slide="next">
+                                <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        }
+                    </div>
+                }
             }
             else
             {

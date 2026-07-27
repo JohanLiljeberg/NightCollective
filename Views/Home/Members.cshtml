@@ -1,4 +1,5 @@
 @model Night.ViewModels.MembersPageViewModel
+@using Night.Extensions
 @{
     ViewData["Title"] = "Collective Members";
 }
@@ -33,84 +34,29 @@
 <section class="mb-5" aria-labelledby="member-admin-heading">
     <div class="content-card rounded-4 p-4 p-lg-5">
         <p class="eyebrow mb-1">Create</p>
-        <h2 id="member-admin-heading" class="h3 mb-4">Add members and assign existing games</h2>
+        <h2 id="member-admin-heading" class="h3 mb-4">Add members and games to the database</h2>
         <div class="row g-4">
             <div class="col-lg-6">
-                <h3 class="h5 mb-3">Add game to database</h3>
-                <form asp-controller="Home" asp-action="AddGame" method="post" class="vstack gap-3">
-                    <div>
-                        <label asp-for="GameForm.Title" class="form-label"></label>
-                        <input asp-for="GameForm.Title" class="form-control" />
-                        <span asp-validation-for="GameForm.Title" class="text-danger"></span>
+                <div class="card border-0 bg-light h-100">
+                    <div class="card-body">
+                        <h3 class="h5 mb-3">Add game to database</h3>
+                        <form asp-controller="Home" asp-action="AddGame" method="post">
+                            <partial name="_GameFields" model="Model.GameForm" />
+                            <button type="submit" class="btn btn-primary mt-3">Add game</button>
+                        </form>
                     </div>
-                    <div>
-                        <label asp-for="GameForm.Image" class="form-label">Game image URL</label>
-                        <input asp-for="GameForm.Image" class="form-control" placeholder="/images/games/example.jpg" />
-                        <span asp-validation-for="GameForm.Image" class="text-danger"></span>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-sm-6">
-                            <label asp-for="GameForm.ReleaseYear" class="form-label"></label>
-                            <input asp-for="GameForm.ReleaseYear" class="form-control" />
-                            <span asp-validation-for="GameForm.ReleaseYear" class="text-danger"></span>
-                        </div>
-                        <div class="col-sm-6">
-                            <label asp-for="GameForm.DeveloperPublisher" class="form-label"></label>
-                            <input asp-for="GameForm.DeveloperPublisher" class="form-control" />
-                            <span asp-validation-for="GameForm.DeveloperPublisher" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-sm-6">
-                            <label asp-for="GameForm.Platforms" class="form-label"></label>
-                            <select asp-for="GameForm.Platforms" asp-items="Html.GetEnumSelectList<Night.Models.Platforms>()" class="form-select"></select>
-                        </div>
-                        <div class="col-sm-6">
-                            <label asp-for="GameForm.GenreGameplayType" class="form-label">Genre</label>
-                            <select asp-for="GameForm.GenreGameplayType" asp-items="Html.GetEnumSelectList<Night.Models.genreGameplayType>()" class="form-select"></select>
-                        </div>
-                    </div>
-                    <div class="form-check">
-                        <input asp-for="GameForm.FromCollective" class="form-check-input" />
-                        <label asp-for="GameForm.FromCollective" class="form-check-label">From the collective</label>
-                    </div>
-                    <button type="submit" class="btn btn-primary align-self-start">Add game</button>
-                </form>
+                </div>
             </div>
             <div class="col-lg-6">
-                <h3 class="h5 mb-3">Add member</h3>
-                <form asp-controller="Home" asp-action="AddMember" method="post" class="vstack gap-3">
-                    <div>
-                        <label asp-for="MemberForm.Name" class="form-label"></label>
-                        <input asp-for="MemberForm.Name" class="form-control" />
-                        <span asp-validation-for="MemberForm.Name" class="text-danger"></span>
+                <div class="card border-0 bg-light h-100">
+                    <div class="card-body">
+                        <h3 class="h5 mb-3">Add member to collective</h3>
+                        <form asp-controller="Home" asp-action="AddMember" method="post">
+                            <partial name="_MemberFields" model="Model.MemberForm" />
+                            <button type="submit" class="btn btn-primary mt-3">Add member</button>
+                        </form>
                     </div>
-                    <div>
-                        <label asp-for="MemberForm.Image" class="form-label">Member image URL</label>
-                        <input asp-for="MemberForm.Image" class="form-control" placeholder="/images/collective-members/name.jpg" />
-                        <span asp-validation-for="MemberForm.Image" class="text-danger"></span>
-                    </div>
-                    <div>
-                        <label asp-for="MemberForm.Position" class="form-label"></label>
-                        <input asp-for="MemberForm.Position" class="form-control" />
-                        <span asp-validation-for="MemberForm.Position" class="text-danger"></span>
-                    </div>
-                    <div>
-                        <label asp-for="MemberForm.Quote" class="form-label"></label>
-                        <textarea asp-for="MemberForm.Quote" class="form-control" rows="4"></textarea>
-                        <span asp-validation-for="MemberForm.Quote" class="text-danger"></span>
-                    </div>
-                    <div>
-                        <label asp-for="MemberForm.SelectedGameIds" class="form-label">Games from database</label>
-                        <select asp-for="MemberForm.SelectedGameIds" class="form-select" multiple size="6">
-                            @foreach (var game in Model.MemberForm.AvailableGames)
-                            {
-                                <option value="@game.Id">@game.Title</option>
-                            }
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary align-self-start">Add member</button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -134,9 +80,27 @@
                         <div class="card-body">
                             <h3 class="h6 card-title mb-1">@game.Title</h3>
                             <p class="text-muted mb-1">@game.DeveloperPublisher · @game.ReleaseYear</p>
-                            @if (game.MemberNames.Any())
+                            @if (game.MemberContributions.Any())
                             {
-                                <p class="small text-muted mb-0">Members: @string.Join(", ", game.MemberNames)</p>
+                                <div class="d-flex flex-wrap gap-1 mt-2">
+                                    @foreach (var member in game.MemberContributions)
+                                    {
+                                        var workAreasText = string.Join(", ", member.WorkAreas.Select(wa => wa.GetIconWithName()));
+                                        var tooltipText = $"{member.Name} - {member.InvolvementLevel}\n{workAreasText}";
+                                        <div class="position-relative" title="@tooltipText" data-bs-toggle="tooltip" data-bs-placement="top">
+                                            <img class="rounded-circle border" src="@member.Image" alt="@member.Name" width="40" height="40" />
+                                            <div class="position-absolute bottom-0 end-0 translate-middle-x" style="font-size: 0.9rem;">
+                                                @(member.InvolvementLevel switch
+                                                {
+                                                    Night.Models.InvolvementLevel.Lead => "🥇",
+                                                    Night.Models.InvolvementLevel.Major => "🥈",
+                                                    Night.Models.InvolvementLevel.Supporting => "🥉",
+                                                    _ => ""
+                                                })
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
                             }
                             else
                             {

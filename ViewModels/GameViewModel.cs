@@ -21,4 +21,6 @@ public class GameViewModel
     public bool FromCollective { get; init; }
 
     public IReadOnlyCollection<string> MemberNames { get; init; } = [];
+
+    public IReadOnlyCollection<MemberContributionViewModel> MemberContributions { get; init; } = [];
 }

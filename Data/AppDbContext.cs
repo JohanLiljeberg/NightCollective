@@ -111,14 +111,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
             entity.HasMany(member => member.Games)
                 .WithMany(game => game.Members)
-                .UsingEntity<Dictionary<string, object>>(
-                    "CollectiveMemberGame",
-                    right => right.HasOne<Game>().WithMany().HasForeignKey("GamesId").OnDelete(DeleteBehavior.Cascade),
-                    left => left.HasOne<CollectiveMember>().WithMany().HasForeignKey("CollectiveMemberId").OnDelete(DeleteBehavior.Cascade),
+                .UsingEntity<GameMemberContribution>(
+                    right => right.HasOne(gmc => gmc.Game).WithMany(g => g.MemberContributions).HasForeignKey(gmc => gmc.GameId).OnDelete(DeleteBehavior.Cascade),
+                    left => left.HasOne(gmc => gmc.CollectiveMember).WithMany(m => m.GameContributions).HasForeignKey(gmc => gmc.CollectiveMemberId).OnDelete(DeleteBehavior.Cascade),
                     join =>
                     {
-                        join.HasKey("CollectiveMemberId", "GamesId");
-                        join.ToTable("CollectiveMemberGame");
+                        join.HasKey(gmc => new { gmc.CollectiveMemberId, gmc.GameId });
+                        join.ToTable("GameMemberContributions");
+                        join.Property(gmc => gmc.InvolvementLevel).IsRequired();
                     });
 
             entity.HasData(new CollectiveMember
@@ -133,17 +133,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<Game>(entity =>
         {
-            entity.Ignore(game => game.CollectiveMemberId);
-            entity.Ignore(game => game.CollectiveMember);
+            entity.ToTable("Games");
 
             entity.Property(game => game.Title).HasMaxLength(120).IsRequired();
             entity.Property(game => game.Image).HasMaxLength(240).IsRequired();
             entity.Property(game => game.DeveloperPublisher).HasMaxLength(160).IsRequired();
-
-            entity.HasOne(game => game.CollectiveMember)
-                .WithMany()
-                .HasForeignKey(game => game.CollectiveMemberId)
-                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

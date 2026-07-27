@@ -1,0 +1,13 @@
+@model List<Night.Models.WorkArea>
+@using Night.Models
+@using Night.Extensions
+
+@if (Model != null && Model.Any())
+{
+    <div class="d-flex flex-wrap gap-1">
+        @foreach (var workArea in Model)
+        {
+            <span class="badge bg-secondary" title="@workArea.GetName()">@workArea.GetIcon()</span>
+        }
+    </div>
+}

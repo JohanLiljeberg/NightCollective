@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Night.Data;
 using Night.Models;
+using Night.ViewModels;
 
 namespace Night.Repositories;
 
@@ -38,7 +39,8 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
     {
         return await dbContext.CollectiveMembers
             .AsNoTracking()
-            .Include(member => member.Games)
+            .Include(member => member.GameContributions)
+                .ThenInclude(gc => gc.Game)
             .AsSplitQuery()
             .OrderBy(member => member.Name)
             .ToListAsync();
@@ -48,17 +50,36 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
     {
         return await dbContext.Games
             .AsNoTracking()
-            .Include(game => game.Members)
+            .Include(game => game.MemberContributions)
+                .ThenInclude(mc => mc.CollectiveMember)
             .AsSplitQuery()
             .OrderBy(game => game.Title)
             .ThenBy(game => game.ReleaseYear)
             .ToListAsync();
     }
 
-    public async Task AddGameAsync(Game game)
+    public async Task AddGameAsync(Game game, IReadOnlyCollection<GameMemberContributionFormViewModel> contributions)
     {
         dbContext.Games.Add(game);
         await dbContext.SaveChangesAsync();
+
+        if (contributions.Any())
+        {
+            foreach (var contribution in contributions)
+            {
+                var gameMemberContribution = new GameMemberContribution
+                {
+                    GameId = game.Id,
+                    CollectiveMemberId = contribution.MemberId,
+                    InvolvementLevel = contribution.InvolvementLevel,
+                    WorkAreas = contribution.SelectedWorkAreas
+                };
+
+                dbContext.Set<GameMemberContribution>().Add(gameMemberContribution);
+            }
+
+            await dbContext.SaveChangesAsync();
+        }
     }
 
     public async Task UpdateGameAsync(Game game)
@@ -119,6 +140,18 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
 
         return await dbContext.Games
             .Where(game => gameIds.Contains(game.Id))
+            .ToListAsync();
+    }
+
+    private async Task<List<CollectiveMember>> GetSelectedMembersAsync(IReadOnlyCollection<int> memberIds)
+    {
+        if (memberIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await dbContext.CollectiveMembers
+            .Where(member => memberIds.Contains(member.Id))
             .ToListAsync();
     }
 }

@@ -30,6 +30,8 @@ namespace Night.Models
         public CollectiveMember? CollectiveMember { get; set; }
 
         public List<CollectiveMember> Members { get; set; } = new();
+
+        public List<GameMemberContribution> MemberContributions { get; set; } = new();
     }
 
     public enum Platforms

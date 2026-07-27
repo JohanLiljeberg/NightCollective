@@ -253,9 +253,6 @@ namespace Night.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CollectiveMemberId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("DeveloperId")
                         .HasColumnType("int");
 
@@ -297,63 +294,72 @@ namespace Night.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CollectiveMemberId");
-
                     b.HasIndex("DeveloperId");
 
-                    b.ToTable("Game", (string)null);
+                    b.ToTable("Games", (string)null);
                 });
 
-            modelBuilder.Entity("CollectiveMemberGame", b =>
-                {
-                    b.HasOne("Night.Models.CollectiveMember", null)
-                        .WithMany()
-                        .HasForeignKey("CollectiveMemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Night.Models.Game", null)
-                        .WithMany()
-                        .HasForeignKey("GamesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-
-
-            modelBuilder.Entity("CollectiveMemberGame", b =>
+            modelBuilder.Entity("Night.Models.GameMemberContribution", b =>
                 {
                     b.Property<int>("CollectiveMemberId")
                         .HasColumnType("int");
 
-                    b.Property<int>("GamesId")
+                    b.Property<int>("GameId")
                         .HasColumnType("int");
 
-                    b.HasKey("CollectiveMemberId", "GamesId");
+                    b.Property<int>("InvolvementLevel")
+                        .HasColumnType("int");
 
-                    b.HasIndex("GamesId");
+                    b.PrimitiveCollection<string>("WorkAreas")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("CollectiveMemberGame");
+                    b.HasKey("CollectiveMemberId", "GameId");
+
+                    b.HasIndex("GameId");
+
+                    b.ToTable("GameMemberContributions", (string)null);
                 });
 
             modelBuilder.Entity("Night.Models.Game", b =>
                 {
-                    b.HasOne("Night.Models.CollectiveMember", "CollectiveMember")
-                        .WithMany()
-                        .HasForeignKey("CollectiveMemberId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("Night.Models.Developer", null)
                         .WithMany("Games")
                         .HasForeignKey("DeveloperId");
-
-                    b.Navigation("CollectiveMember");
                 });
 
+            modelBuilder.Entity("Night.Models.GameMemberContribution", b =>
+                {
+                    b.HasOne("Night.Models.CollectiveMember", "CollectiveMember")
+                        .WithMany("GameContributions")
+                        .HasForeignKey("CollectiveMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Night.Models.Game", "Game")
+                        .WithMany("MemberContributions")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CollectiveMember");
+
+                    b.Navigation("Game");
+                });
+
+            modelBuilder.Entity("Night.Models.CollectiveMember", b =>
+                {
+                    b.Navigation("GameContributions");
+                });
 
             modelBuilder.Entity("Night.Models.Developer", b =>
                 {
                     b.Navigation("Games");
+                });
+
+            modelBuilder.Entity("Night.Models.Game", b =>
+                {
+                    b.Navigation("MemberContributions");
                 });
 #pragma warning restore 612, 618
         }

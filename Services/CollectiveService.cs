@@ -33,7 +33,10 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
             {
                 AvailableGames = availableGames
             },
-            GameForm = new GameFormViewModel(),
+            GameForm = new GameFormViewModel
+            {
+                AvailableMembers = members.Select(member => new SelectListItem(member.Name, member.Id.ToString())).ToList()
+            },
             MemberOptions = members.Select(member => new SelectListItem(member.Name, member.Id.ToString())).ToList()
         };
     }
@@ -67,7 +70,7 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
 
     public async Task AddGameAsync(GameFormViewModel viewModel)
     {
-        await collectiveRepository.AddGameAsync(MapGameForm(viewModel));
+        await collectiveRepository.AddGameAsync(MapGameForm(viewModel), viewModel.MemberContributions);
     }
 
     public async Task UpdateGameAsync(GameFormViewModel viewModel)
@@ -114,7 +117,19 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
         Image = member.Image,
         Position = member.Position,
         Quote = member.Quote,
-        Games = member.Games.OrderBy(game => game.Title).Select(MapGame).ToList()
+        Games = member.Games.OrderBy(game => game.Title).Select(MapGame).ToList(),
+        GameContributions = member.GameContributions
+            .OrderBy(gc => gc.Game.Title)
+            .Select(gc => new GameContributionViewModel
+            {
+                GameId = gc.GameId,
+                Title = gc.Game.Title,
+                Image = gc.Game.Image,
+                ReleaseYear = gc.Game.ReleaseYear,
+                InvolvementLevel = gc.InvolvementLevel,
+                WorkAreas = gc.WorkAreas
+            })
+            .ToList()
     };
 
     private static GameViewModel MapGame(Game game) => new()
@@ -127,7 +142,18 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
         Platforms = game.Platforms,
         GenreGameplayType = game.GenreGameplayType,
         FromCollective = game.FromCollective,
-        MemberNames = game.Members.OrderBy(member => member.Name).Select(member => member.Name).ToList()
+        MemberNames = game.Members.OrderBy(member => member.Name).Select(member => member.Name).ToList(),
+        MemberContributions = game.MemberContributions
+            .OrderBy(mc => mc.CollectiveMember.Name)
+            .Select(mc => new MemberContributionViewModel
+            {
+                MemberId = mc.CollectiveMemberId,
+                Name = mc.CollectiveMember.Name,
+                Image = mc.CollectiveMember.Image,
+                InvolvementLevel = mc.InvolvementLevel,
+                WorkAreas = mc.WorkAreas
+            })
+            .ToList()
     };
 
     private static GameSelectViewModel MapGameSelect(GameViewModel game) => new()
