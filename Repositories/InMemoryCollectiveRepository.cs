@@ -67,6 +67,8 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
         }
     ];
 
+    private static readonly List<Game> Games = [];
+
     public Task<IReadOnlyCollection<CollectiveProject>> GetFeaturedProjectsAsync() => Task.FromResult(FeaturedProjects);
 
     public Task<IReadOnlyCollection<CollectiveEvent>> GetUpcomingEventsAsync(DateTime fromDate)
@@ -89,11 +91,62 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
         return Task.FromResult(collectiveEvent);
     }
 
-    public Task<IReadOnlyCollection<CollectiveMember>> GetCollectiveMembersAsync() => Task.FromResult(CollectiveMembers);
+    public Task<IReadOnlyCollection<CollectiveMember>> GetCollectiveMembersAsync() => Task.FromResult<IReadOnlyCollection<CollectiveMember>>(CollectiveMembers);
 
-    public Task<IReadOnlyCollection<Game>> GetGamesAsync() => Task.FromResult<IReadOnlyCollection<Game>>([]);
+    public Task<IReadOnlyCollection<Game>> GetGamesAsync() => Task.FromResult<IReadOnlyCollection<Game>>(Games);
 
-    public Task AddGameAsync(Game game) => Task.CompletedTask;
+    public Task AddGameAsync(Game game)
+    {
+        game.Id = Games.Count == 0 ? 1 : Games.Max(item => item.Id) + 1;
+        Games.Add(game);
 
-    public Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds) => Task.CompletedTask;
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateGameAsync(Game game)
+    {
+        var existingGame = Games.FirstOrDefault(item => item.Id == game.Id);
+
+        if (existingGame is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        existingGame.Title = game.Title;
+        existingGame.Image = game.Image;
+        existingGame.ReleaseYear = game.ReleaseYear;
+        existingGame.DeveloperPublisher = game.DeveloperPublisher;
+        existingGame.Platforms = game.Platforms;
+        existingGame.GenreGameplayType = game.GenreGameplayType;
+        existingGame.FromCollective = game.FromCollective;
+
+        return Task.CompletedTask;
+    }
+
+    public Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds)
+    {
+        member.Id = CollectiveMembers.Count == 0 ? 1 : CollectiveMembers.Max(item => item.Id) + 1;
+        member.Games = Games.Where(game => gameIds.Contains(game.Id)).ToList();
+        CollectiveMembers.Add(member);
+
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds)
+    {
+        var existingMember = CollectiveMembers.FirstOrDefault(item => item.Id == member.Id);
+
+        if (existingMember is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        existingMember.Name = member.Name;
+        existingMember.Image = member.Image;
+        existingMember.Position = member.Position;
+        existingMember.Quote = member.Quote;
+        existingMember.Games = Games.Where(game => gameIds.Contains(game.Id)).ToList();
+
+        return Task.CompletedTask;
+    }
 }

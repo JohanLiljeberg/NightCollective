@@ -1,47 +1,38 @@
-@model (Night.ViewModels.GameFormViewModel Game, IReadOnlyCollection<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> MemberOptions)
+@model Night.ViewModels.GameFormViewModel
 @using Night.Models
 
 @Html.AntiForgeryToken()
-<input type="hidden" name="GameForm.Id" value="@Model.Game.Id" />
+<input type="hidden" name="GameForm.Id" value="@Model.Id" />
 <div>
-    <label class="form-label" for="game-title-@Model.Game.Id">Title</label>
-    <input class="form-control" id="game-title-@Model.Game.Id" name="GameForm.Title" value="@Model.Game.Title" maxlength="120" required />
+    <label class="form-label" for="game-title-@Model.Id">Title</label>
+    <input class="form-control" id="game-title-@Model.Id" name="GameForm.Title" value="@Model.Title" maxlength="120" required />
 </div>
 <div>
-    <label class="form-label" for="game-image-@Model.Game.Id">Image URL</label>
-    <input class="form-control" id="game-image-@Model.Game.Id" name="GameForm.Image" value="@Model.Game.Image" maxlength="240" required />
+    <label class="form-label" for="game-image-@Model.Id">Image URL</label>
+    <input class="form-control" id="game-image-@Model.Id" name="GameForm.Image" value="@Model.Image" maxlength="240" required />
 </div>
 <div>
-    <label class="form-label" for="game-year-@Model.Game.Id">Release year</label>
-    <input class="form-control" id="game-year-@Model.Game.Id" name="GameForm.ReleaseYear" value="@Model.Game.ReleaseYear" type="number" min="1970" max="2100" required />
+    <label class="form-label" for="game-year-@Model.Id">Release year</label>
+    <input class="form-control" id="game-year-@Model.Id" name="GameForm.ReleaseYear" value="@Model.ReleaseYear" type="number" min="1970" max="2100" required />
 </div>
 <div>
-    <label class="form-label" for="game-dev-@Model.Game.Id">Developer / Publisher</label>
-    <input class="form-control" id="game-dev-@Model.Game.Id" name="GameForm.DeveloperPublisher" value="@Model.Game.DeveloperPublisher" maxlength="160" required />
+    <label class="form-label" for="game-dev-@Model.Id">Developer / Publisher</label>
+    <input class="form-control" id="game-dev-@Model.Id" name="GameForm.DeveloperPublisher" value="@Model.DeveloperPublisher" maxlength="160" required />
 </div>
 <div>
-    <label class="form-label" for="game-member-@Model.Game.Id">Collective member</label>
-    <select class="form-select" id="game-member-@Model.Game.Id" name="GameForm.CollectiveMemberId" required>
-        @foreach (var member in Model.MemberOptions)
-        {
-            <option value="@member.Value" selected="@(member.Value == Model.Game.CollectiveMemberId.ToString())">@member.Text</option>
-        }
-    </select>
+    <label class="form-label" for="game-platform-@Model.Id">Platform</label>
+    <select class="form-select" id="game-platform-@Model.Id" name="GameForm.Platforms" asp-items="Html.GetEnumSelectList<Platforms>()"></select>
 </div>
 <div>
-    <label class="form-label" for="game-platform-@Model.Game.Id">Platform</label>
-    <select class="form-select" id="game-platform-@Model.Game.Id" name="GameForm.Platforms" asp-items="Html.GetEnumSelectList<Platforms>()"></select>
-</div>
-<div>
-    <label class="form-label" for="game-genre-@Model.Game.Id">Genre / Gameplay</label>
-    <select class="form-select" id="game-genre-@Model.Game.Id" name="GameForm.GenreGameplayType" asp-items="Html.GetEnumSelectList<genreGameplayType>()"></select>
+    <label class="form-label" for="game-genre-@Model.Id">Genre / Gameplay</label>
+    <select class="form-select" id="game-genre-@Model.Id" name="GameForm.GenreGameplayType" asp-items="Html.GetEnumSelectList<genreGameplayType>()"></select>
 </div>
 <div class="form-check">
-    <input class="form-check-input" id="game-collective-@Model.Game.Id" name="GameForm.FromCollective" value="true" type="checkbox" @(Model.Game.FromCollective ? "checked" : string.Empty) />
+    <input class="form-check-input" id="game-collective-@Model.Id" name="GameForm.FromCollective" value="true" type="checkbox" @(Model.FromCollective ? "checked" : string.Empty) />
     <input name="GameForm.FromCollective" value="false" type="hidden" />
-    <label class="form-check-label" for="game-collective-@Model.Game.Id">Made by the collective</label>
+    <label class="form-check-label" for="game-collective-@Model.Id">Made by the collective</label>
 </div>
 <script>
-    document.getElementById('game-platform-@Model.Game.Id').value = '@((int)Model.Game.Platforms)';
-    document.getElementById('game-genre-@Model.Game.Id').value = '@((int)Model.Game.GenreGameplayType)';
+    document.getElementById('game-platform-@Model.Id').value = '@((int)Model.Platforms)';
+    document.getElementById('game-genre-@Model.Id').value = '@((int)Model.GenreGameplayType)';
 </script>

@@ -15,8 +15,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<CollectiveMember> CollectiveMembers => Set<CollectiveMember>();
 
-    public DbSet<Game> Games => Set<Game>();
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -111,7 +109,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(member => member.Position).HasMaxLength(160).IsRequired();
             entity.Property(member => member.Quote).HasMaxLength(600).IsRequired();
 
-            entity.HasMany(member => member.Games).WithMany();
+            entity.HasMany(member => member.Games).WithMany(game => game.Members);
 
             entity.HasData(new CollectiveMember
             {
@@ -128,6 +126,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(game => game.Title).HasMaxLength(120).IsRequired();
             entity.Property(game => game.Image).HasMaxLength(240).IsRequired();
             entity.Property(game => game.DeveloperPublisher).HasMaxLength(160).IsRequired();
+
+            entity.HasOne(game => game.CollectiveMember)
+                .WithMany()
+                .HasForeignKey(game => game.CollectiveMemberId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }
