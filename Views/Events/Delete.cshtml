@@ -1,0 +1,16 @@
+@model Night.ViewModels.EventViewModel
+@{
+    ViewData["Title"] = "Remove Event";
+}
+
+<section class="content-card rounded-4 p-4 p-lg-5 mb-5" aria-labelledby="delete-event-heading">
+    <p class="eyebrow mb-1">Public action</p>
+    <h1 id="delete-event-heading" class="display-6 fw-bold mb-3">Remove event</h1>
+    <p class="lead">Are you sure you want to remove <strong>@Model.Title</strong> on @Model.DateDisplay?</p>
+    <p class="text-accent">@Model.Location</p>
+
+    <form asp-controller="Events" asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-flex flex-wrap gap-2 mt-4">
+        <button type="submit" class="btn btn-danger">Remove event</button>
+        <a class="btn btn-outline-secondary" asp-controller="Events" asp-action="Index">Cancel</a>
+    </form>
+</section>

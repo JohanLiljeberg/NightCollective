@@ -15,7 +15,12 @@ public static class ServiceCollectionExtensions
 
         services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
         services.AddScoped<ICollectiveRepository, SqlCollectiveRepository>();
+        services.AddScoped<IEventRepository, SqlEventRepository>();
+        services.AddScoped<IDatabaseRepository, SqlDatabaseRepository>();
         services.AddScoped<ICollectiveService, CollectiveService>();
+        services.AddScoped<IEventService, EventService>();
+        services.AddScoped<IDatabaseInitializerService, DatabaseInitializerService>();
+        services.AddHttpClient<IImageService, ImageService>();
 
         return services;
     }

@@ -1,0 +1,151 @@
+@model Night.ViewModels.EventFormViewModel
+
+<form asp-controller="Events" method="post" class="event-form" enctype="multipart/form-data" id="eventForm">
+    <input asp-for="Id" type="hidden" />
+
+    @* Show all validation errors at the top *@
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger mb-3" role="alert">
+            <strong>Form has errors:</strong>
+            <ul class="mb-0 mt-2">
+                @foreach (var modelState in ViewData.ModelState.Values)
+                {
+                    @foreach (var error in modelState.Errors)
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                }
+            </ul>
+        </div>
+    }
+
+    <div id="validationErrors" class="alert alert-danger mb-3" role="alert" style="display: none;">
+        <strong>Please fix the following:</strong>
+        <ul id="errorList" class="mb-0 mt-2"></ul>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Date" class="form-label"></label>
+        <input asp-for="Date" class="form-control" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Location" class="form-label"></label>
+        <input asp-for="Location" class="form-control" />
+        <span asp-validation-for="Location" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-4">
+        <fieldset class="border border-2 rounded p-3">
+            <legend class="form-label d-block mb-3">Event Image</legend>
+            <p class="small text-muted mb-4">Choose one: Upload a file from your computer <strong>OR</strong> provide an image URL</p>
+
+            <div class="mb-3">
+                <h6 class="mb-2">📁 Upload Image</h6>
+                <label asp-for="ImageFile" class="form-label small">Select an image file</label>
+                <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" />
+                <small class="text-muted d-block mt-1">JPG, PNG, WebP, etc. (recommended - creates 3 responsive sizes)</small>
+            </div>
+
+            <div class="text-center text-muted my-3">
+                <small><strong>— OR —</strong></small>
+            </div>
+
+            <div class="mb-3">
+                <h6 class="mb-2">🔗 Add Image URL</h6>
+                <label asp-for="ImageUrl" class="form-label small">Enter image URL</label>
+                <input asp-for="ImageUrl" class="form-control" placeholder="https://example.com/image.svg" />
+                <small class="text-muted d-block mt-1">Link to an external image</small>
+            </div>
+        </fieldset>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-primary" id="saveBtn">Save event</button>
+        <a class="btn btn-outline-secondary" asp-controller="Events" asp-action="Index">Cancel</a>
+    </div>
+</form>
+
+<script>
+document.getElementById('eventForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Clear previous errors
+    const errorList = document.getElementById('errorList');
+    errorList.innerHTML = '';
+    const errorDiv = document.getElementById('validationErrors');
+    errorDiv.style.display = 'none';
+
+    const errors = [];
+
+    // Validate Title
+    const titleInput = document.querySelector('[name="Title"]');
+    if (!titleInput.value.trim()) {
+        errors.push('Title is required.');
+    }
+
+    // Validate Date
+    const dateInput = document.querySelector('[name="Date"]');
+    if (!dateInput.value.trim()) {
+        errors.push('Date is required.');
+    } else {
+        const selectedDate = new Date(dateInput.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (selectedDate < today) {
+            errors.push('Date cannot be in the past.');
+        }
+    }
+
+    // Validate Location
+    const locationInput = document.querySelector('[name="Location"]');
+    if (!locationInput.value.trim()) {
+        errors.push('Location is required.');
+    }
+
+    // Validate Description
+    const descriptionInput = document.querySelector('[name="Description"]');
+    if (!descriptionInput.value.trim()) {
+        errors.push('Description is required.');
+    }
+
+    // Validate at least one image source
+    const imageFileInput = document.querySelector('[name="ImageFile"]');
+    const imageUrlInput = document.querySelector('[name="ImageUrl"]');
+    const hasFile = imageFileInput.files.length > 0;
+    const hasUrl = imageUrlInput.value.trim() !== '';
+
+    if (!hasFile && !hasUrl) {
+        errors.push('Please provide an image by uploading a file or entering a URL.');
+    }
+
+    // If there are errors, show them and don't submit
+    if (errors.length > 0) {
+        errors.forEach(error => {
+            const li = document.createElement('li');
+            li.textContent = error;
+            errorList.appendChild(li);
+        });
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    // Submit the form
+    this.submit();
+});
+</script>
+

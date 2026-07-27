@@ -1,0 +1,35 @@
+@model IReadOnlyCollection<Night.ViewModels.EventViewModel>
+@{
+    ViewData["Title"] = "Upcoming Events";
+}
+
+<section class="mb-5" aria-labelledby="events-heading">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-end justify-content-between gap-3 mb-4">
+        <div>
+            <p class="eyebrow mb-1">Gatherings</p>
+            <h1 id="events-heading" class="display-5 fw-bold mb-2">Upcoming events</h1>
+            <p class="lead mb-0">Browse public events or add a new gathering for the collective.</p>
+        </div>
+        <a class="btn btn-primary" asp-controller="Events" asp-action="Create">Create event</a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var collectiveEvent in Model)
+            {
+                <div class="col-lg-6">
+                    @await Component.InvokeAsync("EventCardVC", new { collectiveEvent })
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="content-card rounded-4 p-4">
+            <h2 class="h4">No upcoming events yet</h2>
+            <p class="mb-3">Be the first to add a public event for the collective.</p>
+            <a class="btn btn-primary" asp-controller="Events" asp-action="Create">Create event</a>
+        </div>
+    }
+</section>

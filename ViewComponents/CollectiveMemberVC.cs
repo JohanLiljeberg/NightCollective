@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Night.Models;
+using Night.ViewModels;
 
 namespace Night.ViewComponents;
 
 public class CollectiveMemberVC : ViewComponent
 {
-    public IViewComponentResult Invoke(CollectiveMember member)
+    public Task<IViewComponentResult> InvokeAsync(CollectiveMemberViewModel member)
     {
-        return View(member);
+        return Task.FromResult<IViewComponentResult>(View(member));
     }
 }

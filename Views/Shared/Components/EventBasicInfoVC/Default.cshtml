@@ -1,0 +1,6 @@
+@model Night.ViewModels.EventBasicInfoViewModel
+
+<a class="next-event-link d-flex align-items-center gap-2" asp-controller="Events" asp-action="Details" asp-route-id="@Model.Id">
+    <span class="date-chip">@Model.DateDisplay</span>
+    <span>@Model.Title</span>
+</a>

@@ -11,6 +11,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Developer> Developers => Set<Developer>();
 
+    public DbSet<Game> Games => Set<Game>();
+
     public DbSet<CollectiveMember> CollectiveMembers => Set<CollectiveMember>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -54,26 +56,34 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<CollectiveEvent>(entity =>
         {
             entity.Property(collectiveEvent => collectiveEvent.Title).HasMaxLength(120).IsRequired();
-            entity.Property(collectiveEvent => collectiveEvent.DateLabel).HasMaxLength(80).IsRequired();
-            entity.Property(collectiveEvent => collectiveEvent.Description).HasMaxLength(600).IsRequired();
             entity.Property(collectiveEvent => collectiveEvent.Location).HasMaxLength(160).IsRequired();
+            entity.Property(collectiveEvent => collectiveEvent.Description).HasMaxLength(600).IsRequired();
+            entity.Property(collectiveEvent => collectiveEvent.ImageSmallUrl).HasMaxLength(240);
+            entity.Property(collectiveEvent => collectiveEvent.ImageMediumUrl).HasMaxLength(240);
+            entity.Property(collectiveEvent => collectiveEvent.ImageLargeUrl).HasMaxLength(240);
 
-            entity.HasData(
+                entity.HasData(
                 new CollectiveEvent
                 {
                     Id = 1,
                     Title = "Monthly Gamejam",
-                    DateLabel = "Friday",
+                    Date = new DateTime(2026, 7, 3),
                     Location = "Online + local pop-up",
-                    Description = "A monthly gamejam that anyone can join. New promt everytime!"
+                    Description = "A monthly gamejam that anyone can join. New promt everytime!",
+                    ImageSmallUrl = "/images/events/monthly-gamejam/monthly-gamejam_sm.webp",
+                    ImageMediumUrl = "/images/events/monthly-gamejam/monthly-gamejam_md.webp",
+                    ImageLargeUrl = "/images/events/monthly-gamejam/monthly-gamejam_lg.webp"
                 },
                 new CollectiveEvent
                 {
                     Id = 2,
                     Title = "Games as Art Showcase",
-                    DateLabel = "Summer 2026",
+                    Date = new DateTime(2026, 8, 14),
                     Location = "Community gallery",
-                    Description = "A curated evening celebrating independent game creation, installations, talks, and live demos."
+                    Description = "A curated evening celebrating independent game creation, installations, talks, and live demos.",
+                    ImageSmallUrl = "/images/events/games-as-art-showcase/games-as-art-showcase_sm.webp",
+                    ImageMediumUrl = "/images/events/games-as-art-showcase/games-as-art-showcase_md.webp",
+                    ImageLargeUrl = "/images/events/games-as-art-showcase/games-as-art-showcase_lg.webp"
                 });
         });
 
@@ -99,7 +109,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(member => member.Position).HasMaxLength(160).IsRequired();
             entity.Property(member => member.Quote).HasMaxLength(600).IsRequired();
 
-            entity.HasMany(member => member.Games).WithOne();
+            entity.HasMany(member => member.Games)
+                .WithMany(game => game.Members)
+                .UsingEntity<GameMemberContribution>(
+                    right => right.HasOne(gmc => gmc.Game).WithMany(g => g.MemberContributions).HasForeignKey(gmc => gmc.GameId).OnDelete(DeleteBehavior.Cascade),
+                    left => left.HasOne(gmc => gmc.CollectiveMember).WithMany(m => m.GameContributions).HasForeignKey(gmc => gmc.CollectiveMemberId).OnDelete(DeleteBehavior.Cascade),
+                    join =>
+                    {
+                        join.HasKey(gmc => new { gmc.CollectiveMemberId, gmc.GameId });
+                        join.ToTable("GameMemberContributions");
+                        join.Property(gmc => gmc.InvolvementLevel).IsRequired();
+                    });
 
             entity.HasData(new CollectiveMember
             {
@@ -109,6 +129,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Position = "Curator",
                 Quote = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms."
             });
+        });
+
+        modelBuilder.Entity<Game>(entity =>
+        {
+            entity.ToTable("Games");
+
+            entity.Property(game => game.Title).HasMaxLength(120).IsRequired();
+            entity.Property(game => game.Image).HasMaxLength(240).IsRequired();
+            entity.Property(game => game.DeveloperPublisher).HasMaxLength(160).IsRequired();
         });
     }
 }

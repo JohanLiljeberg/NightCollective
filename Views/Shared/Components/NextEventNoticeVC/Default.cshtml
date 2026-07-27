@@ -1,0 +1,11 @@
+@model Night.ViewModels.EventBasicInfoViewModel?
+
+@if (Model is not null)
+{
+    <div class="next-event-notice py-2">
+        <div class="container-fluid d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+            <span class="eyebrow mb-0">Next event</span>
+            @await Component.InvokeAsync("EventBasicInfoVC", new { collectiveEvent = Model })
+        </div>
+    </div>
+}

@@ -1,12 +1,25 @@
 using Night.Models;
+using Night.ViewModels;
 
 namespace Night.Repositories;
 
 public interface ICollectiveRepository
 {
-    IReadOnlyCollection<CollectiveProject> GetFeaturedProjects();
+    Task<IReadOnlyCollection<CollectiveProject>> GetFeaturedProjectsAsync();
 
-    IReadOnlyCollection<CollectiveEvent> GetUpcomingEvents();
+    Task<IReadOnlyCollection<CollectiveEvent>> GetUpcomingEventsAsync(DateTime fromDate);
 
-    IReadOnlyCollection<CollectiveMember> GetCollectiveMembers();
+    Task<CollectiveEvent?> GetNextUpcomingEventAsync(DateTime fromDate);
+
+    Task<IReadOnlyCollection<CollectiveMember>> GetCollectiveMembersAsync();
+
+    Task<IReadOnlyCollection<Game>> GetGamesAsync();
+
+    Task AddGameAsync(Game game, IReadOnlyCollection<GameMemberContributionFormViewModel> contributions);
+
+    Task UpdateGameAsync(Game game);
+
+    Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds);
+
+    Task UpdateCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds);
 }

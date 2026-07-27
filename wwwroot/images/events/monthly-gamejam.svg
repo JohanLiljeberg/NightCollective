@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Monthly Gamejam event artwork</title>
+  <desc id="desc">Purple abstract arcade shapes under a cream moon.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4b19a3"/>
+      <stop offset="1" stop-color="#2f0c6f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <circle cx="935" cy="140" r="95" fill="#fdfded" opacity=".94"/>
+  <path d="M120 500 C260 300 390 580 540 360 S850 300 1030 500" fill="none" stroke="#dad4ed" stroke-width="32" stroke-linecap="round"/>
+  <rect x="170" y="160" width="260" height="180" rx="30" fill="#dad4ed" opacity=".92"/>
+  <circle cx="250" cy="250" r="36" fill="#4b19a3"/>
+  <rect x="315" y="220" width="70" height="22" rx="11" fill="#4b19a3"/>
+  <text x="120" y="610" fill="#fdfded" font-family="Arial, sans-serif" font-size="64" font-weight="700">Monthly Gamejam</text>
+</svg>

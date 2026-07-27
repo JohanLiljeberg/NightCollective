@@ -1,5 +1,3 @@
-using Night.Models;
-
 namespace Night.ViewModels;
 
 public class HomeIndexViewModel
@@ -10,9 +8,9 @@ public class HomeIndexViewModel
 
     public string HeroDescription { get; init; } = "test";
 
-    public IReadOnlyCollection<CollectiveProject> FeaturedProjects { get; init; } = [];
+    public IReadOnlyCollection<ProjectCardViewModel> FeaturedProjects { get; init; } = [];
 
-    public IReadOnlyCollection<CollectiveEvent> UpcomingEvents { get; init; } = [];
+    public IReadOnlyCollection<EventViewModel> UpcomingEvents { get; init; } = [];
 
-    public IReadOnlyCollection<CollectiveMember> Members { get; init; } = [];
+    public IReadOnlyCollection<CollectiveMemberViewModel> Members { get; init; } = [];
 }
