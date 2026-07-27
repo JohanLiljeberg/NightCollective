@@ -1,4 +1,6 @@
-﻿namespace Night.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Night.Models
 {
     public class Game
     {
@@ -11,7 +13,7 @@
         public string? ImageMediumUrl { get; set; }
         public string? ImageLargeUrl { get; set; }
 
-        public int ReleaseYear { get; set; } 
+        public int ReleaseYear { get; set; }
 
         public string DeveloperPublisher { get; set; } = string.Empty;
 
@@ -19,14 +21,18 @@
 
         public genreGameplayType GenreGameplayType { get; set; } = genreGameplayType.Action;
 
-        public bool FromCollective{ get; set; }  
+        public bool FromCollective { get; set; }
 
+        [NotMapped]
         public int? CollectiveMemberId { get; set; }
 
+        [NotMapped]
         public CollectiveMember? CollectiveMember { get; set; }
+
+        public List<CollectiveMember> Members { get; set; } = new();
     }
 
-   public enum Platforms
+    public enum Platforms
     {
         PC,
         Console,
@@ -44,6 +50,5 @@
         Puzzle,
         Sports,
         Horror
-     
     }
 }
