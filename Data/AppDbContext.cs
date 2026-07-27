@@ -15,7 +15,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<CollectiveMember> CollectiveMembers => Set<CollectiveMember>();
 
-    public DbSet<Game> Games => Set<Game>();
+   
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
