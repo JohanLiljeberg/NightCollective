@@ -350,10 +350,6 @@ namespace Night.Migrations
                     b.Navigation("CollectiveMember");
                 });
 
-            modelBuilder.Entity("Night.Models.CollectiveMember", b =>
-                {
-                    b.Navigation("Games");
-                });
 
             modelBuilder.Entity("Night.Models.Developer", b =>
                 {
