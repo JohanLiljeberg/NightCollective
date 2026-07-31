@@ -46,6 +46,11 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
         return (await collectiveRepository.GetCollectiveMembersAsync()).Select(MapMember).ToList();
     }
 
+    public async Task<IReadOnlyCollection<GameViewModel>> GetGamesAsync()
+    {
+        return (await collectiveRepository.GetGamesAsync()).Select(MapGame).ToList();
+    }
+
     public async Task<EventBasicInfoViewModel?> GetNextUpcomingEventBasicInfoAsync()
     {
         var collectiveEvent = await collectiveRepository.GetNextUpcomingEventAsync(DateTime.Today);
@@ -85,7 +90,12 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
             return;
         }
 
-        await collectiveRepository.UpdateGameAsync(MapGameForm(viewModel));
+        await collectiveRepository.UpdateGameAsync(MapGameForm(viewModel), viewModel.MemberContributions);
+    }
+
+    public async Task DeleteGameAsync(int id)
+    {
+        await collectiveRepository.DeleteGameAsync(id);
     }
 
     public async Task<GameFormViewModel> GetGameFormAsync()

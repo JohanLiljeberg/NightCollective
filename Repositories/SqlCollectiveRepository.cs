@@ -83,9 +83,11 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
         }
     }
 
-    public async Task UpdateGameAsync(Game game)
+    public async Task UpdateGameAsync(Game game, IReadOnlyCollection<GameMemberContributionFormViewModel> contributions)
     {
-        var existingGame = await dbContext.Games.FirstOrDefaultAsync(item => item.Id == game.Id);
+        var existingGame = await dbContext.Games
+            .Include(g => g.MemberContributions)
+            .FirstOrDefaultAsync(item => item.Id == game.Id);
 
         if (existingGame is null)
         {
@@ -100,6 +102,39 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
         existingGame.GenreGameplayType = game.GenreGameplayType;
         existingGame.FromCollective = game.FromCollective;
 
+        // Remove existing contributions
+        dbContext.Set<GameMemberContribution>().RemoveRange(existingGame.MemberContributions);
+
+        // Add updated contributions
+        if (contributions.Any())
+        {
+            foreach (var contribution in contributions)
+            {
+                var gameMemberContribution = new GameMemberContribution
+                {
+                    GameId = game.Id,
+                    CollectiveMemberId = contribution.MemberId,
+                    InvolvementLevel = contribution.InvolvementLevel,
+                    WorkAreas = contribution.SelectedWorkAreas
+                };
+
+                dbContext.Set<GameMemberContribution>().Add(gameMemberContribution);
+            }
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteGameAsync(int id)
+    {
+        var game = await dbContext.Games.FirstOrDefaultAsync(g => g.Id == id);
+
+        if (game is null)
+        {
+            return;
+        }
+
+        dbContext.Games.Remove(game);
         await dbContext.SaveChangesAsync();
     }
 

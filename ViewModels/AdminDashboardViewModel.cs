@@ -6,4 +6,5 @@ public class AdminDashboardViewModel
     public GameFormViewModel GameForm { get; set; } = new();
     public CollectiveMemberFormViewModel MemberForm { get; set; } = new();
     public IReadOnlyCollection<CollectiveMemberViewModel> AllMembers { get; set; } = [];
+    public IReadOnlyCollection<GameViewModel> AllGames { get; set; } = [];
 }

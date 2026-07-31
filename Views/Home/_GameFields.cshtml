@@ -79,8 +79,17 @@
     </div>
 
     <div class="col-12">
-        <label class="form-label">Collective members and their contributions</label>
+        <label class="form-label">
+            Collective members and their contributions 
+            <small class="text-muted">(optional)</small>
+        </label>
         <div class="border rounded p-3 bg-light">
+            @if (!Model.AvailableMembers.Any())
+            {
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-info-circle"></i> No members available yet. You can add members first, then come back to assign contributions.
+                </div>
+            }
             <div id="member-contributions-list-@Model.Id" class="mb-3" data-game-id="@Model.Id">
                 @for (int i = 0; i < Model.MemberContributions.Count; i++)
                 {
@@ -93,11 +102,14 @@
                     })
                 }
             </div>
-            <button type="button" 
-                    class="btn btn-outline-primary btn-sm add-contribution-btn" 
-                    data-game-id="@Model.Id">
-                <span aria-hidden="true">+</span> Add Member Contribution
-            </button>
+            @if (Model.AvailableMembers.Any())
+            {
+                <button type="button" 
+                        class="btn btn-outline-primary btn-sm add-contribution-btn" 
+                        data-game-id="@Model.Id">
+                    <span aria-hidden="true">+</span> Add Member Contribution
+                </button>
+            }
         </div>
     </div>
 </div>

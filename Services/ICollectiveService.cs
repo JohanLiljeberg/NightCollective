@@ -10,6 +10,8 @@ public interface ICollectiveService
 
     Task<IReadOnlyCollection<CollectiveMemberViewModel>> GetCollectiveMembersAsync();
 
+    Task<IReadOnlyCollection<GameViewModel>> GetGamesAsync();
+
     Task<EventBasicInfoViewModel?> GetNextUpcomingEventBasicInfoAsync();
 
     Task AddCollectiveMemberAsync(CollectiveMemberFormViewModel viewModel);
@@ -21,6 +23,8 @@ public interface ICollectiveService
     Task AddGameAsync(GameFormViewModel viewModel);
 
     Task UpdateGameAsync(GameFormViewModel viewModel);
+
+    Task DeleteGameAsync(int id);
 
     Task<GameFormViewModel> GetGameFormAsync();
 

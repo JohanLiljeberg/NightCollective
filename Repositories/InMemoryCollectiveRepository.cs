@@ -126,7 +126,7 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
         return Task.CompletedTask;
     }
 
-    public Task UpdateGameAsync(Game game)
+    public Task UpdateGameAsync(Game game, IReadOnlyCollection<GameMemberContributionFormViewModel> contributions)
     {
         var existingGame = Games.FirstOrDefault(item => item.Id == game.Id);
 
@@ -142,6 +142,31 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
         existingGame.Platforms = game.Platforms;
         existingGame.GenreGameplayType = game.GenreGameplayType;
         existingGame.FromCollective = game.FromCollective;
+
+        // Update contributions (simplified for in-memory)
+        existingGame.MemberContributions.Clear();
+        foreach (var contribution in contributions)
+        {
+            existingGame.MemberContributions.Add(new GameMemberContribution
+            {
+                GameId = game.Id,
+                CollectiveMemberId = contribution.MemberId,
+                InvolvementLevel = contribution.InvolvementLevel,
+                WorkAreas = contribution.SelectedWorkAreas
+            });
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteGameAsync(int id)
+    {
+        var game = Games.FirstOrDefault(g => g.Id == id);
+
+        if (game is not null)
+        {
+            Games.Remove(game);
+        }
 
         return Task.CompletedTask;
     }

@@ -17,7 +17,9 @@ public interface ICollectiveRepository
 
     Task AddGameAsync(Game game, IReadOnlyCollection<GameMemberContributionFormViewModel> contributions);
 
-    Task UpdateGameAsync(Game game);
+    Task UpdateGameAsync(Game game, IReadOnlyCollection<GameMemberContributionFormViewModel> contributions);
+
+    Task DeleteGameAsync(int id);
 
     Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds);
 

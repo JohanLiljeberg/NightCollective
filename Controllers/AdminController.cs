@@ -45,7 +45,8 @@ public class AdminController(
             EventForm = await eventService.GetCreateEventFormAsync(),
             GameForm = await collectiveService.GetGameFormAsync(),
             MemberForm = await collectiveService.GetMemberFormAsync(),
-            AllMembers = await collectiveService.GetCollectiveMembersAsync()
+            AllMembers = await collectiveService.GetCollectiveMembersAsync(),
+            AllGames = await collectiveService.GetGamesAsync()
         };
 
         return View(viewModel);
@@ -159,5 +160,38 @@ public class AdminController(
         await collectiveService.DeleteCollectiveMemberAsync(id);
         TempData["SuccessMessage"] = "Member deleted successfully!";
         return RedirectToAction(nameof(Dashboard), new { tab = "manage-members" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateGame([Bind(Prefix = "GameForm")] GameFormViewModel gameForm)
+    {
+        if (!ModelState.IsValid)
+        {
+            var viewModel = new AdminDashboardViewModel
+            {
+                EventForm = await eventService.GetCreateEventFormAsync(),
+                GameForm = gameForm,
+                MemberForm = await collectiveService.GetMemberFormAsync(),
+                AllMembers = await collectiveService.GetCollectiveMembersAsync(),
+                AllGames = await collectiveService.GetGamesAsync()
+            };
+            return View("Dashboard", viewModel);
+        }
+
+        await collectiveService.UpdateGameAsync(gameForm);
+        TempData["SuccessMessage"] = "Game updated successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-games" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteGame(int id)
+    {
+        await collectiveService.DeleteGameAsync(id);
+        TempData["SuccessMessage"] = "Game deleted successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-games" });
     }
 }
