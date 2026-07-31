@@ -20,24 +20,19 @@
         @foreach (var member in Model.Members)
         {
             <div class="col">
-                <div class="h-100 position-relative">
-                    <div class="position-absolute top-0 end-0 z-1 m-3">
-                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#editMemberOffcanvas-@member.Id" aria-controls="editMemberOffcanvas-@member.Id">Edit</button>
-                    </div>
-                    @switch (member.MembershipType)
-                    {
-                        case Night.Models.MembershipType.Unsubscribed:
-                            @await Component.InvokeAsync("UnsubscribedMemberVC", new { member })
-                            break;
-                        case Night.Models.MembershipType.Subscribed:
-                            @await Component.InvokeAsync("SubscribedMemberVC", new { member })
-                            break;
-                        case Night.Models.MembershipType.Full:
-                        default:
-                            @await Component.InvokeAsync("CollectiveMemberVC", new { member })
-                            break;
-                    }
-                </div>
+                @switch (member.MembershipType)
+                {
+                    case Night.Models.MembershipType.Unsubscribed:
+                        @await Component.InvokeAsync("UnsubscribedMemberVC", new { member })
+                        break;
+                    case Night.Models.MembershipType.Subscribed:
+                        @await Component.InvokeAsync("SubscribedMemberVC", new { member })
+                        break;
+                    case Night.Models.MembershipType.Full:
+                    default:
+                        @await Component.InvokeAsync("CollectiveMemberVC", new { member })
+                        break;
+                }
             </div>
         }
     </div>

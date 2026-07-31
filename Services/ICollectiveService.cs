@@ -16,6 +16,8 @@ public interface ICollectiveService
 
     Task UpdateCollectiveMemberAsync(CollectiveMemberFormViewModel viewModel);
 
+    Task DeleteCollectiveMemberAsync(int id);
+
     Task AddGameAsync(GameFormViewModel viewModel);
 
     Task UpdateGameAsync(GameFormViewModel viewModel);

@@ -177,4 +177,14 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
 
         return Task.CompletedTask;
     }
+
+    public Task DeleteCollectiveMemberAsync(int id)
+    {
+        var member = CollectiveMembers.FirstOrDefault(m => m.Id == id);
+        if (member is not null)
+        {
+            CollectiveMembers.Remove(member);
+        }
+        return Task.CompletedTask;
+    }
 }

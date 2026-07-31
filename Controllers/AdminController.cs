@@ -44,7 +44,8 @@ public class AdminController(
         {
             EventForm = await eventService.GetCreateEventFormAsync(),
             GameForm = await collectiveService.GetGameFormAsync(),
-            MemberForm = await collectiveService.GetMemberFormAsync()
+            MemberForm = await collectiveService.GetMemberFormAsync(),
+            AllMembers = await collectiveService.GetCollectiveMembersAsync()
         };
 
         return View(viewModel);
@@ -126,5 +127,37 @@ public class AdminController(
     {
         HttpContext.Session.Clear();
         return RedirectToAction("Index", "Home");
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateMember([Bind(Prefix = "MemberForm")] CollectiveMemberFormViewModel memberForm)
+    {
+        if (!ModelState.IsValid)
+        {
+            var viewModel = new AdminDashboardViewModel
+            {
+                EventForm = await eventService.GetCreateEventFormAsync(),
+                GameForm = await collectiveService.GetGameFormAsync(),
+                MemberForm = memberForm,
+                AllMembers = await collectiveService.GetCollectiveMembersAsync()
+            };
+            return View("Dashboard", viewModel);
+        }
+
+        await collectiveService.UpdateCollectiveMemberAsync(memberForm);
+        TempData["SuccessMessage"] = "Member updated successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-members" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteMember(int id)
+    {
+        await collectiveService.DeleteCollectiveMemberAsync(id);
+        TempData["SuccessMessage"] = "Member deleted successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-members" });
     }
 }

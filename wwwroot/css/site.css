@@ -235,3 +235,30 @@ body {
     aspect-ratio: 16 / 9;
     object-fit: cover;
 }
+
+/* Game Portfolio Grid Styles */
+.game-portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.game-card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.game-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+}
+
+.work-areas-pills {
+    max-height: 60px;
+    overflow: hidden;
+}
+
+@media (max-width: 767px) {
+    .game-portfolio-grid {
+        grid-template-columns: 1fr;
+    }
+}

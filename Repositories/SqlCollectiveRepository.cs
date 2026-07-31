@@ -126,10 +126,22 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
         existingMember.Image = member.Image;
         existingMember.Position = member.Position;
         existingMember.Quote = member.Quote;
+        existingMember.MembershipType = member.MembershipType;
+        existingMember.FeaturedGameId = member.FeaturedGameId;
         existingMember.Games.Clear();
         existingMember.Games.AddRange(await GetSelectedGamesAsync(gameIds));
 
         await dbContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteCollectiveMemberAsync(int id)
+    {
+        var member = await dbContext.CollectiveMembers.FindAsync(id);
+        if (member is not null)
+        {
+            dbContext.CollectiveMembers.Remove(member);
+            await dbContext.SaveChangesAsync();
+        }
     }
 
     private async Task<List<Game>> GetSelectedGamesAsync(IReadOnlyCollection<int> gameIds)

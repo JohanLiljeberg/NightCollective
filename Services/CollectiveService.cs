@@ -68,6 +68,11 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
         await collectiveRepository.UpdateCollectiveMemberAsync(MapMemberForm(viewModel), viewModel.SelectedGameIds);
     }
 
+    public async Task DeleteCollectiveMemberAsync(int id)
+    {
+        await collectiveRepository.DeleteCollectiveMemberAsync(id);
+    }
+
     public async Task AddGameAsync(GameFormViewModel viewModel)
     {
         await collectiveRepository.AddGameAsync(MapGameForm(viewModel), viewModel.MemberContributions);

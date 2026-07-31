@@ -1,10 +1,12 @@
 @model Night.ViewModels.AdminDashboardViewModel
 @{
     ViewData["Title"] = "Admin Dashboard";
+    var activeTab = Context.Request.Query["tab"].ToString();
+    if (string.IsNullOrEmpty(activeTab)) activeTab = "events";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1> Admin Dashboard</h1>
+    <h1>🛠️ Admin Dashboard</h1>
     <a asp-action="Logout" class="btn btn-outline-danger">Logout</a>
 </div>
 
@@ -18,25 +20,30 @@
 
 <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
     <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
+        <button class="nav-link @(activeTab == "events" ? "active" : "")" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
             📅 Create Event
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="games-tab" data-bs-toggle="tab" data-bs-target="#games" type="button" role="tab">
+        <button class="nav-link @(activeTab == "games" ? "active" : "")" id="games-tab" data-bs-toggle="tab" data-bs-target="#games" type="button" role="tab">
             🎮 Add Game
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="members-tab" data-bs-toggle="tab" data-bs-target="#members" type="button" role="tab">
+        <button class="nav-link @(activeTab == "members" ? "active" : "")" id="members-tab" data-bs-toggle="tab" data-bs-target="#members" type="button" role="tab">
             👥 Add Member
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "manage-members" ? "active" : "")" id="manage-members-tab" data-bs-toggle="tab" data-bs-target="#manage-members" type="button" role="tab">
+            📋 Manage Members
         </button>
     </li>
 </ul>
 
 <div class="tab-content" id="adminTabsContent">
     <!-- Events Tab -->
-    <div class="tab-pane fade show active" id="events" role="tabpanel">
+    <div class="tab-pane fade @(activeTab == "events" ? "show active" : "")" id="events" role="tabpanel">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0">Create New Event</h3>
@@ -99,7 +106,7 @@
     </div>
 
     <!-- Games Tab -->
-    <div class="tab-pane fade" id="games" role="tabpanel">
+    <div class="tab-pane fade @(activeTab == "games" ? "show active" : "")" id="games" role="tabpanel">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0">Add New Game</h3>
@@ -117,7 +124,7 @@
     </div>
 
     <!-- Members Tab -->
-    <div class="tab-pane fade" id="members" role="tabpanel">
+    <div class="tab-pane fade @(activeTab == "members" ? "show active" : "")" id="members" role="tabpanel">
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-0">Add New Member</h3>
@@ -133,9 +140,247 @@
             </div>
         </div>
     </div>
+
+    <!-- Manage Members Tab -->
+    <div class="tab-pane fade @(activeTab == "manage-members" ? "show active" : "")" id="manage-members" role="tabpanel">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Manage All Members</h3>
+                <span class="badge bg-primary">@Model.AllMembers.Count Total</span>
+            </div>
+            <div class="card-body">
+                @* Filter Buttons *@
+                <div class="btn-group mb-4" role="group" aria-label="Filter members">
+                    <input type="radio" class="btn-check" name="memberFilter" id="filterAll" value="all" autocomplete="off" checked />
+                    <label class="btn btn-outline-primary" for="filterAll">
+                        All (@Model.AllMembers.Count)
+                    </label>
+
+                    <input type="radio" class="btn-check" name="memberFilter" id="filterFull" value="@((int)Night.Models.MembershipType.Full)" autocomplete="off" />
+                    <label class="btn btn-outline-success" for="filterFull">
+                        <i class="bi bi-star-fill"></i> Full Members (@Model.AllMembers.Count(m => m.MembershipType == Night.Models.MembershipType.Full))
+                    </label>
+
+                    <input type="radio" class="btn-check" name="memberFilter" id="filterSubscribed" value="@((int)Night.Models.MembershipType.Subscribed)" autocomplete="off" />
+                    <label class="btn btn-outline-info" for="filterSubscribed">
+                        <i class="bi bi-person-check"></i> Subscribed (@Model.AllMembers.Count(m => m.MembershipType == Night.Models.MembershipType.Subscribed))
+                    </label>
+
+                    <input type="radio" class="btn-check" name="memberFilter" id="filterUnsubscribed" value="@((int)Night.Models.MembershipType.Unsubscribed)" autocomplete="off" />
+                    <label class="btn btn-outline-secondary" for="filterUnsubscribed">
+                        <i class="bi bi-person-dash"></i> Unsubscribed (@Model.AllMembers.Count(m => m.MembershipType == Night.Models.MembershipType.Unsubscribed))
+                    </label>
+                </div>
+
+                @* Members List *@
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">Image</th>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th style="width: 150px;">Type</th>
+                                <th style="width: 100px;">Games</th>
+                                <th style="width: 180px;" class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTableBody">
+                            @foreach (var member in Model.AllMembers.OrderBy(m => m.Name))
+                            {
+                                var membershipClass = member.MembershipType switch
+                                {
+                                    Night.Models.MembershipType.Full => "bg-success-subtle text-success",
+                                    Night.Models.MembershipType.Subscribed => "bg-info-subtle text-info",
+                                    Night.Models.MembershipType.Unsubscribed => "bg-secondary-subtle text-secondary",
+                                    _ => ""
+                                };
+
+                                var membershipIcon = member.MembershipType switch
+                                {
+                                    Night.Models.MembershipType.Full => "bi-star-fill",
+                                    Night.Models.MembershipType.Subscribed => "bi-person-check",
+                                    Night.Models.MembershipType.Unsubscribed => "bi-person-dash",
+                                    _ => ""
+                                };
+
+                                <tr class="member-row" data-membership-type="@((int)member.MembershipType)">
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(member.ImageSmallUrl))
+                                        {
+                                            <img src="@member.ImageSmallUrl" 
+                                                 alt="@member.Name" 
+                                                 class="rounded" 
+                                                 width="60" 
+                                                 height="60" 
+                                                 style="object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="bi bi-person-circle fs-3 text-muted"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <strong>@member.Name</strong>
+                                    </td>
+                                    <td class="text-muted">
+                                        <small>@member.Position</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge @membershipClass px-3 py-2">
+                                            <i class="bi @membershipIcon"></i>
+                                            @member.MembershipType
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark border">
+                                            @member.GameContributions.Count
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-primary me-1" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editMemberModal-@member.Id">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </button>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteMemberModal-@member.Id">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@* Edit Member Modals *@
+@foreach (var member in Model.AllMembers)
+{
+    <div class="modal fade" id="editMemberModal-@member.Id" tabindex="-1" aria-labelledby="editMemberModalLabel-@member.Id" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editMemberModalLabel-@member.Id">
+                        <i class="bi bi-pencil"></i> Edit @member.Name
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="UpdateMember" method="post">
+                    <div class="modal-body">
+                        @{
+                            var editForm = new Night.ViewModels.CollectiveMemberFormViewModel
+                            {
+                                Id = member.Id,
+                                Name = member.Name,
+                                Image = member.Image,
+                                Position = member.Position,
+                                Quote = member.Quote,
+                                MembershipType = member.MembershipType,
+                                FeaturedGameId = member.FeaturedGame?.Id,
+                                SelectedGameIds = member.Games.Select(g => g.Id).ToList(),
+                                AvailableGames = Model.GameForm.AvailableMembers
+                                    .Select(m => new Night.ViewModels.GameSelectViewModel { Id = int.Parse(m.Value), Title = m.Text })
+                                    .ToList()
+                            };
+                        }
+                        @Html.Partial("~/Views/Home/_MemberFields.cshtml", editForm)
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* Delete Member Modals *@
+@foreach (var member in Model.AllMembers)
+{
+    <div class="modal fade" id="deleteMemberModal-@member.Id" tabindex="-1" aria-labelledby="deleteMemberModalLabel-@member.Id" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteMemberModalLabel-@member.Id">
+                        <i class="bi bi-exclamation-triangle"></i> Confirm Deletion
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="DeleteMember" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@member.Id" />
+                    <div class="modal-body">
+                        <p class="mb-3">Are you sure you want to <strong>permanently delete</strong> this member?</p>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center gap-3">
+                                    @if (!string.IsNullOrEmpty(member.ImageSmallUrl))
+                                    {
+                                        <img src="@member.ImageSmallUrl" alt="@member.Name" class="rounded" width="60" height="60" style="object-fit: cover;" />
+                                    }
+                                    <div>
+                                        <h6 class="mb-1">@member.Name</h6>
+                                        <p class="small text-muted mb-0">@member.Position</p>
+                                        <span class="badge bg-secondary mt-1">@member.MembershipType</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Warning:</strong> This action cannot be undone. All associated data will be removed.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete Permanently
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
 
 @section Scripts {
     <script src="~/js/game-form.js" asp-append-version="true"></script>
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Member filtering functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('input[name="memberFilter"]');
+            const memberRows = document.querySelectorAll('.member-row');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('change', function() {
+                    const filterValue = this.value;
+
+                    memberRows.forEach(row => {
+                        const membershipType = row.getAttribute('data-membership-type');
+
+                        if (filterValue === 'all' || membershipType === filterValue) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 }
