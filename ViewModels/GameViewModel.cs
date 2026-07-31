@@ -12,6 +12,12 @@ public class GameViewModel
 
     public string Image { get; init; } = string.Empty;
 
+    public string? ImageSmallUrl { get; init; }
+
+    public string? ImageMediumUrl { get; init; }
+
+    public string? ImageLargeUrl { get; init; }
+
     public string DeveloperPublisher { get; init; } = string.Empty;
 
     public Platforms Platforms { get; init; } = Platforms.PC;

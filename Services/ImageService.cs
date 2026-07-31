@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,9 +13,18 @@ namespace Night.Services
         private readonly IWebHostEnvironment _environment;
         private readonly HttpClient _httpClient;
 
-        private const int WidthSmall = 400;
-        private const int WidthMedium = 800;
-        private const int WidthLarge = 1200;
+        // Mobile-first optimized breakpoints
+        private const int WidthTiny = 320;      // Old phones, portrait
+        private const int WidthSmall = 640;     // Modern phones @2x, portrait
+        private const int WidthMedium = 1024;   // Tablets @2x, portrait
+        private const int WidthLarge = 1600;    // Desktop @2x
+        private const int WidthXLarge = 2400;   // Retina displays @2x
+
+        // WebP quality settings optimized for mobile
+        private const int QualitySmall = 85;    // Higher quality for small images (more noticeable compression)
+        private const int QualityMedium = 80;   // Balanced quality/size
+        private const int QualityLarge = 75;    // Lower quality acceptable on large screens
+
         public ImageService(IWebHostEnvironment environment, HttpClient httpClient)
         {
             _environment = environment;
@@ -74,9 +84,10 @@ namespace Night.Services
             using var stream = file.OpenReadStream();
             using var image = await Image.LoadAsync(stream);
 
-            await SaveResizedWebPAsync(image, Path.Combine(imageFolder, smallName), WidthSmall);
-            await SaveResizedWebPAsync(image, Path.Combine(imageFolder, mediumName), WidthMedium);
-            await SaveResizedWebPAsync(image, Path.Combine(imageFolder, largeName), WidthLarge);
+            // Save multiple sizes optimized for mobile-first
+            await SaveResizedWebPAsync(image, Path.Combine(imageFolder, smallName), WidthSmall, QualitySmall);
+            await SaveResizedWebPAsync(image, Path.Combine(imageFolder, mediumName), WidthMedium, QualityMedium);
+            await SaveResizedWebPAsync(image, Path.Combine(imageFolder, largeName), WidthLarge, QualityLarge);
 
             return new ImageSizeUrls(
                 SmallUrl: $"/{subFolder}/{baseFileName}/{smallName}",
@@ -121,10 +132,10 @@ namespace Night.Services
                 using var memoryStream = new MemoryStream(imageBytes);
                 using var image = await Image.LoadAsync(memoryStream);
 
-                // Save resized versions
-                await SaveResizedWebPAsync(image, Path.Combine(imageFolder, smallName), WidthSmall);
-                await SaveResizedWebPAsync(image, Path.Combine(imageFolder, mediumName), WidthMedium);
-                await SaveResizedWebPAsync(image, Path.Combine(imageFolder, largeName), WidthLarge);
+                // Save resized versions with optimized quality
+                await SaveResizedWebPAsync(image, Path.Combine(imageFolder, smallName), WidthSmall, QualitySmall);
+                await SaveResizedWebPAsync(image, Path.Combine(imageFolder, mediumName), WidthMedium, QualityMedium);
+                await SaveResizedWebPAsync(image, Path.Combine(imageFolder, largeName), WidthLarge, QualityLarge);
 
                 return new ImageSizeUrls(
                     SmallUrl: $"/{subFolder}/{baseFileName}/{smallName}",
@@ -140,26 +151,62 @@ namespace Night.Services
             }
         }
 
-        private async Task SaveResizedWebPAsync(Image sourceImage, string outputPath, int targetWidth)
+        /// <summary>
+        /// Resizes and saves an image as WebP with optimized quality settings for mobile performance.
+        /// Uses Lanczos3 resampler for best quality/performance balance.
+        /// </summary>
+        private async Task SaveResizedWebPAsync(Image sourceImage, string outputPath, int targetWidth, int quality)
         {
             using var clonedImage = sourceImage.Clone(ctx =>
             {
                 ctx.Resize(new ResizeOptions
                 {
                     Size = new Size(targetWidth, 0),
-                    Mode = ResizeMode.Max
+                    Mode = ResizeMode.Max,
+                    Sampler = KnownResamplers.Lanczos3, // Best quality for downscaling
+                    Compand = true // Better color accuracy
                 });
             });
 
-            await clonedImage.SaveAsWebpAsync(outputPath);
+            var encoder = new WebpEncoder
+            {
+                Quality = quality,
+                Method = WebpEncodingMethod.BestQuality, // Slower but better compression
+                FileFormat = WebpFileFormatType.Lossy,
+                NearLossless = false,
+                UseAlphaCompression = true
+            };
+
+            await clonedImage.SaveAsWebpAsync(outputPath, encoder);
         }
 
         public void DeleteImage(ImageSizeUrls? urls)
         {
             if (urls == null) return;
+
+            // Delete all three sizes
             DeleteFileFromUrl(urls.SmallUrl);
             DeleteFileFromUrl(urls.MediumUrl);
             DeleteFileFromUrl(urls.LargeUrl);
+
+            // Try to delete the parent folder if empty
+            try
+            {
+                var firstUrl = urls.SmallUrl ?? urls.MediumUrl ?? urls.LargeUrl;
+                if (!string.IsNullOrEmpty(firstUrl))
+                {
+                    var physicalPath = Path.Combine(_environment.WebRootPath, firstUrl.TrimStart('/'));
+                    var directory = Path.GetDirectoryName(physicalPath);
+                    if (directory != null && Directory.Exists(directory) && !Directory.EnumerateFileSystemEntries(directory).Any())
+                    {
+                        Directory.Delete(directory);
+                    }
+                }
+            }
+            catch
+            {
+                // Fail silently if folder cleanup fails
+            }
         }
 
         private void DeleteFileFromUrl(string? url)

@@ -76,7 +76,17 @@
             {
                 <div class="col-sm-6 col-lg-4 col-xl-3">
                     <article class="card h-100 border-0 overflow-hidden">
-                        <img class="card-img-top" src="@game.Image" alt="Artwork for @game.Title" />
+                        @await Component.InvokeAsync("ResponsiveImageVC", new
+                        {
+                            smallUrl = game.ImageSmallUrl,
+                            mediumUrl = game.ImageMediumUrl,
+                            largeUrl = game.ImageLargeUrl,
+                            altText = $"Artwork for {game.Title}",
+                            cssClass = "card-img-top",
+                            width = 640,
+                            height = 360,
+                            aspectRatio = "16 / 9"
+                        })
                         <div class="card-body">
                             <h3 class="h6 card-title mb-1">@game.Title</h3>
                             <p class="text-muted mb-1">@game.DeveloperPublisher · @game.ReleaseYear</p>

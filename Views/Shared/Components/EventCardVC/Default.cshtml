@@ -1,11 +1,17 @@
 @model Night.ViewModels.EventViewModel
 
 <article class="event-card h-100 overflow-hidden rounded-4">
-    <picture>
-        <source media="(max-width: 575px)" srcset="@Model.ImageUrl.Replace("_md.webp", "_sm.webp")" />
-        <source media="(max-width: 991px)" srcset="@Model.ImageUrl" />
-        <img class="event-card-image w-100" src="@Model.ImageUrl" alt="Event artwork for @Model.Title" />
-    </picture>
+    @await Component.InvokeAsync("ResponsiveImageVC", new
+    {
+        smallUrl = Model.ImageSmallUrl,
+        mediumUrl = Model.ImageMediumUrl,
+        largeUrl = Model.ImageLargeUrl,
+        altText = $"Event artwork for {Model.Title}",
+        cssClass = "event-card-image w-100",
+        width = 1024,
+        height = 576,
+        aspectRatio = "16 / 9"
+    })
     <div class="p-4">
         <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
             <div>
