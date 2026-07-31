@@ -1,3 +1,5 @@
+using Night.Models;
+
 namespace Night.ViewModels;
 
 public class CollectiveMemberViewModel
@@ -17,6 +19,11 @@ public class CollectiveMemberViewModel
     public string Position { get; init; } = string.Empty;
 
     public string Quote { get; init; } = string.Empty;
+
+    public MembershipType MembershipType { get; init; } = MembershipType.Full;
+
+    // For Subscribed members
+    public GameViewModel? FeaturedGame { get; init; }
 
     public IReadOnlyCollection<GameViewModel> Games { get; init; } = [];
 

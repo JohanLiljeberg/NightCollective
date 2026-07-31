@@ -64,7 +64,8 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
             Name = "Night Collective",
             Image = "/images/collective-members/night-collective.jpg",
             Position = "Curators, developers, artists, and players",
-            Quote = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms."
+            Quote = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms.",
+            MembershipType = MembershipType.Full
         }
     ];
 
@@ -167,6 +168,11 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
         existingMember.Image = member.Image;
         existingMember.Position = member.Position;
         existingMember.Quote = member.Quote;
+        existingMember.MembershipType = member.MembershipType;
+        existingMember.FeaturedGameId = member.FeaturedGameId;
+        existingMember.FeaturedGame = member.FeaturedGameId.HasValue 
+            ? Games.FirstOrDefault(g => g.Id == member.FeaturedGameId.Value) 
+            : null;
         existingMember.Games = Games.Where(game => gameIds.Contains(game.Id)).ToList();
 
         return Task.CompletedTask;

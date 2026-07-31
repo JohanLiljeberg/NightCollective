@@ -144,6 +144,8 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
         ImageLargeUrl = member.ImageLargeUrl,
         Position = member.Position,
         Quote = member.Quote,
+        MembershipType = member.MembershipType,
+        FeaturedGame = member.FeaturedGame is not null ? MapGame(member.FeaturedGame) : null,
         Games = member.Games.OrderBy(game => game.Title).Select(MapGame).ToList(),
         GameContributions = member.GameContributions
             .OrderBy(gc => gc.Game.Title)
@@ -198,7 +200,9 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
         Name = viewModel.Name,
         Image = viewModel.Image,
         Position = viewModel.Position,
-        Quote = viewModel.Quote
+        Quote = viewModel.Quote,
+        MembershipType = viewModel.MembershipType,
+        FeaturedGameId = viewModel.FeaturedGameId
     };
 
     private static Game MapGameForm(GameFormViewModel viewModel) => new()

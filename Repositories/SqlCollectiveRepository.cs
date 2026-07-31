@@ -39,6 +39,7 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
     {
         return await dbContext.CollectiveMembers
             .AsNoTracking()
+            .Include(member => member.FeaturedGame)
             .Include(member => member.GameContributions)
                 .ThenInclude(gc => gc.Game)
             .AsSplitQuery()

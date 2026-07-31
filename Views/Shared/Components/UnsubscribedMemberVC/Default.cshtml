@@ -1,0 +1,27 @@
+@model Night.ViewModels.CollectiveMemberViewModel
+
+<article class="unsubscribed-member-card card h-100 border-0 bg-light">
+    <div class="card-body d-flex flex-column align-items-center justify-content-center p-4 text-center">
+        @if (!string.IsNullOrEmpty(Model.ImageSmallUrl))
+        {
+            <div class="mb-3">
+                <img src="@Model.ImageSmallUrl" 
+                     alt="@Model.Name" 
+                     class="rounded-circle border border-2 border-secondary opacity-75"
+                     width="80" 
+                     height="80"
+                     style="object-fit: cover;"
+                     loading="lazy" />
+            </div>
+        }
+        else
+        {
+            <div class="mb-3 d-flex align-items-center justify-content-center rounded-circle bg-secondary bg-opacity-25" 
+                 style="width: 80px; height: 80px;">
+                <span class="fs-1 text-muted opacity-50">👤</span>
+            </div>
+        }
+        <h3 class="h6 card-title mb-1 text-muted">@Model.Name</h3>
+        <p class="small text-muted mb-0">Former member</p>
+    </div>
+</article>

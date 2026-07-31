@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Night.Models;
 
 namespace Night.ViewModels;
 
@@ -21,6 +22,12 @@ public class CollectiveMemberFormViewModel
     [Required]
     [StringLength(600)]
     public string Quote { get; set; } = string.Empty;
+
+    [Required]
+    public MembershipType MembershipType { get; set; } = MembershipType.Full;
+
+    // For Subscribed members - their featured game
+    public int? FeaturedGameId { get; set; }
 
     public List<int> SelectedGameIds { get; set; } = [];
 
