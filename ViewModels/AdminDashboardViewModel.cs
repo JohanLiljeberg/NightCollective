@@ -1,0 +1,8 @@
+namespace Night.ViewModels;
+
+public class AdminDashboardViewModel
+{
+    public EventFormViewModel EventForm { get; set; } = new();
+    public GameFormViewModel GameForm { get; set; } = new();
+    public CollectiveMemberFormViewModel MemberForm { get; set; } = new();
+}

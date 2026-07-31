@@ -1,6 +1,5 @@
 @model Night.ViewModels.GameFormViewModel
 @using Night.Models
-@using Night.Extensions
 
 @Html.AntiForgeryToken()
 <input type="hidden" name="GameForm.Id" value="@Model.Id" />
@@ -8,189 +7,111 @@
 <div class="row g-3">
     <div class="col-12">
         <label class="form-label" for="game-title-@Model.Id">Title</label>
-        <input class="form-control" id="game-title-@Model.Id" name="GameForm.Title" value="@Model.Title" maxlength="120" required />
+        <input class="form-control" 
+               id="game-title-@Model.Id" 
+               name="GameForm.Title" 
+               value="@Model.Title" 
+               maxlength="120" 
+               required />
     </div>
 
     <div class="col-12">
         <label class="form-label" for="game-image-@Model.Id">Image URL</label>
-        <input class="form-control" id="game-image-@Model.Id" name="GameForm.Image" value="@Model.Image" maxlength="240" required />
+        <input class="form-control" 
+               id="game-image-@Model.Id" 
+               name="GameForm.Image" 
+               value="@Model.Image" 
+               maxlength="240" 
+               required />
     </div>
 
     <div class="col-md-6">
         <label class="form-label" for="game-year-@Model.Id">Release year</label>
-        <input class="form-control" id="game-year-@Model.Id" name="GameForm.ReleaseYear" value="@Model.ReleaseYear" type="number" min="1970" max="2100" required />
+        <input class="form-control" 
+               id="game-year-@Model.Id" 
+               name="GameForm.ReleaseYear" 
+               value="@Model.ReleaseYear" 
+               type="number" 
+               min="1970" 
+               max="2100" 
+               required />
     </div>
 
     <div class="col-md-6">
         <label class="form-label" for="game-dev-@Model.Id">Developer / Publisher</label>
-        <input class="form-control" id="game-dev-@Model.Id" name="GameForm.DeveloperPublisher" value="@Model.DeveloperPublisher" maxlength="160" required />
+        <input class="form-control" 
+               id="game-dev-@Model.Id" 
+               name="GameForm.DeveloperPublisher" 
+               value="@Model.DeveloperPublisher" 
+               maxlength="160" 
+               required />
     </div>
 
     <div class="col-md-6">
         <label class="form-label" for="game-platform-@Model.Id">Platform</label>
-        <select class="form-select" id="game-platform-@Model.Id" name="GameForm.Platforms" asp-items="Html.GetEnumSelectList<Platforms>()"></select>
+        <select class="form-select" 
+                id="game-platform-@Model.Id" 
+                name="GameForm.Platforms" 
+                asp-items="Html.GetEnumSelectList<Platforms>()"></select>
     </div>
 
     <div class="col-md-6">
         <label class="form-label" for="game-genre-@Model.Id">Genre / Gameplay</label>
-        <select class="form-select" id="game-genre-@Model.Id" name="GameForm.GenreGameplayType" asp-items="Html.GetEnumSelectList<genreGameplayType>()"></select>
+        <select class="form-select" 
+                id="game-genre-@Model.Id" 
+                name="GameForm.GenreGameplayType" 
+                asp-items="Html.GetEnumSelectList<genreGameplayType>()"></select>
     </div>
 
     <div class="col-12">
         <div class="form-check">
-            <input class="form-check-input" id="game-collective-@Model.Id" name="GameForm.FromCollective" value="true" type="checkbox" @(Model.FromCollective ? "checked" : string.Empty) />
+            <input class="form-check-input" 
+                   id="game-collective-@Model.Id" 
+                   name="GameForm.FromCollective" 
+                   value="true" 
+                   type="checkbox" 
+                   @(Model.FromCollective ? "checked" : string.Empty) />
             <input name="GameForm.FromCollective" value="false" type="hidden" />
-            <label class="form-check-label" for="game-collective-@Model.Id">Made by the collective</label>
+            <label class="form-check-label" for="game-collective-@Model.Id">
+                Made by the collective members
+            </label>
         </div>
     </div>
 
     <div class="col-12">
         <label class="form-label">Collective members and their contributions</label>
-        <div id="member-contributions-container-@Model.Id" class="border rounded p-3 bg-light">
-            <div id="member-contributions-list-@Model.Id" class="mb-3">
+        <div class="border rounded p-3 bg-light">
+            <div id="member-contributions-list-@Model.Id" class="mb-3" data-game-id="@Model.Id">
                 @for (int i = 0; i < Model.MemberContributions.Count; i++)
                 {
-                    <div class="member-contribution-item card mb-3" data-index="@i">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <h6 class="mb-0">Member Contribution #@(i + 1)</h6>
-                                <button type="button" class="btn btn-sm btn-danger remove-member-btn" onclick="removeMemberContribution(this)">Remove</button>
-                            </div>
-                            <input type="hidden" name="GameForm.MemberContributions[@i].MemberId" value="@Model.MemberContributions[i].MemberId" />
-
-                            <div class="mb-3">
-                                <label class="form-label">Member</label>
-                                <select class="form-select member-select" name="GameForm.MemberContributions[@i].MemberId" required>
-                                    <option value="">Select a member...</option>
-                                    @foreach (var member in Model.AvailableMembers)
-                                    {
-                                        var isSelected = member.Value == Model.MemberContributions[i].MemberId.ToString();
-                                        <option value="@member.Value" selected="@isSelected">@member.Text</option>
-                                    }
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Involvement Level</label>
-                                <div class="btn-group w-100" role="group">
-                                    @foreach (InvolvementLevel level in Enum.GetValues(typeof(InvolvementLevel)))
-                                    {
-                                        var icon = level switch
-                                        {
-                                            InvolvementLevel.Lead => "🥇",
-                                            InvolvementLevel.Major => "🥈",
-                                            InvolvementLevel.Supporting => "🥉",
-                                            _ => ""
-                                        };
-                                        var isChecked = Model.MemberContributions[i].InvolvementLevel == level;
-                                        <input type="radio" class="btn-check" name="GameForm.MemberContributions[@i].InvolvementLevel" 
-                                               id="involvement-@Model.Id-@i-@level" value="@((int)level)" @(isChecked ? "checked" : "") />
-                                        <label class="btn btn-outline-primary" for="involvement-@Model.Id-@i-@level">@icon @level</label>
-                                    }
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Work Areas (select all that apply)</label>
-                                <div class="row g-2">
-                                    @foreach (var workArea in WorkAreaExtensions.GetAllWorkAreas())
-                                    {
-                                        var isChecked = Model.MemberContributions[i].SelectedWorkAreas.Contains(workArea);
-                                        <div class="col-md-6">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" 
-                                                       name="GameForm.MemberContributions[@i].SelectedWorkAreas" 
-                                                       id="work-area-@Model.Id-@i-@workArea" 
-                                                       value="@((int)workArea)" 
-                                                       @(isChecked ? "checked" : "") />
-                                                <label class="form-check-label" for="work-area-@Model.Id-@i-@workArea">
-                                                    @workArea.GetIconWithName()
-                                                </label>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    @await Component.InvokeAsync("MemberContributionFormItemVC", new
+                    {
+                        contribution = Model.MemberContributions[i],
+                        availableMembers = Model.AvailableMembers,
+                        index = i,
+                        gameFormId = Model.Id?.ToString() ?? "0"
+                    })
                 }
             </div>
-            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addMemberContribution('@Model.Id')">
-                + Add Member Contribution
+            <button type="button" 
+                    class="btn btn-outline-primary btn-sm add-contribution-btn" 
+                    data-game-id="@Model.Id">
+                <span aria-hidden="true">+</span> Add Member Contribution
             </button>
         </div>
     </div>
 </div>
 
 <script>
-    document.getElementById('game-platform-@Model.Id').value = '@((int)Model.Platforms)';
-    document.getElementById('game-genre-@Model.Id').value = '@((int)Model.GenreGameplayType)';
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set initial values for enum dropdowns
+        const platformSelect = document.getElementById('game-platform-@Model.Id');
+        const genreSelect = document.getElementById('game-genre-@Model.Id');
 
-    let memberContributionIndex_@Model.Id = @Model.MemberContributions.Count;
+        if (platformSelect) platformSelect.value = '@((int)Model.Platforms)';
+        if (genreSelect) genreSelect.value = '@((int)Model.GenreGameplayType)';
 
-    function addMemberContribution(modelId) {
-        const container = document.getElementById(`member-contributions-list-${modelId}`);
-        const index = memberContributionIndex_@Model.Id++;
-
-        const memberOptions = `@Html.Raw(string.Join("", Model.AvailableMembers.Select(m => $"<option value='{m.Value}'>{m.Text}</option>")))`;
-        const workAreaCheckboxes = `@Html.Raw(string.Join("", WorkAreaExtensions.GetAllWorkAreas().Select(wa => 
-            $"<div class='col-md-6'><div class='form-check'><input class='form-check-input' type='checkbox' name='GameForm.MemberContributions[{"{index}"}].SelectedWorkAreas' id='work-area-{Model.Id}-{"{index}"}-{wa}' value='{(int)wa}' /><label class='form-check-label' for='work-area-{Model.Id}-{"{index}"}-{wa}'>{wa.GetIconWithName()}</label></div></div>"
-        )))`;
-
-        const html = `
-            <div class="member-contribution-item card mb-3" data-index="${index}">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h6 class="mb-0">Member Contribution #${index + 1}</h6>
-                        <button type="button" class="btn btn-sm btn-danger remove-member-btn" onclick="removeMemberContribution(this)">Remove</button>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Member</label>
-                        <select class="form-select member-select" name="GameForm.MemberContributions[${index}].MemberId" required>
-                            <option value="">Select a member...</option>
-                            ${memberOptions}
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Involvement Level</label>
-                        <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="GameForm.MemberContributions[${index}].InvolvementLevel" 
-                                   id="involvement-${modelId}-${index}-Supporting" value="0" checked />
-                            <label class="btn btn-outline-primary" for="involvement-${modelId}-${index}-Supporting">🥉 Supporting</label>
-
-                            <input type="radio" class="btn-check" name="GameForm.MemberContributions[${index}].InvolvementLevel" 
-                                   id="involvement-${modelId}-${index}-Major" value="1" />
-                            <label class="btn btn-outline-primary" for="involvement-${modelId}-${index}-Major">🥈 Major</label>
-
-                            <input type="radio" class="btn-check" name="GameForm.MemberContributions[${index}].InvolvementLevel" 
-                                   id="involvement-${modelId}-${index}-Lead" value="2" />
-                            <label class="btn btn-outline-primary" for="involvement-${modelId}-${index}-Lead">🥇 Lead</label>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Work Areas (select all that apply)</label>
-                        <div class="row g-2">
-                            ${workAreaCheckboxes.replace(/{index}/g, index)}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        container.insertAdjacentHTML('beforeend', html);
-    }
-
-    function removeMemberContribution(button) {
-        const item = button.closest('.member-contribution-item');
-        item.remove();
-
-        // Reindex remaining items
-        const items = document.querySelectorAll('.member-contribution-item');
-        items.forEach((item, idx) => {
-            item.querySelector('h6').textContent = `Member Contribution #${idx + 1}`;
-        });
-    }
+        // Initialize game form handler
+        const gameFormHandler = new GameFormHandler('@Model.Id', @Model.MemberContributions.Count);
+    });
 </script>

@@ -19,4 +19,8 @@ public interface ICollectiveService
     Task AddGameAsync(GameFormViewModel viewModel);
 
     Task UpdateGameAsync(GameFormViewModel viewModel);
+
+    Task<GameFormViewModel> GetGameFormAsync();
+
+    Task<CollectiveMemberFormViewModel> GetMemberFormAsync();
 }

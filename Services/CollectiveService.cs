@@ -83,6 +83,30 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
         await collectiveRepository.UpdateGameAsync(MapGameForm(viewModel));
     }
 
+    public async Task<GameFormViewModel> GetGameFormAsync()
+    {
+        var members = await collectiveRepository.GetCollectiveMembersAsync();
+
+        return new GameFormViewModel
+        {
+            AvailableMembers = members
+                .Select(member => new SelectListItem(member.Name, member.Id.ToString()))
+                .ToList()
+        };
+    }
+
+    public async Task<CollectiveMemberFormViewModel> GetMemberFormAsync()
+    {
+        var games = await collectiveRepository.GetGamesAsync();
+
+        return new CollectiveMemberFormViewModel
+        {
+            AvailableGames = games
+                .Select(game => new GameSelectViewModel { Id = game.Id, Title = game.Title })
+                .ToList()
+        };
+    }
+
     private static ProjectCardViewModel MapProject(CollectiveProject project) => new()
     {
         Title = project.Title,

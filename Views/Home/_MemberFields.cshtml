@@ -25,7 +25,7 @@
     </div>
 
     <div class="col-12">
-        <label class="form-label" for="member-games-@Model.Id">Games from database</label>
+        <label class="form-label" for="member-games-@Model.Id">Games</label>
         <select class="form-select" id="member-games-@Model.Id" name="MemberForm.SelectedGameIds" multiple size="4">
             @foreach (var game in Model.AvailableGames)
             {
