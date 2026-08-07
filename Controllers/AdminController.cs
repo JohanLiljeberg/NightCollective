@@ -49,7 +49,8 @@ public class AdminController(
             BlogPostForm = await blogPostService.GetCreateBlogPostFormAsync(),
             AllMembers = await collectiveService.GetCollectiveMembersAsync(),
             AllGames = await collectiveService.GetGamesAsync(),
-            AllBlogPosts = await blogPostService.GetAllBlogPostsAsync()
+            AllBlogPosts = await blogPostService.GetAllBlogPostsAsync(),
+            AllEvents = await eventService.GetUpcomingEventsAsync()
         };
 
         return View(viewModel);
@@ -260,5 +261,37 @@ public class AdminController(
         await blogPostService.DeleteBlogPostAsync(id);
         TempData["SuccessMessage"] = "Blog post deleted successfully!";
         return RedirectToAction(nameof(Dashboard), new { tab = "manage-blog-posts" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateEvent([Bind(Prefix = "EventForm")] EventFormViewModel eventForm)
+    {
+        if (!ModelState.IsValid)
+        {
+            var viewModel = new AdminDashboardViewModel
+            {
+                EventForm = eventForm,
+                GameForm = await collectiveService.GetGameFormAsync(),
+                MemberForm = await collectiveService.GetMemberFormAsync(),
+                AllEvents = await eventService.GetUpcomingEventsAsync()
+            };
+            return View("Dashboard", viewModel);
+        }
+
+        await eventService.UpdateEventAsync(eventForm);
+        TempData["SuccessMessage"] = "Event updated successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-events" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteEvent(int id)
+    {
+        await eventService.DeleteEventAsync(id);
+        TempData["SuccessMessage"] = "Event deleted successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-events" });
     }
 }

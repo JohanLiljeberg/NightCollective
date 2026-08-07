@@ -28,6 +28,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // Explicit static file middleware for images
 app.UseRouting();
 
 app.UseSession();

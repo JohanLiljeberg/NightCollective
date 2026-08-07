@@ -54,6 +54,11 @@
             📰 Manage Blog Posts
         </button>
     </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "manage-events" ? "active" : "")" id="manage-events-tab" data-bs-toggle="tab" data-bs-target="#manage-events" type="button" role="tab">
+            📅 Manage Events
+        </button>
+    </li>
 </ul>
 
 <div class="tab-content" id="adminTabsContent">
@@ -557,6 +562,91 @@
             </div>
         </div>
     </div>
+
+    <!-- Manage Events Tab -->
+    <div class="tab-pane fade @(activeTab == "manage-events" ? "show active" : "")" id="manage-events" role="tabpanel">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">
+                    <i class="bi bi-calendar-event"></i> Manage All Events
+                </h3>
+                <span class="badge bg-primary">@Model.AllEvents.Count Total</span>
+            </div>
+            <div class="card-body">
+                @if (!Model.AllEvents.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> No events yet. Use the "📅 Create Event" tab to add your first event.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Image</th>
+                                    <th>Title</th>
+                                    <th>Date</th>
+                                    <th>Location</th>
+                                    <th class="text-end" style="width: 180px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var evt in Model.AllEvents)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(evt.ImageSmallUrl))
+                                            {
+                                                <img src="@evt.ImageSmallUrl" 
+                                                     alt="@evt.Title" 
+                                                     class="rounded" 
+                                                     width="80" 
+                                                     height="80" 
+                                                     style="object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                                    <i class="bi bi-calendar-event fs-3 text-muted"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong>@evt.Title</strong>
+                                            <br />
+                                            <small class="text-muted">@(evt.Description.Length > 80 ? evt.Description.Substring(0, 80) + "..." : evt.Description)</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">@evt.DateDisplay</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">@evt.Location</small>
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-primary me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editEventModal-@evt.Id">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </button>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteEventModal-@evt.Id">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
 
 @* Edit Member Modals *@
@@ -872,6 +962,136 @@
                                         {
                                             <span class="badge bg-warning text-dark mt-1">Draft</span>
                                         }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Warning:</strong> This action cannot be undone.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete Permanently
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* Edit Event Modals *@
+@foreach (var evt in Model.AllEvents)
+{
+    <div class="modal fade" id="editEventModal-@evt.Id" tabindex="-1" aria-labelledby="editEventModalLabel-@evt.Id" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEventModalLabel-@evt.Id">
+                        <i class="bi bi-pencil"></i> Edit Event
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="UpdateEvent" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        <input type="hidden" name="EventForm.Id" value="@evt.Id" />
+
+                        <div class="mb-3">
+                            <label for="editEventTitle-@evt.Id" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="editEventTitle-@evt.Id" name="EventForm.Title" value="@evt.Title" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editEventDate-@evt.Id" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="editEventDate-@evt.Id" name="EventForm.Date" value="@evt.Date.ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editEventLocation-@evt.Id" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="editEventLocation-@evt.Id" name="EventForm.Location" value="@evt.Location" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editEventDescription-@evt.Id" class="form-label">Description</label>
+                            <textarea class="form-control" id="editEventDescription-@evt.Id" name="EventForm.Description" rows="5" required>@evt.Description</textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <fieldset class="border border-2 rounded p-3">
+                                <legend class="form-label d-block mb-3">Event Image</legend>
+
+                                @if (!string.IsNullOrEmpty(evt.ImageMediumUrl))
+                                {
+                                    <div class="mb-3">
+                                        <p class="small text-muted">Current image:</p>
+                                        <img src="@evt.ImageMediumUrl" alt="Current" class="img-thumbnail" style="max-width: 200px;" />
+                                    </div>
+                                }
+
+                                <div class="mb-3">
+                                    <h6 class="mb-2">📁 Upload New Image</h6>
+                                    <input type="file" class="form-control" name="EventForm.ImageFile" accept="image/*" />
+                                </div>
+
+                                <div class="text-center text-muted my-3">
+                                    <small><strong>— OR —</strong></small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6 class="mb-2">🔗 Add Image URL</h6>
+                                    <input type="text" class="form-control" name="EventForm.ImageUrl" value="@evt.ImageMediumUrl" placeholder="https://example.com/image.jpg" />
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* Delete Event Modals *@
+@foreach (var evt in Model.AllEvents)
+{
+    <div class="modal fade" id="deleteEventModal-@evt.Id" tabindex="-1" aria-labelledby="deleteEventModalLabel-@evt.Id" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteEventModalLabel-@evt.Id">
+                        <i class="bi bi-exclamation-triangle"></i> Delete Event
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="DeleteEvent" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@evt.Id" />
+                    <div class="modal-body">
+                        <p class="mb-3">Are you sure you want to permanently delete this event?</p>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(evt.ImageSmallUrl))
+                                    {
+                                        <img src="@evt.ImageSmallUrl" 
+                                             alt="@evt.Title" 
+                                             class="rounded me-3" 
+                                             width="80" 
+                                             height="80" 
+                                             style="object-fit: cover;" />
+                                    }
+                                    <div>
+                                        <h6 class="mb-1">@evt.Title</h6>
+                                        <p class="small text-muted mb-0">@evt.Date.ToString("MMM dd, yyyy") - @evt.Location</p>
                                     </div>
                                 </div>
                             </div>

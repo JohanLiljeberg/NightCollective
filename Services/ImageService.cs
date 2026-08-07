@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Night.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
@@ -64,6 +65,9 @@ namespace Night.Services
                 ImageType.Games => "images/games",
                 ImageType.Developers => "images/developers",
                 ImageType.Events => "images/events",
+                ImageType.Members => "images/members",
+                ImageType.BlogPosts => "images/blogposts",
+                ImageType.Misc => "images/misc",
                 _ => "images/misc"
             };
 
@@ -111,6 +115,9 @@ namespace Night.Services
                     ImageType.Games => "images/games",
                     ImageType.Developers => "images/developers",
                     ImageType.Events => "images/events",
+                    ImageType.Members => "images/members",
+                    ImageType.BlogPosts => "images/blogposts",
+                    ImageType.Misc => "images/misc",
                     _ => "images/misc"
                 };
 

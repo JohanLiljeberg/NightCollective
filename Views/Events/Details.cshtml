@@ -24,9 +24,9 @@
         <p class="lead text-accent mb-3">@Model.Location</p>
         <p class="mb-4">@Model.Description</p>
         <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-primary" asp-controller="Events" asp-action="Edit" asp-route-id="@Model.Id">Edit event</a>
-            <a class="btn btn-outline-danger" asp-controller="Events" asp-action="Delete" asp-route-id="@Model.Id">Remove event</a>
-            <a class="btn btn-outline-secondary" asp-controller="Events" asp-action="Index">Back to events</a>
+            <a class="btn btn-primary" asp-controller="Events" asp-action="Index">
+                <i class="bi bi-arrow-left"></i> Back to events
+            </a>
         </div>
     </div>
 </article>

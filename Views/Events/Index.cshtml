@@ -3,33 +3,55 @@
     ViewData["Title"] = "Upcoming Events";
 }
 
-<section class="mb-5" aria-labelledby="events-heading">
-    <div class="d-flex flex-column flex-lg-row align-items-lg-end justify-content-between gap-3 mb-4">
-        <div>
+<div class="container py-5">
+    <section class="mb-5" aria-labelledby="events-heading">
+        <div class="mb-4">
             <p class="eyebrow mb-1">Gatherings</p>
             <h1 id="events-heading" class="display-5 fw-bold mb-2">Upcoming events</h1>
-            <p class="lead mb-0">Browse public events or add a new gathering for the collective.</p>
+            <p class="lead mb-0">Join us for public events, showcases, and collaborative gatherings.</p>
         </div>
-        <a class="btn btn-primary" asp-controller="Events" asp-action="Create">Create event</a>
-    </div>
 
-    @if (Model.Any())
-    {
-        <div class="row g-4">
-            @foreach (var collectiveEvent in Model)
-            {
-                <div class="col-lg-6">
-                    @await Component.InvokeAsync("EventCardVC", new { collectiveEvent })
-                </div>
-            }
-        </div>
-    }
-    else
-    {
-        <div class="content-card rounded-4 p-4">
-            <h2 class="h4">No upcoming events yet</h2>
-            <p class="mb-3">Be the first to add a public event for the collective.</p>
-            <a class="btn btn-primary" asp-controller="Events" asp-action="Create">Create event</a>
-        </div>
-    }
-</section>
+        @if (Model.Any())
+        {
+            <div class="row g-4">
+                @foreach (var collectiveEvent in Model)
+                {
+                    <div class="col-lg-6">
+                        <article class="event-card h-100 overflow-hidden rounded-4">
+                            @await Component.InvokeAsync("ResponsiveImageVC", new
+                            {
+                                smallUrl = collectiveEvent.ImageSmallUrl,
+                                mediumUrl = collectiveEvent.ImageMediumUrl,
+                                largeUrl = collectiveEvent.ImageLargeUrl,
+                                altText = $"Event artwork for {collectiveEvent.Title}",
+                                cssClass = "event-card-image w-100",
+                                width = 1024,
+                                height = 576,
+                                aspectRatio = "16 / 9"
+                            })
+                            <div class="p-4">
+                                <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
+                                    <div>
+                                        <h3 class="h4">@collectiveEvent.Title</h3>
+                                        <p class="mb-2">@collectiveEvent.Description</p>
+                                        <p class="mb-0 text-accent">@collectiveEvent.Location</p>
+                                    </div>
+                                    <span class="date-chip align-self-start">@collectiveEvent.DateDisplay</span>
+                                </div>
+                                <div class="mt-4">
+                                    <a class="btn btn-primary btn-sm" asp-controller="Events" asp-action="Details" asp-route-id="@collectiveEvent.Id">View details</a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No upcoming events scheduled. Check back soon!
+            </div>
+        }
+    </section>
+</div>
