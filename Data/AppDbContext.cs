@@ -15,6 +15,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<CollectiveMember> CollectiveMembers => Set<CollectiveMember>();
 
+    public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

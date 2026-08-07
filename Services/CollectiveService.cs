@@ -5,7 +5,7 @@ using Night.ViewModels;
 
 namespace Night.Services;
 
-public class CollectiveService(ICollectiveRepository collectiveRepository) : ICollectiveService
+public class CollectiveService(ICollectiveRepository collectiveRepository, IBlogPostService blogPostService) : ICollectiveService
 {
     public async Task<HomeIndexViewModel> GetHomePageContentAsync()
     {
@@ -14,6 +14,7 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
         return new HomeIndexViewModel
         {
             FeaturedProjects = (await collectiveRepository.GetFeaturedProjectsAsync()).Select(MapProject).ToList(),
+            LatestBlogPosts = await blogPostService.GetLatestPublishedAsync(3),
             UpcomingEvents = (await collectiveRepository.GetUpcomingEventsAsync(today)).Select(MapEvent).ToList(),
             Members = (await collectiveRepository.GetCollectiveMembersAsync()).Select(MapMember).ToList()
         };
@@ -23,21 +24,11 @@ public class CollectiveService(ICollectiveRepository collectiveRepository) : ICo
     {
         var members = (await collectiveRepository.GetCollectiveMembersAsync()).Select(MapMember).ToList();
         var games = (await collectiveRepository.GetGamesAsync()).Select(MapGame).ToList();
-        var availableGames = games.Select(MapGameSelect).ToList();
 
         return new MembersPageViewModel
         {
             Members = members,
-            Games = games,
-            MemberForm = new CollectiveMemberFormViewModel
-            {
-                AvailableGames = availableGames
-            },
-            GameForm = new GameFormViewModel
-            {
-                AvailableMembers = members.Select(member => new SelectListItem(member.Name, member.Id.ToString())).ToList()
-            },
-            MemberOptions = members.Select(member => new SelectListItem(member.Name, member.Id.ToString())).ToList()
+            Games = games
         };
     }
 

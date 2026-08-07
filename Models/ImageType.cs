@@ -6,5 +6,6 @@ public enum ImageType
     Games,
     Developers,
     Members,
+    BlogPosts,
     Misc
 }

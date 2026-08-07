@@ -1,0 +1,35 @@
+@model IEnumerable<Night.Models.BlogPost>
+@{
+    ViewData["Title"] = "Blog";
+}
+
+<div class="container py-5">
+    <header class="mb-5">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Blog</li>
+            </ol>
+        </nav>
+        <h1 class="display-3 fw-bold mb-3">Blog</h1>
+        <p class="lead">Stories, updates, and highlights from the collective</p>
+    </header>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No blog posts published yet. Check back soon!
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var post in Model.OrderByDescending(p => p.CreatedAt))
+            {
+                <div class="col-md-6 col-lg-4">
+                    @await Component.InvokeAsync("BlogPostCardVC", new { blogPost = post })
+                </div>
+            }
+        </div>
+    }
+</div>

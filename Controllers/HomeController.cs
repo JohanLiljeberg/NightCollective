@@ -22,34 +22,6 @@ public class HomeController(ICollectiveService collectiveService) : Controller
         return View(viewModel);
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddGame([Bind(Prefix = "GameForm")] GameFormViewModel gameForm)
-    {
-        if (!ModelState.IsValid)
-        {
-            return View("Members", await collectiveService.GetMembersPageAsync());
-        }
-
-        await collectiveService.AddGameAsync(gameForm);
-
-        return RedirectToAction(nameof(Members));
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddMember([Bind(Prefix = "MemberForm")] CollectiveMemberFormViewModel memberForm)
-    {
-        if (!ModelState.IsValid)
-        {
-            return View("Members", await collectiveService.GetMembersPageAsync());
-        }
-
-        await collectiveService.AddCollectiveMemberAsync(memberForm);
-
-        return RedirectToAction(nameof(Members));
-    }
-
     public IActionResult Privacy()
     {
         return View();

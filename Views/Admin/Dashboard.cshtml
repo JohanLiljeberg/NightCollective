@@ -44,6 +44,16 @@
             🎯 Manage Games
         </button>
     </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "blog-posts" ? "active" : "")" id="blog-posts-tab" data-bs-toggle="tab" data-bs-target="#blog-posts" type="button" role="tab">
+            📝 Create Blog Post
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "manage-blog-posts" ? "active" : "")" id="manage-blog-posts-tab" data-bs-toggle="tab" data-bs-target="#manage-blog-posts" type="button" role="tab">
+            📰 Manage Blog Posts
+        </button>
+    </li>
 </ul>
 
 <div class="tab-content" id="adminTabsContent">
@@ -376,6 +386,177 @@
             </div>
         </div>
     </div>
+
+    <!-- Blog Posts Tab -->
+    <div class="tab-pane fade @(activeTab == "blog-posts" ? "show active" : "")" id="blog-posts" role="tabpanel">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Create New Blog Post</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateBlogPost" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input asp-for="BlogPostForm.Id" type="hidden" />
+
+                    <div class="mb-3">
+                        <label asp-for="BlogPostForm.Title" class="form-label"></label>
+                        <input asp-for="BlogPostForm.Title" class="form-control" required />
+                        <span asp-validation-for="BlogPostForm.Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BlogPostForm.Content" class="form-label"></label>
+                        <textarea asp-for="BlogPostForm.Content" class="form-control" rows="10" required></textarea>
+                        <span asp-validation-for="BlogPostForm.Content" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BlogPostForm.ExternalLink" class="form-label"></label>
+                        <input asp-for="BlogPostForm.ExternalLink" class="form-control" type="url" placeholder="https://example.com" />
+                        <span asp-validation-for="BlogPostForm.ExternalLink" class="text-danger"></span>
+                        <small class="form-text text-muted">Optional: Add a link to share with readers</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <fieldset class="border border-2 rounded p-3">
+                            <legend class="form-label d-block mb-3">Blog Post Image</legend>
+                            <p class="small text-muted mb-4">Choose one: Upload a file <strong>OR</strong> provide an image URL</p>
+
+                            <div class="mb-3">
+                                <h6 class="mb-2">📁 Upload Image</h6>
+                                <input asp-for="BlogPostForm.ImageFile" type="file" class="form-control" accept="image/*" />
+                            </div>
+
+                            <div class="text-center text-muted my-3">
+                                <small><strong>— OR —</strong></small>
+                            </div>
+
+                            <div class="mb-3">
+                                <h6 class="mb-2">🔗 Add Image URL</h6>
+                                <input asp-for="BlogPostForm.ImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="BlogPostForm.IsPublished" class="form-check-input" type="checkbox" />
+                        <label asp-for="BlogPostForm.IsPublished" class="form-check-label"></label>
+                        <small class="form-text text-muted d-block">Uncheck to save as draft</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Create Blog Post</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Blog Posts Tab -->
+    <div class="tab-pane fade @(activeTab == "manage-blog-posts" ? "show active" : "")" id="manage-blog-posts" role="tabpanel">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">
+                    <i class="bi bi-newspaper"></i> Manage Blog Posts
+                </h3>
+                <span class="badge bg-primary">@Model.AllBlogPosts.Count Total</span>
+            </div>
+            <div class="card-body">
+                @if (!Model.AllBlogPosts.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> No blog posts yet. Use the "Create Blog Post" tab to write your first post.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Image</th>
+                                    <th>Title</th>
+                                    <th style="width: 150px;">Created</th>
+                                    <th class="text-center" style="width: 100px;">Status</th>
+                                    <th class="text-end" style="width: 180px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var post in Model.AllBlogPosts)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(post.ImageSmallUrl))
+                                            {
+                                                <img src="@post.ImageSmallUrl" 
+                                                     alt="@post.Title" 
+                                                     class="rounded" 
+                                                     width="80" 
+                                                     height="80" 
+                                                     style="object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                                    <i class="bi bi-file-text fs-3 text-muted"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong>@post.Title</strong>
+                                            <br />
+                                            <small class="text-muted">@(post.Content.Length > 100 ? post.Content.Substring(0, 100) + "..." : post.Content)</small>
+                                            @if (!string.IsNullOrEmpty(post.ExternalLink))
+                                            {
+                                                <br />
+                                                <small><i class="bi bi-link-45deg"></i> <a href="@post.ExternalLink" target="_blank">External Link</a></small>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @post.CreatedAt.ToString("MMM dd, yyyy")
+                                                @if (post.UpdatedAt.HasValue)
+                                                {
+                                                    <br />
+                                                    <span class="badge bg-secondary">Edited</span>
+                                                }
+                                            </small>
+                                        </td>
+                                        <td class="text-center">
+                                            @if (post.IsPublished)
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle"></i> Published
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="bi bi-clock"></i> Draft
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-primary me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editBlogPostModal-@post.Id">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </button>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteBlogPostModal-@post.Id">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
 
 @* Edit Member Modals *@
@@ -560,6 +741,144 @@
                         <div class="alert alert-warning mt-3 mb-0">
                             <i class="bi bi-exclamation-triangle"></i>
                             <strong>Warning:</strong> This action cannot be undone. All associated data will be removed.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete Permanently
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* Edit Blog Post Modals *@
+@foreach (var post in Model.AllBlogPosts)
+{
+    <div class="modal fade" id="editBlogPostModal-@post.Id" tabindex="-1" aria-labelledby="editBlogPostModalLabel-@post.Id" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editBlogPostModalLabel-@post.Id">
+                        <i class="bi bi-pencil"></i> Edit Blog Post
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="UpdateBlogPost" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        <input type="hidden" name="BlogPostForm.Id" value="@post.Id" />
+
+                        <div class="mb-3">
+                            <label for="editTitle-@post.Id" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="editTitle-@post.Id" name="BlogPostForm.Title" value="@post.Title" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editContent-@post.Id" class="form-label">Story/Content</label>
+                            <textarea class="form-control" id="editContent-@post.Id" name="BlogPostForm.Content" rows="10" required>@post.Content</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editExternalLink-@post.Id" class="form-label">External Link (optional)</label>
+                            <input type="url" class="form-control" id="editExternalLink-@post.Id" name="BlogPostForm.ExternalLink" value="@post.ExternalLink" />
+                        </div>
+
+                        <div class="mb-4">
+                            <fieldset class="border border-2 rounded p-3">
+                                <legend class="form-label d-block mb-3">Blog Post Image</legend>
+
+                                @if (!string.IsNullOrEmpty(post.ImageMediumUrl))
+                                {
+                                    <div class="mb-3">
+                                        <p class="small text-muted">Current image:</p>
+                                        <img src="@post.ImageMediumUrl" alt="Current" class="img-thumbnail" style="max-width: 200px;" />
+                                    </div>
+                                }
+
+                                <div class="mb-3">
+                                    <h6 class="mb-2">📁 Upload New Image</h6>
+                                    <input type="file" class="form-control" name="BlogPostForm.ImageFile" accept="image/*" />
+                                </div>
+
+                                <div class="text-center text-muted my-3">
+                                    <small><strong>— OR —</strong></small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6 class="mb-2">🔗 Add Image URL</h6>
+                                    <input type="text" class="form-control" name="BlogPostForm.ImageUrl" value="@post.ImageMediumUrl" placeholder="https://example.com/image.jpg" />
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="editIsPublished-@post.Id" name="BlogPostForm.IsPublished" value="true" @(post.IsPublished ? "checked" : "") />
+                            <label class="form-check-label" for="editIsPublished-@post.Id">Published</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* Delete Blog Post Modals *@
+@foreach (var post in Model.AllBlogPosts)
+{
+    <div class="modal fade" id="deleteBlogPostModal-@post.Id" tabindex="-1" aria-labelledby="deleteBlogPostModalLabel-@post.Id" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteBlogPostModalLabel-@post.Id">
+                        <i class="bi bi-exclamation-triangle"></i> Delete Blog Post
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="DeleteBlogPost" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@post.Id" />
+                    <div class="modal-body">
+                        <p class="mb-3">Are you sure you want to permanently delete this blog post?</p>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(post.ImageSmallUrl))
+                                    {
+                                        <img src="@post.ImageSmallUrl" 
+                                             alt="@post.Title" 
+                                             class="rounded me-3" 
+                                             width="80" 
+                                             height="80" 
+                                             style="object-fit: cover;" />
+                                    }
+                                    <div>
+                                        <h6 class="mb-1">@post.Title</h6>
+                                        <p class="small text-muted mb-0">@post.CreatedAt.ToString("MMM dd, yyyy")</p>
+                                        @if (post.IsPublished)
+                                        {
+                                            <span class="badge bg-success mt-1">Published</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark mt-1">Draft</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Warning:</strong> This action cannot be undone.
                         </div>
                     </div>
                     <div class="modal-footer">

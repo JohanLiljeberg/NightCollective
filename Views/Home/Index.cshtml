@@ -33,10 +33,12 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="content-card h-100 p-4 rounded-4">
-                <h2 class="h4">Featured GAMES</h2>
-                <p>Showcase</p>
-            </div>
+            <a asp-controller="Blog" asp-action="Index" class="text-decoration-none">
+                <div class="content-card h-100 p-4 rounded-4">
+                    <h2 class="h4">Latest Stories</h2>
+                    <p>Read updates and highlights from the collective</p>
+                </div>
+            </a>
         </div>
         <div class="col-md-4">
             <div class="content-card h-100 p-4 rounded-4">
@@ -50,23 +52,31 @@
 <section id="projects" class="mb-5" aria-labelledby="projects-heading">
     <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
         <div>
-            <p class="eyebrow mb-1">Featured work</p>
+            <p class="eyebrow mb-1">Latest stories</p>
             <h2 id="projects-heading" class="mb-0">Showcase</h2>
         </div>
-    </div>
-    <div class="row g-4">
-        @foreach (var project in Model.FeaturedProjects)
+        @if (Model.LatestBlogPosts.Any())
         {
-            <div class="col-md-4">
-                <article class="content-card h-100 p-4 rounded-4">
-                    <span class="badge rounded-pill text-bg-dark mb-3">@project.Medium</span>
-                    <h3 class="h4">@project.Title</h3>
-                    <p class="text-accent mb-2">@project.Creator</p>
-                    <p class="mb-0">@project.Description</p>
-                </article>
-            </div>
+            <a class="btn btn-primary" asp-controller="Blog" asp-action="Index">View all posts</a>
         }
     </div>
+    @if (!Model.LatestBlogPosts.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No blog posts published yet. Check back soon for updates!
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var post in Model.LatestBlogPosts)
+            {
+                <div class="col-md-4">
+                    @await Component.InvokeAsync("BlogPostCardVC", new { blogPost = post })
+                </div>
+            }
+        </div>
+    }
 </section>
 
 <section id="events" class="mb-5" aria-labelledby="events-heading">

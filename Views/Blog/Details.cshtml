@@ -1,0 +1,78 @@
+@model Night.Models.BlogPost
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <article class="blog-post-detail">
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item"><a asp-controller="Blog" asp-action="Index">Blog</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+                    </ol>
+                </nav>
+
+                <header class="mb-4">
+                    <h1 class="display-4 fw-bold mb-3">@Model.Title</h1>
+                    <div class="d-flex align-items-center gap-3 text-muted">
+                        <span>
+                            <i class="bi bi-calendar3"></i> @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                        </span>
+                        @if (Model.UpdatedAt.HasValue)
+                        {
+                            <span>
+                                <i class="bi bi-pencil"></i> Updated @Model.UpdatedAt.Value.ToString("MMM dd, yyyy")
+                            </span>
+                        }
+                    </div>
+                </header>
+
+                @if (!string.IsNullOrEmpty(Model.ImageLargeUrl))
+                {
+                    <figure class="mb-4">
+                        @await Component.InvokeAsync("ResponsiveImageVC", new
+                        {
+                            smallUrl = Model.ImageSmallUrl,
+                            mediumUrl = Model.ImageMediumUrl,
+                            largeUrl = Model.ImageLargeUrl,
+                            altText = Model.Title,
+                            cssClass = "img-fluid rounded-4 w-100",
+                            width = 1200,
+                            height = 800,
+                            aspectRatio = "3 / 2"
+                        })
+                    </figure>
+                }
+
+                <div class="blog-content mb-5">
+                    @Html.Raw(Model.Content.Replace("\n", "<br />"))
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.ExternalLink))
+                {
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="bi bi-link-45deg fs-3 me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Related Link</h5>
+                            <a href="@Model.ExternalLink" target="_blank" rel="noopener noreferrer" class="alert-link">
+                                @Model.ExternalLink <i class="bi bi-box-arrow-up-right small"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+
+                <footer class="mt-5 pt-4 border-top">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left"></i> Back to Home
+                    </a>
+                    <a asp-controller="Blog" asp-action="Index" class="btn btn-outline-secondary">
+                        View All Posts
+                    </a>
+                </footer>
+            </article>
+        </div>
+    </div>
+</div>

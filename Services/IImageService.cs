@@ -5,7 +5,8 @@
     {
     Games,
     Developers,
-    Events
+    Events,
+    BlogPosts
     }
 
     public record ImageSizeUrls(string SmallUrl, string MediumUrl, string LargeUrl);

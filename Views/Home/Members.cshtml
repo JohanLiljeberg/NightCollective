@@ -5,15 +5,10 @@
 }
 
 <div class="container py-5">
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
-        <div>
-            <p class="eyebrow mb-2">About the collective</p>
-            <h1 class="display-6 fw-bold mb-0">Members & games</h1>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#addMemberOffcanvas" aria-controls="addMemberOffcanvas">Add collective member</button>
-            <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#addGameOffcanvas" aria-controls="addGameOffcanvas">Add game</button>
-        </div>
+    <div class="mb-4">
+        <p class="eyebrow mb-2">About the collective</p>
+        <h1 class="display-6 fw-bold mb-3">Members & games</h1>
+        <p class="lead text-muted">Meet the people behind the collective and explore our game portfolio</p>
     </div>
 
     <div class="row g-4">
@@ -37,37 +32,6 @@
         }
     </div>
 </div>
-
-<section class="mb-5" aria-labelledby="member-admin-heading">
-    <div class="content-card rounded-4 p-4 p-lg-5">
-        <p class="eyebrow mb-1">Create</p>
-        <h2 id="member-admin-heading" class="h3 mb-4">Add members and games to the database</h2>
-        <div class="row g-4">
-            <div class="col-lg-6">
-                <div class="card border-0 bg-light h-100">
-                    <div class="card-body">
-                        <h3 class="h5 mb-3">Add game to database</h3>
-                        <form asp-controller="Home" asp-action="AddGame" method="post">
-                            <partial name="_GameFields" model="Model.GameForm" />
-                            <button type="submit" class="btn btn-primary mt-3">Add game</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="card border-0 bg-light h-100">
-                    <div class="card-body">
-                        <h3 class="h5 mb-3">Add member to collective</h3>
-                        <form asp-controller="Home" asp-action="AddMember" method="post">
-                            <partial name="_MemberFields" model="Model.MemberForm" />
-                            <button type="submit" class="btn btn-primary mt-3">Add member</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <section class="mb-5" aria-labelledby="games-gallery-heading">
     <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
@@ -136,6 +100,13 @@
 </section>
 
 @section Scripts {
-    <script src="~/js/game-form.js" asp-append-version="true"></script>
-    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Initialize tooltips for member avatars on game cards
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
 }
