@@ -1,0 +1,182 @@
+@model Night.ViewModels.GameViewModel
+
+<div class="game-detail">
+    <div class="row">
+        <!-- Main Game Cover -->
+        <div class="col-lg-5 mb-4">
+            @if (!string.IsNullOrEmpty(Model.ImageLargeUrl))
+            {
+                <img src="@Model.ImageLargeUrl" 
+                     class="img-fluid rounded shadow-lg" 
+                     alt="@Model.Title" />
+            }
+            else
+            {
+                <div class="bg-light rounded shadow-lg d-flex align-items-center justify-content-center" style="min-height: 400px;">
+                    <i class="bi bi-controller" style="font-size: 5rem; color: #ccc;"></i>
+                </div>
+            }
+        </div>
+
+        <!-- Game Info -->
+        <div class="col-lg-7">
+            <h1 class="display-4 mb-3">@Model.Title</h1>
+
+            <div class="mb-4">
+                <span class="badge bg-primary me-2 px-3 py-2">
+                    <i class="bi bi-calendar3"></i> @Model.ReleaseYear
+                </span>
+                <span class="badge bg-info text-dark me-2 px-3 py-2">
+                    <i class="bi bi-@(Model.Platforms == Night.Models.Platforms.PC ? "pc-display" : 
+                                       Model.Platforms == Night.Models.Platforms.Console ? "controller" : 
+                                       "phone")"></i> @Model.Platforms
+                </span>
+                @if (Model.FromCollective)
+                {
+                    <span class="badge bg-success px-3 py-2">
+                        <i class="bi bi-star-fill"></i> Made by Night Collective
+                    </span>
+                }
+            </div>
+
+            <div class="mb-4">
+                <h5><i class="bi bi-building"></i> Developer / Publisher</h5>
+                <p class="lead">@Model.DeveloperPublisher</p>
+            </div>
+
+            <div class="mb-4">
+                <h5><i class="bi bi-tag"></i> Genre</h5>
+                <p>@Model.GenreGameplayType</p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="mb-4">
+                    <h5><i class="bi bi-file-text"></i> About This Game</h5>
+                    <p class="text-justify">@Model.Description</p>
+                </div>
+            }
+
+            @if (Model.MemberContributions.Any())
+            {
+                <div class="mb-4">
+                    <h5><i class="bi bi-people-fill"></i> Contributors from Night Collective</h5>
+                    <div class="list-group">
+                        @foreach (var contribution in Model.MemberContributions)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">@contribution.Name</h6>
+                                        <small class="text-muted">
+                                            <strong>@contribution.InvolvementLevel</strong>
+                                            @if (contribution.WorkAreas.Any())
+                                            {
+                                                <span> - @string.Join(", ", contribution.WorkAreas)</span>
+                                            }
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.YouTubeTrailerUrl))
+    {
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="mb-3"><i class="bi bi-play-circle"></i> Trailer</h3>
+                <div class="ratio ratio-16x9">
+                    @{
+                        var videoId = ExtractYouTubeVideoId(Model.YouTubeTrailerUrl);
+                    }
+                    @if (!string.IsNullOrEmpty(videoId))
+                    {
+                        <iframe src="https://www.youtube.com/embed/@videoId" 
+                                title="@Model.Title Trailer" 
+                                allowfullscreen
+                                class="rounded shadow"></iframe>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">Invalid YouTube URL</div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (Model.Screenshots.Any())
+    {
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="mb-3"><i class="bi bi-images"></i> Screenshots</h3>
+                <div class="row g-3">
+                    @foreach (var screenshot in Model.Screenshots.OrderBy(s => s.DisplayOrder))
+                    {
+                        <div class="col-md-4">
+                            <img src="@screenshot.ImageMediumUrl" 
+                                 class="img-fluid rounded shadow-sm cursor-pointer" 
+                                 alt="Screenshot @screenshot.DisplayOrder"
+                                 data-bs-toggle="modal" 
+                                 data-bs-target="#screenshotModal-@screenshot.Id"
+                                 style="cursor: pointer; transition: transform 0.2s;"
+                                 onmouseover="this.style.transform='scale(1.05)'"
+                                 onmouseout="this.style.transform='scale(1)'" />
+
+                            <!-- Modal for full-size screenshot -->
+                            <div class="modal fade" id="screenshotModal-@screenshot.Id" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-xl modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">@Model.Title - Screenshot @screenshot.DisplayOrder</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-center">
+                                            <img src="@screenshot.ImageLargeUrl" class="img-fluid" alt="Full size screenshot" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@functions {
+    private string? ExtractYouTubeVideoId(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return null;
+
+        // Handle different YouTube URL formats
+        var uri = new Uri(url);
+
+        // Standard watch URL: https://www.youtube.com/watch?v=VIDEO_ID
+        if (uri.Host.Contains("youtube.com") && uri.AbsolutePath == "/watch")
+        {
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            return query["v"];
+        }
+
+        // Short URL: https://youtu.be/VIDEO_ID
+        if (uri.Host == "youtu.be")
+        {
+            return uri.AbsolutePath.TrimStart('/');
+        }
+
+        // Embed URL: https://www.youtube.com/embed/VIDEO_ID
+        if (uri.Host.Contains("youtube.com") && uri.AbsolutePath.StartsWith("/embed/"))
+        {
+            return uri.AbsolutePath.Replace("/embed/", "");
+        }
+
+        return null;
+    }
+}

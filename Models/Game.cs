@@ -23,6 +23,12 @@ namespace Night.Models
 
         public bool FromCollective { get; set; }
 
+        public string Description { get; set; } = string.Empty;
+
+        public string? YouTubeTrailerUrl { get; set; }
+
+        public List<GameScreenshot> Screenshots { get; set; } = new();
+
         [NotMapped]
         public int? CollectiveMemberId { get; set; }
 

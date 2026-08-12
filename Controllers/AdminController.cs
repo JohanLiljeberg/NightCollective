@@ -111,6 +111,9 @@ public class AdminController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateMember([Bind(Prefix = "MemberForm")] CollectiveMemberFormViewModel memberForm)
     {
+        // Validate required fields based on membership type
+        ValidateMemberFormByMembershipType(memberForm);
+
         if (!ModelState.IsValid)
         {
             var viewModel = new AdminDashboardViewModel
@@ -139,6 +142,9 @@ public class AdminController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateMember([Bind(Prefix = "MemberForm")] CollectiveMemberFormViewModel memberForm)
     {
+        // Validate required fields based on membership type
+        ValidateMemberFormByMembershipType(memberForm);
+
         if (!ModelState.IsValid)
         {
             var viewModel = new AdminDashboardViewModel
@@ -293,5 +299,39 @@ public class AdminController(
         await eventService.DeleteEventAsync(id);
         TempData["SuccessMessage"] = "Event deleted successfully!";
         return RedirectToAction(nameof(Dashboard), new { tab = "manage-events" });
+    }
+
+    private void ValidateMemberFormByMembershipType(CollectiveMemberFormViewModel memberForm)
+    {
+        switch (memberForm.MembershipType)
+        {
+            case Night.Models.MembershipType.Unsubscribed:
+                // Unsubscribed members don't need Position or Quote
+                // Clear any errors for these fields if they exist
+                ModelState.Remove("MemberForm.Position");
+                ModelState.Remove("MemberForm.Quote");
+                break;
+
+            case Night.Models.MembershipType.Subscribed:
+                // Subscribed members need Position but not Quote
+                if (string.IsNullOrWhiteSpace(memberForm.Position))
+                {
+                    ModelState.AddModelError("MemberForm.Position", "Position is required for Subscribed members.");
+                }
+                ModelState.Remove("MemberForm.Quote");
+                break;
+
+            case Night.Models.MembershipType.Full:
+                // Full members need both Position and Quote
+                if (string.IsNullOrWhiteSpace(memberForm.Position))
+                {
+                    ModelState.AddModelError("MemberForm.Position", "Position is required for Full members.");
+                }
+                if (string.IsNullOrWhiteSpace(memberForm.Quote))
+                {
+                    ModelState.AddModelError("MemberForm.Quote", "Quote is required for Full members.");
+                }
+                break;
+        }
     }
 }

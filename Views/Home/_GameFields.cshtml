@@ -90,39 +90,61 @@
     </div>
 
     <div class="col-12">
-        <label class="form-label">
-            Collective members and their contributions 
-            <small class="text-muted">(optional)</small>
-        </label>
-        <div class="border rounded p-3 bg-light">
-            @if (!Model.AvailableMembers.Any())
-            {
-                <div class="alert alert-info mb-3">
-                    <i class="bi bi-info-circle"></i> No members available yet. You can add members first, then come back to assign contributions.
-                </div>
-            }
-            <div id="member-contributions-list-@Model.Id" class="mb-3" data-game-id="@Model.Id">
-                @for (int i = 0; i < Model.MemberContributions.Count; i++)
-                {
-                    @await Component.InvokeAsync("MemberContributionFormItemVC", new
-                    {
-                        contribution = Model.MemberContributions[i],
-                        availableMembers = Model.AvailableMembers,
-                        index = i,
-                        gameFormId = Model.Id?.ToString() ?? "0"
-                    })
-                }
-            </div>
-            @if (Model.AvailableMembers.Any())
-            {
-                <button type="button" 
-                        class="btn btn-outline-primary btn-sm add-contribution-btn" 
-                        data-game-id="@Model.Id">
-                    <span aria-hidden="true">+</span> Add Member Contribution
-                </button>
-            }
-        </div>
+        <label class="form-label" for="game-description-@Model.Id">Description</label>
+        <textarea class="form-control" 
+                  id="game-description-@Model.Id" 
+                  name="GameForm.Description" 
+                  rows="6" 
+                  maxlength="2000"
+                  required>@Model.Description</textarea>
+        <small class="form-text text-muted">Provide a detailed description of the game (max 2000 characters)</small>
     </div>
+
+    <div class="col-12">
+        <label class="form-label" for="game-trailer-@Model.Id">YouTube Trailer URL <small class="text-muted">(optional)</small></label>
+        <input class="form-control" 
+               id="game-trailer-@Model.Id" 
+               name="GameForm.YouTubeTrailerUrl" 
+               value="@Model.YouTubeTrailerUrl" 
+               type="url"
+               placeholder="https://www.youtube.com/watch?v=..." />
+        <small class="form-text text-muted">Add a YouTube link to the game trailer</small>
+    </div>
+
+    <div class="col-12">
+        <fieldset class="border border-2 rounded p-3">
+            <legend class="form-label d-block mb-3">Game Screenshots <small class="text-muted">(optional, max 3)</small></legend>
+            <p class="small text-muted mb-4">Upload up to 3 screenshots of the game</p>
+
+            <div class="mb-3">
+                <label class="form-label" for="screenshot1-@Model.Id">Screenshot 1</label>
+                <input type="file" 
+                       class="form-control" 
+                       id="screenshot1-@Model.Id"
+                       name="GameForm.Screenshot1" 
+                       accept="image/*" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="screenshot2-@Model.Id">Screenshot 2</label>
+                <input type="file" 
+                       class="form-control" 
+                       id="screenshot2-@Model.Id"
+                       name="GameForm.Screenshot2" 
+                       accept="image/*" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="screenshot3-@Model.Id">Screenshot 3</label>
+                <input type="file" 
+                       class="form-control" 
+                       id="screenshot3-@Model.Id"
+                       name="GameForm.Screenshot3" 
+                       accept="image/*" />
+            </div>
+        </fieldset>
+    </div>
+
 </div>
 
 <script>

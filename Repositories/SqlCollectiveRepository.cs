@@ -51,6 +51,7 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
     {
         return await dbContext.Games
             .AsNoTracking()
+            .Include(game => game.Screenshots)
             .Include(game => game.MemberContributions)
                 .ThenInclude(mc => mc.CollectiveMember)
             .AsSplitQuery()
@@ -87,6 +88,7 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
     {
         var existingGame = await dbContext.Games
             .Include(g => g.MemberContributions)
+            .Include(g => g.Screenshots)
             .FirstOrDefaultAsync(item => item.Id == game.Id);
 
         if (existingGame is null)
@@ -96,11 +98,31 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
 
         existingGame.Title = game.Title;
         existingGame.Image = game.Image;
+        existingGame.ImageSmallUrl = game.ImageSmallUrl;
+        existingGame.ImageMediumUrl = game.ImageMediumUrl;
+        existingGame.ImageLargeUrl = game.ImageLargeUrl;
         existingGame.ReleaseYear = game.ReleaseYear;
         existingGame.DeveloperPublisher = game.DeveloperPublisher;
         existingGame.Platforms = game.Platforms;
         existingGame.GenreGameplayType = game.GenreGameplayType;
         existingGame.FromCollective = game.FromCollective;
+        existingGame.Description = game.Description;
+        existingGame.YouTubeTrailerUrl = game.YouTubeTrailerUrl;
+
+        // Update screenshots - remove existing and add new ones
+        if (existingGame.Screenshots.Any())
+        {
+            dbContext.GameScreenshots.RemoveRange(existingGame.Screenshots);
+        }
+
+        if (game.Screenshots.Any())
+        {
+            foreach (var screenshot in game.Screenshots)
+            {
+                screenshot.GameId = existingGame.Id;
+                dbContext.GameScreenshots.Add(screenshot);
+            }
+        }
 
         // Remove existing contributions
         dbContext.Set<GameMemberContribution>().RemoveRange(existingGame.MemberContributions);

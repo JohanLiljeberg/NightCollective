@@ -1,0 +1,182 @@
+@model IEnumerable<Night.ViewModels.GameViewModel>
+@{
+    ViewData["Title"] = "Games Gallery";
+}
+
+<div class="container py-5">
+    <div class="mb-5 text-center">
+        <p class="eyebrow mb-2">Games Database</p>
+        <h1 class="display-4 fw-bold mb-3">Game Gallery</h1>
+        <p class="lead text-muted">Explore our collection of games from Night Collective members and beyond</p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle fs-3 d-block mb-2"></i>
+            <p class="mb-0">No games in the database yet. Check back soon!</p>
+        </div>
+    }
+    else
+    {
+        <!-- Filter/Sort Section -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-sm btn-outline-primary active" data-filter="all">
+                        All Games (@Model.Count())
+                    </button>
+                    <button class="btn btn-sm btn-outline-success" data-filter="collective">
+                        <i class="bi bi-star-fill"></i> Collective Games (@Model.Count(g => g.FromCollective))
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" data-filter="external">
+                        External Games (@Model.Count(g => !g.FromCollective))
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                <label class="me-2">Sort by:</label>
+                <select class="form-select form-select-sm d-inline-block w-auto" id="sortGames">
+                    <option value="title">Title</option>
+                    <option value="year-desc" selected>Newest First</option>
+                    <option value="year-asc">Oldest First</option>
+                    <option value="developer">Developer</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Games Grid -->
+        <div class="row g-4" id="gamesGrid">
+            @foreach (var game in Model.OrderByDescending(g => g.ReleaseYear))
+            {
+                <div class="col-sm-6 col-lg-4 col-xl-3 game-card-wrapper" 
+                     data-collective="@game.FromCollective.ToString().ToLower()"
+                     data-title="@game.Title"
+                     data-year="@game.ReleaseYear"
+                     data-developer="@game.DeveloperPublisher">
+                    @await Component.InvokeAsync("GameCardVC", new { game })
+                </div>
+            }
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="row mt-5 pt-5 border-top">
+            <div class="col-md-3 text-center mb-4 mb-md-0">
+                <div class="display-6 fw-bold text-primary">@Model.Count()</div>
+                <p class="text-muted mb-0">Total Games</p>
+            </div>
+            <div class="col-md-3 text-center mb-4 mb-md-0">
+                <div class="display-6 fw-bold text-success">@Model.Count(g => g.FromCollective)</div>
+                <p class="text-muted mb-0">Collective Games</p>
+            </div>
+            <div class="col-md-3 text-center mb-4 mb-md-0">
+                <div class="display-6 fw-bold text-info">@Model.SelectMany(g => g.MemberContributions).Select(mc => mc.MemberId).Distinct().Count()</div>
+                <p class="text-muted mb-0">Contributing Members</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="display-6 fw-bold text-warning">@Model.Where(g => !string.IsNullOrEmpty(g.YouTubeTrailerUrl)).Count()</div>
+                <p class="text-muted mb-0">With Trailers</p>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('[data-filter]');
+            const sortSelect = document.getElementById('sortGames');
+            const gamesGrid = document.getElementById('gamesGrid');
+            const gameCards = Array.from(document.querySelectorAll('.game-card-wrapper'));
+
+            // Filter functionality
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active button
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const filter = this.dataset.filter;
+
+                    gameCards.forEach(card => {
+                        if (filter === 'all') {
+                            card.style.display = '';
+                        } else if (filter === 'collective') {
+                            card.style.display = card.dataset.collective === 'true' ? '' : 'none';
+                        } else if (filter === 'external') {
+                            card.style.display = card.dataset.collective === 'false' ? '' : 'none';
+                        }
+                    });
+                });
+            });
+
+            // Sort functionality
+            sortSelect.addEventListener('change', function() {
+                const sortBy = this.value;
+
+                gameCards.sort((a, b) => {
+                    switch(sortBy) {
+                        case 'title':
+                            return a.dataset.title.localeCompare(b.dataset.title);
+                        case 'year-desc':
+                            return parseInt(b.dataset.year) - parseInt(a.dataset.year);
+                        case 'year-asc':
+                            return parseInt(a.dataset.year) - parseInt(b.dataset.year);
+                        case 'developer':
+                            return a.dataset.developer.localeCompare(b.dataset.developer);
+                        default:
+                            return 0;
+                    }
+                });
+
+                // Re-append in sorted order
+                gameCards.forEach(card => gamesGrid.appendChild(card));
+            });
+
+            // Initialize Bootstrap tooltips if any
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        });
+    </script>
+}
+
+<style>
+    .game-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .game-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .eyebrow {
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        color: #6c757d;
+    }
+
+    .game-card-wrapper {
+        transition: opacity 0.3s ease;
+    }
+
+    @@media (max-width: 576px) {
+        .game-card-wrapper {
+            animation: fadeIn 0.5s ease;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

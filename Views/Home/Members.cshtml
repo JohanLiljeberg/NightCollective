@@ -5,109 +5,94 @@
 }
 
 <div class="container py-5">
-    <div class="mb-4">
+    <div class="mb-5 text-center">
         <p class="eyebrow mb-2">About the collective</p>
-        <h1 class="display-6 fw-bold mb-3">Members & games</h1>
-        <p class="lead text-muted">Meet the people behind the collective and explore our game portfolio</p>
+        <h1 class="display-6 fw-bold mb-3">Meet Our Members</h1>
+        <p class="lead text-muted">Night Collective Group</p>
+        <a asp-controller="Home" asp-action="Games" class="btn btn-outline-primary mt-2">
+            <i class="bi bi-controller"></i> View Our Games Gallery
+        </a>
     </div>
 
-    <div class="row g-4">
-        @foreach (var member in Model.Members)
-        {
-            <div class="col">
-                @switch (member.MembershipType)
+    @* Full Members Section *@
+    @{
+        var fullMembers = Model.Members.Where(m => m.MembershipType == Night.Models.MembershipType.Full).ToList();
+    }
+    @if (fullMembers.Any())
+    {
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 fw-bold mb-0">
+                    <i class="bi bi-person-badge"></i> Full Members
+                </h2>
+                <span class="badge bg-primary rounded-pill">@fullMembers.Count</span>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var member in fullMembers)
                 {
-                    case Night.Models.MembershipType.Unsubscribed:
-                        @await Component.InvokeAsync("UnsubscribedMemberVC", new { member })
-                        break;
-                    case Night.Models.MembershipType.Subscribed:
-                        @await Component.InvokeAsync("SubscribedMemberVC", new { member })
-                        break;
-                    case Night.Models.MembershipType.Full:
-                    default:
+                    <div class="col">
                         @await Component.InvokeAsync("CollectiveMemberVC", new { member })
-                        break;
+                    </div>
                 }
             </div>
-        }
-    </div>
+        </section>
+    }
+
+    @* Subscribed Members Section *@
+    @{
+        var subscribedMembers = Model.Members.Where(m => m.MembershipType == Night.Models.MembershipType.Subscribed).ToList();
+    }
+    @if (subscribedMembers.Any())
+    {
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 fw-bold mb-0">
+                    <i class="bi bi-star-fill"></i> Subscribed Members
+                </h2>
+                <span class="badge bg-primary rounded-pill">@subscribedMembers.Count</span>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var member in subscribedMembers)
+                {
+                    <div class="col">
+                        @await Component.InvokeAsync("SubscribedMemberVC", new { member })
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    @* Active Members (Unsubscribed) Section *@
+    @{
+        var unsubscribedMembers = Model.Members.Where(m => m.MembershipType == Night.Models.MembershipType.Unsubscribed).ToList();
+    }
+    @if (unsubscribedMembers.Any())
+    {
+        <section>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 fw-bold mb-0">
+                    <i class="bi bi-person-check"></i> Active Members
+                </h2>
+                <span class="badge bg-info rounded-pill">@unsubscribedMembers.Count</span>
+            </div>
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                @foreach (var member in unsubscribedMembers)
+                {
+                    <div class="col">
+                        @await Component.InvokeAsync("UnsubscribedMemberVC", new { member })
+                    </div>
+                }
+            </div>
+        </section>
+    }
 </div>
 
-<section class="mb-5" aria-labelledby="games-gallery-heading">
-    <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
-        <div>
-            <p class="eyebrow mb-1">Gallery</p>
-            <h2 id="games-gallery-heading" class="h3 mb-0">Games</h2>
-        </div>
-    </div>
-    @if (Model.Games.Any())
-    {
-        <div class="row g-4">
-            @foreach (var game in Model.Games)
-            {
-                <div class="col-sm-6 col-lg-4 col-xl-3">
-                    <article class="card h-100 border-0 overflow-hidden">
-                        @await Component.InvokeAsync("ResponsiveImageVC", new
-                        {
-                            smallUrl = game.ImageSmallUrl,
-                            mediumUrl = game.ImageMediumUrl,
-                            largeUrl = game.ImageLargeUrl,
-                            altText = $"Artwork for {game.Title}",
-                            cssClass = "card-img-top",
-                            width = 640,
-                            height = 360,
-                            aspectRatio = "16 / 9"
-                        })
-                        <div class="card-body">
-                            <h3 class="h6 card-title mb-1">@game.Title</h3>
-                            <p class="text-muted mb-1">@game.DeveloperPublisher · @game.ReleaseYear</p>
-                            @if (game.MemberContributions.Any())
-                            {
-                                <div class="d-flex flex-wrap gap-1 mt-2">
-                                    @foreach (var member in game.MemberContributions)
-                                    {
-                                        var workAreasText = string.Join(", ", member.WorkAreas.Select(wa => wa.GetIconWithName()));
-                                        var tooltipText = $"{member.Name} - {member.InvolvementLevel}\n{workAreasText}";
-                                        var memberImageUrl = member.ImageSmallUrl ?? member.Image;
-                                        <div class="position-relative" title="@tooltipText" data-bs-toggle="tooltip" data-bs-placement="top">
-                                            <img class="rounded-circle border" src="@memberImageUrl" alt="@member.Name" width="40" height="40" style="object-fit: cover;" />
-                                            <div class="position-absolute bottom-0 end-0 translate-middle-x" style="font-size: 0.9rem;">
-                                                @(member.InvolvementLevel switch
-                                                {
-                                                    Night.Models.InvolvementLevel.Lead => "🥇",
-                                                    Night.Models.InvolvementLevel.Major => "🥈",
-                                                    Night.Models.InvolvementLevel.Supporting => "🥉",
-                                                    _ => ""
-                                                })
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            }
-                            else
-                            {
-                                <p class="small text-muted mb-0">External / non-member game</p>
-                            }
-                        </div>
-                    </article>
-                </div>
-            }
-        </div>
+<style>
+    .eyebrow {
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        color: #6c757d;
     }
-    else
-    {
-        <p class="text-muted mb-0">No games in the database yet.</p>
-    }
-</section>
-
-@section Scripts {
-    <script>
-        // Initialize tooltips for member avatars on game cards
-        document.addEventListener('DOMContentLoaded', function() {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-        });
-    </script>
-}
+</style>

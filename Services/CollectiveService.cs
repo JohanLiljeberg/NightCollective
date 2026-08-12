@@ -187,6 +187,19 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
         Platforms = game.Platforms,
         GenreGameplayType = game.GenreGameplayType,
         FromCollective = game.FromCollective,
+        Description = game.Description,
+        YouTubeTrailerUrl = game.YouTubeTrailerUrl,
+        Screenshots = game.Screenshots
+            .OrderBy(s => s.DisplayOrder)
+            .Select(s => new GameScreenshotViewModel
+            {
+                Id = s.Id,
+                ImageSmallUrl = s.ImageSmallUrl,
+                ImageMediumUrl = s.ImageMediumUrl,
+                ImageLargeUrl = s.ImageLargeUrl,
+                DisplayOrder = s.DisplayOrder
+            })
+            .ToList(),
         MemberNames = game.Members.OrderBy(member => member.Name).Select(member => member.Name).ToList(),
         MemberContributions = game.MemberContributions
             .OrderBy(mc => mc.CollectiveMember.Name)
@@ -289,6 +302,29 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
             }
         }
 
+        // Process screenshots (up to 3)
+        var screenshots = new List<GameScreenshot>();
+        var screenshotFiles = new[] { viewModel.Screenshot1, viewModel.Screenshot2, viewModel.Screenshot3 };
+
+        for (int i = 0; i < screenshotFiles.Length; i++)
+        {
+            var file = screenshotFiles[i];
+            if (file is not null && file.Length > 0)
+            {
+                var screenshotSizes = await imageService.UploadImageAsync(file, ImageType.Games);
+                if (screenshotSizes is not null)
+                {
+                    screenshots.Add(new GameScreenshot
+                    {
+                        ImageSmallUrl = screenshotSizes.SmallUrl,
+                        ImageMediumUrl = screenshotSizes.MediumUrl,
+                        ImageLargeUrl = screenshotSizes.LargeUrl,
+                        DisplayOrder = i + 1
+                    });
+                }
+            }
+        }
+
         return new Game
         {
             Id = viewModel.Id ?? 0,
@@ -301,7 +337,10 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
             DeveloperPublisher = viewModel.DeveloperPublisher,
             Platforms = viewModel.Platforms,
             GenreGameplayType = viewModel.GenreGameplayType,
-            FromCollective = viewModel.FromCollective
+            FromCollective = viewModel.FromCollective,
+            Description = viewModel.Description,
+            YouTubeTrailerUrl = viewModel.YouTubeTrailerUrl,
+            Screenshots = screenshots
         };
     }
 }

@@ -26,6 +26,12 @@ public class GameViewModel
 
     public bool FromCollective { get; init; }
 
+    public string Description { get; init; } = string.Empty;
+
+    public string? YouTubeTrailerUrl { get; init; }
+
+    public IReadOnlyCollection<GameScreenshotViewModel> Screenshots { get; init; } = [];
+
     public IReadOnlyCollection<string> MemberNames { get; init; } = [];
 
     public IReadOnlyCollection<MemberContributionViewModel> MemberContributions { get; init; } = [];

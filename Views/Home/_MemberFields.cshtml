@@ -42,12 +42,12 @@
 
     <div class="col-12">
         <label class="form-label" for="member-position-@Model.Id">Position</label>
-        <input class="form-control" id="member-position-@Model.Id" name="MemberForm.Position" value="@Model.Position" maxlength="160" required />
+        <input class="form-control" id="member-position-@Model.Id" name="MemberForm.Position" value="@Model.Position" maxlength="160" />
     </div>
 
     <div class="col-12">
         <label class="form-label" for="member-quote-@Model.Id">Quote</label>
-        <textarea class="form-control" id="member-quote-@Model.Id" name="MemberForm.Quote" rows="4" maxlength="600" required>@Model.Quote</textarea>
+        <textarea class="form-control" id="member-quote-@Model.Id" name="MemberForm.Quote" rows="4" maxlength="600">@Model.Quote</textarea>
     </div>
 
     <div class="col-12" id="featured-game-section-@Model.Id">
@@ -81,6 +81,8 @@
         const allGamesSection = document.getElementById('all-games-section-@Model.Id');
         const positionField = document.querySelector('#member-position-@Model.Id').closest('.col-12');
         const quoteField = document.querySelector('#member-quote-@Model.Id').closest('.col-12');
+        const positionInput = document.getElementById('member-position-@Model.Id');
+        const quoteInput = document.getElementById('member-quote-@Model.Id');
 
         function toggleFields() {
             const membershipType = parseInt(membershipSelect.value);
@@ -92,12 +94,16 @@
                     allGamesSection.style.display = 'none';
                     positionField.style.display = 'none';
                     quoteField.style.display = 'none';
+                    positionInput.removeAttribute('required');
+                    quoteInput.removeAttribute('required');
                     break;
                 case 1: // Subscribed
                     featuredGameSection.style.display = 'block';
                     allGamesSection.style.display = 'none';
                     positionField.style.display = 'block';
                     quoteField.style.display = 'none';
+                    positionInput.setAttribute('required', 'required');
+                    quoteInput.removeAttribute('required');
                     break;
                 case 2: // Full
                 default:
@@ -105,6 +111,8 @@
                     allGamesSection.style.display = 'block';
                     positionField.style.display = 'block';
                     quoteField.style.display = 'block';
+                    positionInput.setAttribute('required', 'required');
+                    quoteInput.setAttribute('required', 'required');
                     break;
             }
         }

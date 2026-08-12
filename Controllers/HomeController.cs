@@ -22,6 +22,13 @@ public class HomeController(ICollectiveService collectiveService) : Controller
         return View(viewModel);
     }
 
+    public async Task<IActionResult> Games()
+    {
+        var games = await collectiveService.GetGamesAsync();
+
+        return View(games);
+    }
+
     public IActionResult Privacy()
     {
         return View();

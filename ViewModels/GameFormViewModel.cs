@@ -33,6 +33,17 @@ public class GameFormViewModel
 
     public bool FromCollective { get; set; } = true;
 
+    [StringLength(2000)]
+    public string Description { get; set; } = string.Empty;
+
+    [StringLength(500)]
+    public string? YouTubeTrailerUrl { get; set; }
+
+    // Screenshot uploads (max 3 images)
+    public IFormFile? Screenshot1 { get; set; }
+    public IFormFile? Screenshot2 { get; set; }
+    public IFormFile? Screenshot3 { get; set; }
+
     public List<int> SelectedMemberIds { get; set; } = [];
 
     public IReadOnlyCollection<SelectListItem> AvailableMembers { get; set; } = [];

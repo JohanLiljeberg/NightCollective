@@ -4,8 +4,8 @@ public class CollectiveMember
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
-    public string Position { get; set; } = string.Empty;
-    public string Quote { get; set; } = string.Empty;
+    public string? Position { get; set; }
+    public string? Quote { get; set; }
 
     // Membership
     public MembershipType MembershipType { get; set; } = MembershipType.Full;

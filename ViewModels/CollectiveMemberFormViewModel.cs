@@ -19,11 +19,9 @@ public class CollectiveMemberFormViewModel
     public IFormFile? ImageFile { get; set; }
     public string? ImageUrl { get; set; }
 
-    [Required]
     [StringLength(160)]
     public string Position { get; set; } = string.Empty;
 
-    [Required]
     [StringLength(600)]
     public string Quote { get; set; } = string.Empty;
 
