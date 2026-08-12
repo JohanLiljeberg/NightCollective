@@ -1,27 +1,23 @@
 @model Night.ViewModels.CollectiveMemberViewModel
 
-<article class="unsubscribed-member-card card h-100 border-0 bg-light">
+<article class="unsubscribed-member-card card h-100 border-0 bg-light shadow-sm">
     <div class="card-body d-flex flex-column align-items-center justify-content-center p-4 text-center">
-        @if (!string.IsNullOrEmpty(Model.ImageSmallUrl))
-        {
-            <div class="mb-3">
-                <img src="@Model.ImageSmallUrl" 
+        <div class="mb-3">
+            <div class="position-relative d-inline-block">
+                <img src="@(Model.ImageSmallUrl ?? Model.Image)" 
                      alt="@Model.Name" 
                      class="rounded-circle border border-2 border-secondary opacity-75"
                      width="80" 
                      height="80"
-                     style="object-fit: cover;"
-                     loading="lazy" />
+                     style="object-fit: cover; filter: grayscale(50%);" />
+                <span class="position-absolute bottom-0 end-0 badge bg-secondary rounded-circle p-2" title="Former Member">
+                    <i class="bi bi-person-dash"></i>
+                </span>
             </div>
-        }
-        else
-        {
-            <div class="mb-3 d-flex align-items-center justify-content-center rounded-circle bg-secondary bg-opacity-25" 
-                 style="width: 80px; height: 80px;">
-                <span class="fs-1 text-muted opacity-50">👤</span>
-            </div>
-        }
-        <h3 class="h6 card-title mb-1 text-muted">@Model.Name</h3>
-        <p class="small text-muted mb-0">Former member</p>
+        </div>
+        <h3 class="h6 card-title mb-1 text-muted fw-bold">@Model.Name</h3>
+        <p class="small text-muted mb-0">
+            <i class="bi bi-hourglass-split"></i> Former member
+        </p>
     </div>
 </article>

@@ -32,10 +32,6 @@ namespace Night.Services
             _httpClient = httpClient;
         }
 
-        /// <summary>
-        /// Generates a semantic filename based on upload time and a short hash.
-        /// Format: yyyyMMdd_HHmmss_XXXX (e.g., 20250612_143022_a3f2)
-        /// </summary>
         private string GenerateBaseFileName()
         {
             var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
@@ -43,9 +39,6 @@ namespace Night.Services
             return $"{timestamp}_{hash}";
         }
 
-        /// <summary>
-        /// Generates a short 4-character hash from a random value.
-        /// </summary>
         private string GenerateShortHash()
         {
             var randomBytes = new byte[4];
@@ -106,7 +99,7 @@ namespace Night.Services
 
             try
             {
-                // Download the image from URL
+             
                 var imageBytes = await _httpClient.GetByteArrayAsync(imageUrl);
                 if (imageBytes.Length == 0) return null;
 
@@ -152,16 +145,11 @@ namespace Night.Services
             }
             catch (Exception ex)
             {
-                // Log the error and return null
+            
                 Console.WriteLine($"Error downloading and processing image from URL {imageUrl}: {ex.Message}");
                 return null;
             }
         }
-
-        /// <summary>
-        /// Resizes and saves an image as WebP with optimized quality settings for mobile performance.
-        /// Uses Lanczos3 resampler for best quality/performance balance.
-        /// </summary>
         private async Task SaveResizedWebPAsync(Image sourceImage, string outputPath, int targetWidth, int quality)
         {
             using var clonedImage = sourceImage.Clone(ctx =>
@@ -170,15 +158,15 @@ namespace Night.Services
                 {
                     Size = new Size(targetWidth, 0),
                     Mode = ResizeMode.Max,
-                    Sampler = KnownResamplers.Lanczos3, // Best quality for downscaling
-                    Compand = true // Better color accuracy
+                    Sampler = KnownResamplers.Lanczos3, 
+                    Compand = true 
                 });
             });
 
             var encoder = new WebpEncoder
             {
                 Quality = quality,
-                Method = WebpEncodingMethod.BestQuality, // Slower but better compression
+                Method = WebpEncodingMethod.BestQuality, 
                 FileFormat = WebpFileFormatType.Lossy,
                 NearLossless = false,
                 UseAlphaCompression = true
@@ -191,12 +179,11 @@ namespace Night.Services
         {
             if (urls == null) return;
 
-            // Delete all three sizes
+         
             DeleteFileFromUrl(urls.SmallUrl);
             DeleteFileFromUrl(urls.MediumUrl);
             DeleteFileFromUrl(urls.LargeUrl);
 
-            // Try to delete the parent folder if empty
             try
             {
                 var firstUrl = urls.SmallUrl ?? urls.MediumUrl ?? urls.LargeUrl;
@@ -212,7 +199,7 @@ namespace Night.Services
             }
             catch
             {
-                // Fail silently if folder cleanup fails
+              
             }
         }
 

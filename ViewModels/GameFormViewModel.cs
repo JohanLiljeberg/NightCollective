@@ -12,9 +12,13 @@ public class GameFormViewModel
     [StringLength(120)]
     public string Title { get; set; } = string.Empty;
 
-    [Required]
+    // Legacy field (kept for backward compatibility, but ImageFile/ImageUrl preferred)
     [StringLength(240)]
     public string Image { get; set; } = string.Empty;
+
+    // New mobile-first image fields
+    public IFormFile? ImageFile { get; set; }
+    public string? ImageUrl { get; set; }
 
     [Range(1970, 2100)]
     public int ReleaseYear { get; set; } = DateTime.Today.Year;

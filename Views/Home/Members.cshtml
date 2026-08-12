@@ -37,7 +37,7 @@
     <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
         <div>
             <p class="eyebrow mb-1">Gallery</p>
-            <h2 id="games-gallery-heading" class="h3 mb-0">Games database</h2>
+            <h2 id="games-gallery-heading" class="h3 mb-0">Games</h2>
         </div>
     </div>
     @if (Model.Games.Any())
@@ -68,8 +68,9 @@
                                     {
                                         var workAreasText = string.Join(", ", member.WorkAreas.Select(wa => wa.GetIconWithName()));
                                         var tooltipText = $"{member.Name} - {member.InvolvementLevel}\n{workAreasText}";
+                                        var memberImageUrl = member.ImageSmallUrl ?? member.Image;
                                         <div class="position-relative" title="@tooltipText" data-bs-toggle="tooltip" data-bs-placement="top">
-                                            <img class="rounded-circle border" src="@member.Image" alt="@member.Name" width="40" height="40" />
+                                            <img class="rounded-circle border" src="@memberImageUrl" alt="@member.Name" width="40" height="40" style="object-fit: cover;" />
                                             <div class="position-absolute bottom-0 end-0 translate-middle-x" style="font-size: 0.9rem;">
                                                 @(member.InvolvementLevel switch
                                                 {

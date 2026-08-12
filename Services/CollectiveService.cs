@@ -5,7 +5,7 @@ using Night.ViewModels;
 
 namespace Night.Services;
 
-public class CollectiveService(ICollectiveRepository collectiveRepository, IBlogPostService blogPostService) : ICollectiveService
+public class CollectiveService(ICollectiveRepository collectiveRepository, IBlogPostService blogPostService, IImageService imageService) : ICollectiveService
 {
     public async Task<HomeIndexViewModel> GetHomePageContentAsync()
     {
@@ -51,7 +51,8 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
 
     public async Task AddCollectiveMemberAsync(CollectiveMemberFormViewModel viewModel)
     {
-        await collectiveRepository.AddCollectiveMemberAsync(MapMemberForm(viewModel), viewModel.SelectedGameIds);
+        var member = await MapMemberForm(viewModel);
+        await collectiveRepository.AddCollectiveMemberAsync(member, viewModel.SelectedGameIds);
     }
 
     public async Task UpdateCollectiveMemberAsync(CollectiveMemberFormViewModel viewModel)
@@ -61,7 +62,8 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
             return;
         }
 
-        await collectiveRepository.UpdateCollectiveMemberAsync(MapMemberForm(viewModel), viewModel.SelectedGameIds);
+        var member = await MapMemberForm(viewModel);
+        await collectiveRepository.UpdateCollectiveMemberAsync(member, viewModel.SelectedGameIds);
     }
 
     public async Task DeleteCollectiveMemberAsync(int id)
@@ -71,7 +73,8 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
 
     public async Task AddGameAsync(GameFormViewModel viewModel)
     {
-        await collectiveRepository.AddGameAsync(MapGameForm(viewModel), viewModel.MemberContributions);
+        var game = await MapGameForm(viewModel);
+        await collectiveRepository.AddGameAsync(game, viewModel.MemberContributions);
     }
 
     public async Task UpdateGameAsync(GameFormViewModel viewModel)
@@ -81,7 +84,8 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
             return;
         }
 
-        await collectiveRepository.UpdateGameAsync(MapGameForm(viewModel), viewModel.MemberContributions);
+        var game = await MapGameForm(viewModel);
+        await collectiveRepository.UpdateGameAsync(game, viewModel.MemberContributions);
     }
 
     public async Task DeleteGameAsync(int id)
@@ -160,6 +164,9 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
                 GameId = gc.GameId,
                 Title = gc.Game.Title,
                 Image = gc.Game.Image,
+                ImageSmallUrl = gc.Game.ImageSmallUrl,
+                ImageMediumUrl = gc.Game.ImageMediumUrl,
+                ImageLargeUrl = gc.Game.ImageLargeUrl,
                 ReleaseYear = gc.Game.ReleaseYear,
                 InvolvementLevel = gc.InvolvementLevel,
                 WorkAreas = gc.WorkAreas
@@ -188,6 +195,9 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
                 MemberId = mc.CollectiveMemberId,
                 Name = mc.CollectiveMember.Name,
                 Image = mc.CollectiveMember.Image,
+                ImageSmallUrl = mc.CollectiveMember.ImageSmallUrl,
+                ImageMediumUrl = mc.CollectiveMember.ImageMediumUrl,
+                ImageLargeUrl = mc.CollectiveMember.ImageLargeUrl,
                 InvolvementLevel = mc.InvolvementLevel,
                 WorkAreas = mc.WorkAreas
             })
@@ -200,26 +210,98 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
         Title = game.Title
     };
 
-    private static CollectiveMember MapMemberForm(CollectiveMemberFormViewModel viewModel) => new()
+    private async Task<CollectiveMember> MapMemberForm(CollectiveMemberFormViewModel viewModel)
     {
-        Id = viewModel.Id ?? 0,
-        Name = viewModel.Name,
-        Image = viewModel.Image,
-        Position = viewModel.Position,
-        Quote = viewModel.Quote,
-        MembershipType = viewModel.MembershipType,
-        FeaturedGameId = viewModel.FeaturedGameId
-    };
+        string? smallUrl = null;
+        string? mediumUrl = null;
+        string? largeUrl = null;
+        string? legacyImage = viewModel.Image;
 
-    private static Game MapGameForm(GameFormViewModel viewModel) => new()
+        if (viewModel.ImageFile is not null && viewModel.ImageFile.Length > 0)
+        {
+            // File upload takes precedence
+            var sizes = await imageService.UploadImageAsync(viewModel.ImageFile, ImageType.Members);
+            if (sizes is not null)
+            {
+                smallUrl = sizes.SmallUrl;
+                mediumUrl = sizes.MediumUrl;
+                largeUrl = sizes.LargeUrl;
+                legacyImage = sizes.MediumUrl; // Set legacy field to medium URL
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(viewModel.ImageUrl))
+        {
+            // Download URL and process into 3 sizes
+            var sizes = await imageService.DownloadAndProcessUrlAsync(viewModel.ImageUrl, ImageType.Members);
+            if (sizes is not null)
+            {
+                smallUrl = sizes.SmallUrl;
+                mediumUrl = sizes.MediumUrl;
+                largeUrl = sizes.LargeUrl;
+                legacyImage = sizes.MediumUrl; // Set legacy field to medium URL
+            }
+        }
+
+        return new CollectiveMember
+        {
+            Id = viewModel.Id ?? 0,
+            Name = viewModel.Name,
+            Image = legacyImage ?? string.Empty,
+            ImageSmallUrl = smallUrl,
+            ImageMediumUrl = mediumUrl,
+            ImageLargeUrl = largeUrl,
+            Position = viewModel.Position,
+            Quote = viewModel.Quote,
+            MembershipType = viewModel.MembershipType,
+            FeaturedGameId = viewModel.FeaturedGameId
+        };
+    }
+
+    private async Task<Game> MapGameForm(GameFormViewModel viewModel)
     {
-        Id = viewModel.Id ?? 0,
-        Title = viewModel.Title,
-        Image = viewModel.Image,
-        ReleaseYear = viewModel.ReleaseYear,
-        DeveloperPublisher = viewModel.DeveloperPublisher,
-        Platforms = viewModel.Platforms,
-        GenreGameplayType = viewModel.GenreGameplayType,
-        FromCollective = viewModel.FromCollective
-    };
+        string? smallUrl = null;
+        string? mediumUrl = null;
+        string? largeUrl = null;
+        string? legacyImage = viewModel.Image;
+
+        if (viewModel.ImageFile is not null && viewModel.ImageFile.Length > 0)
+        {
+            // File upload takes precedence
+            var sizes = await imageService.UploadImageAsync(viewModel.ImageFile, ImageType.Games);
+            if (sizes is not null)
+            {
+                smallUrl = sizes.SmallUrl;
+                mediumUrl = sizes.MediumUrl;
+                largeUrl = sizes.LargeUrl;
+                legacyImage = sizes.MediumUrl; // Set legacy field to medium URL
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(viewModel.ImageUrl))
+        {
+            // Download URL and process into 3 sizes
+            var sizes = await imageService.DownloadAndProcessUrlAsync(viewModel.ImageUrl, ImageType.Games);
+            if (sizes is not null)
+            {
+                smallUrl = sizes.SmallUrl;
+                mediumUrl = sizes.MediumUrl;
+                largeUrl = sizes.LargeUrl;
+                legacyImage = sizes.MediumUrl; // Set legacy field to medium URL
+            }
+        }
+
+        return new Game
+        {
+            Id = viewModel.Id ?? 0,
+            Title = viewModel.Title,
+            Image = legacyImage ?? string.Empty,
+            ImageSmallUrl = smallUrl,
+            ImageMediumUrl = mediumUrl,
+            ImageLargeUrl = largeUrl,
+            ReleaseYear = viewModel.ReleaseYear,
+            DeveloperPublisher = viewModel.DeveloperPublisher,
+            Platforms = viewModel.Platforms,
+            GenreGameplayType = viewModel.GenreGameplayType,
+            FromCollective = viewModel.FromCollective
+        };
+    }
 }

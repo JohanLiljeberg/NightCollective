@@ -20,8 +20,24 @@
     </div>
 
     <div class="col-12">
-        <label class="form-label" for="member-image-@Model.Id">Image URL</label>
-        <input class="form-control" id="member-image-@Model.Id" name="MemberForm.Image" value="@Model.Image" maxlength="240" required />
+        <fieldset class="border border-2 rounded p-3">
+            <legend class="form-label d-block mb-3">Member Image</legend>
+            <p class="small text-muted mb-4">Choose one: Upload a file <strong>OR</strong> provide an image URL</p>
+
+            <div class="mb-3">
+                <h6 class="mb-2">📁 Upload Image</h6>
+                <input type="file" class="form-control" name="MemberForm.ImageFile" accept="image/*" />
+            </div>
+
+            <div class="text-center text-muted my-3">
+                <small><strong>— OR —</strong></small>
+            </div>
+
+            <div class="mb-3">
+                <h6 class="mb-2">🔗 Add Image URL</h6>
+                <input type="text" class="form-control" name="MemberForm.ImageUrl" value="@Model.Image" placeholder="https://example.com/image.jpg" />
+            </div>
+        </fieldset>
     </div>
 
     <div class="col-12">
