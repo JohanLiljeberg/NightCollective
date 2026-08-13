@@ -24,7 +24,7 @@
             <p class="lead mb-4">@Model.HeroSubtitle</p>
             <p class="hero-copy mb-4">@Model.HeroDescription</p>
             <div class="d-flex flex-wrap gap-3">
-                <a class="btn btn-primary btn-lg" href="#projects">What's New?'</a>
+                <a class="btn btn-primary btn-lg" asp-controller="Blog" asp-action="Index">What's New?</a>
                 <a class="btn btn-outline-light btn-lg" asp-controller="Events" asp-action="Index">Join the next event</a>
             </div>
         </div>
@@ -33,6 +33,19 @@
                 <h2 class="h4">The Vision</h2>
                 <p class="mb-0">Cooperative Publishing, ride the highs and weather the lows - Together</p>
             </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-strip p-4 p-lg-5 mb-5">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <p class="eyebrow mb-2">Showcase — Network — Finance</p>
+            <h2 class="h3 fw-bold mb-2">Bring your game to a collective that has your back</h2>
+            <p class="mb-0">Whether you're looking to display your project, find collaborators, or connect with people who can help fund your next release, this is where it starts.</p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a class="btn btn-outline-light btn-lg" asp-controller="Home" asp-action="Games">Explore the gallery</a>
         </div>
     </div>
 </section>
@@ -66,6 +79,8 @@
         </div>
     }
 </section>
+
+<hr class="section-divider" />
 
 <section id="events" class="mb-5" aria-labelledby="events-heading">
     <div class="d-flex align-items-end justify-content-between gap-3 mb-3">

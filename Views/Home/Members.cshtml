@@ -5,13 +5,13 @@
 }
 
 <div class="container py-5">
-    <div class="mb-5 text-center">
-        <p class="eyebrow mb-2">About the collective</p>
+    <div class="mission-card rounded-4 p-4 p-lg-5 mb-5 text-center">
+
         <h1 class="display-6 fw-bold mb-3">Meet Our Members</h1>
-        <p class="lead text-muted">Night Collective Group</p>
-        <a asp-controller="Home" asp-action="Games" class="btn btn-outline-primary mt-2">
-            <i class="bi bi-controller"></i> View Our Games Gallery
-        </a>
+        <p class="lead mb-3">Night Collective Group</p>
+  @*       <a asp-controller="Home" asp-action="Games" class="btn btn-outline-light mt-2">
+            View Our Games Gallery
+        </a> *@
     </div>
 
     @* Full Members Section *@
@@ -20,12 +20,13 @@
     }
     @if (fullMembers.Any())
     {
-        <section class="mb-5">
+        <section class="section-alt p-4 p-lg-5 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="h4 fw-bold mb-0">
-                    <i class="bi bi-person-badge"></i> Full Members
-                </h2>
-                <span class="badge bg-primary rounded-pill">@fullMembers.Count</span>
+                <div>
+                    <p class="eyebrow mb-1">Core team</p>
+                    <h2 class="h4 fw-bold mb-0">Full Members</h2>
+                </div>
+                <span class="badge bg-primary rounded-pill fs-6">@fullMembers.Count</span>
             </div>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 @foreach (var member in fullMembers)
@@ -44,12 +45,13 @@
     }
     @if (subscribedMembers.Any())
     {
-        <section class="mb-5">
+        <section class="section-alt p-4 p-lg-5 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="h4 fw-bold mb-0">
-                    <i class="bi bi-star-fill"></i> Subscribed Members
-                </h2>
-                <span class="badge bg-primary rounded-pill">@subscribedMembers.Count</span>
+                <div>
+                    <p class="eyebrow mb-1">Backing the collective</p>
+                    <h2 class="h4 fw-bold mb-0">Subscribed Members</h2>
+                </div>
+                <span class="badge badge-teal rounded-pill fs-6">@subscribedMembers.Count</span>
             </div>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 @foreach (var member in subscribedMembers)
@@ -68,12 +70,13 @@
     }
     @if (unsubscribedMembers.Any())
     {
-        <section>
+        <section class="section-alt p-4 p-lg-5">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="h4 fw-bold mb-0">
-                    <i class="bi bi-person-check"></i> Active Members
-                </h2>
-                <span class="badge bg-info rounded-pill">@unsubscribedMembers.Count</span>
+                <div>
+                    <p class="eyebrow mb-1">Community</p>
+                    <h2 class="h4 fw-bold mb-0">Active Members</h2>
+                </div>
+                <span class="badge badge-grey rounded-pill fs-6">@unsubscribedMembers.Count</span>
             </div>
             <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
                 @foreach (var member in unsubscribedMembers)
@@ -86,13 +89,3 @@
         </section>
     }
 </div>
-
-<style>
-    .eyebrow {
-        text-transform: uppercase;
-        font-size: 0.875rem;
-        font-weight: 600;
-        letter-spacing: 0.1em;
-        color: #6c757d;
-    }
-</style>

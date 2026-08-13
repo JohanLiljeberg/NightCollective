@@ -1,6 +1,6 @@
 @model Night.ViewModels.EventViewModel
 
-<article class="event-card h-100 overflow-hidden rounded-4">
+<article class="event-card h-100 overflow-hidden rounded-4 position-relative">
     @await Component.InvokeAsync("ResponsiveImageVC", new
     {
         smallUrl = Model.ImageSmallUrl,
@@ -15,16 +15,27 @@
     <div class="p-4">
         <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
             <div>
-                <h3 class="h4">@Model.Title</h3>
+                <h3 class="h4">
+                    <a asp-controller="Events" asp-action="Details" asp-route-id="@Model.Id" class="stretched-link text-decoration-none text-reset">@Model.Title</a>
+                </h3>
                 <p class="mb-2">@Model.Description</p>
                 <p class="mb-0 text-accent">@Model.Location</p>
             </div>
             <span class="date-chip align-self-start">@Model.DateDisplay</span>
         </div>
-        <div class="d-flex flex-wrap gap-2 mt-4">
-            <a class="btn btn-primary btn-sm" asp-controller="Events" asp-action="Details" asp-route-id="@Model.Id">View details</a>
-            <a class="btn btn-outline-secondary btn-sm" asp-controller="Events" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
-            <a class="btn btn-outline-danger btn-sm" asp-controller="Events" asp-action="Delete" asp-route-id="@Model.Id">Remove</a>
-        </div>
+        @if (Context.Session.GetString("IsAdmin") == "true")
+        {
+            <div class="d-flex flex-wrap gap-2 mt-4 position-relative" style="z-index: 2;">
+                <a class="btn btn-outline-secondary btn-sm" asp-controller="Events" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+                <a class="btn btn-outline-danger btn-sm" asp-controller="Events" asp-action="Delete" asp-route-id="@Model.Id">Remove</a>
+            </div>
+        }
     </div>
+</article>
+
+<style>
+    .event-card {
+        cursor: pointer;
+    }
+</style>
 </article>

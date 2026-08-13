@@ -1,6 +1,6 @@
 @model Night.ViewModels.GameViewModel
 
-<div class="card h-100 shadow-sm game-card">
+<div class="card h-100 shadow-sm game-card @(Model.FromCollective ? "game-card-collective" : "game-card-external")">
     @if (!string.IsNullOrEmpty(Model.ImageMediumUrl))
     {
         <img src="@Model.ImageMediumUrl" 
@@ -37,9 +37,7 @@
         <div class="mt-auto">
             @if (Model.FromCollective)
             {
-                <span class="badge bg-success mb-2">
-                    <i class="bi bi-star-fill"></i> Collective Game
-                </span>
+                <span class="badge badge-gold mb-2">Collective Game</span>
             }
 
             @if (Model.MemberContributions.Any())

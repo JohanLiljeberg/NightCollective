@@ -4,46 +4,49 @@
 }
 
 <div class="container py-5">
-    <div class="mb-5 text-center">
-        <p class="eyebrow mb-2">Games Database</p>
+    <div class="mission-card rounded-4 p-4 p-lg-5 mb-5 text-center">
+      
         <h1 class="display-4 fw-bold mb-3">Game Gallery</h1>
-        <p class="lead text-muted">Explore our collection of games from Night Collective members and beyond</p>
+        <p class="lead mb-0">Explore our collection of games from Night Collective members and beyond</p>
     </div>
 
     @if (!Model.Any())
     {
         <div class="alert alert-info text-center">
             <i class="bi bi-info-circle fs-3 d-block mb-2"></i>
-            <p class="mb-0">No games in the database yet. Check back soon!</p>
+            <p class="mb-0">No games just yet. Check back soon!</p>
         </div>
     }
     else
     {
         <!-- Filter/Sort Section -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn btn-sm btn-outline-primary active" data-filter="all">
-                        All Games (@Model.Count())
-                    </button>
-                    <button class="btn btn-sm btn-outline-success" data-filter="collective">
-                        <i class="bi bi-star-fill"></i> Collective Games (@Model.Count(g => g.FromCollective))
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" data-filter="external">
-                        External Games (@Model.Count(g => !g.FromCollective))
-                    </button>
+        <div class="section-alt p-3 p-lg-4 mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-6">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-sm btn-outline-primary active" data-filter="all">
+                            All Games (@Model.Count())
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" data-filter="collective">
+                            Collective Games (@Model.Count(g => g.FromCollective))
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" data-filter="external">
+                            External Games (@Model.Count(g => !g.FromCollective))
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <label class="me-2">Sort by:</label>
+                    <select class="form-select form-select-sm d-inline-block w-auto" id="sortGames">
+                        <option value="title">Title</option>
+                        <option value="year-desc" selected>Newest First</option>
+                        <option value="year-asc">Oldest First</option>
+                        <option value="developer">Developer</option>
+                    </select>
                 </div>
             </div>
-            <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                <label class="me-2">Sort by:</label>
-                <select class="form-select form-select-sm d-inline-block w-auto" id="sortGames">
-                    <option value="title">Title</option>
-                    <option value="year-desc" selected>Newest First</option>
-                    <option value="year-asc">Oldest First</option>
-                    <option value="developer">Developer</option>
-                </select>
-            </div>
         </div>
+
 
         <!-- Games Grid -->
         <div class="row g-4" id="gamesGrid">
