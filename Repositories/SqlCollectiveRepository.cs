@@ -160,18 +160,37 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds)
+    public async Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds, IReadOnlyCollection<MemberGameContributionFormViewModel> gameContributions)
     {
         member.Games = await GetSelectedGamesAsync(gameIds);
 
         dbContext.CollectiveMembers.Add(member);
         await dbContext.SaveChangesAsync();
+
+        if (gameContributions.Any())
+        {
+            foreach (var contribution in gameContributions)
+            {
+                var gameMemberContribution = new GameMemberContribution
+                {
+                    GameId = contribution.GameId,
+                    CollectiveMemberId = member.Id,
+                    InvolvementLevel = contribution.InvolvementLevel,
+                    WorkAreas = contribution.SelectedWorkAreas
+                };
+
+                dbContext.Set<GameMemberContribution>().Add(gameMemberContribution);
+            }
+
+            await dbContext.SaveChangesAsync();
+        }
     }
 
-    public async Task UpdateCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds)
+    public async Task UpdateCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds, IReadOnlyCollection<MemberGameContributionFormViewModel> gameContributions)
     {
         var existingMember = await dbContext.CollectiveMembers
             .Include(item => item.Games)
+            .Include(item => item.GameContributions)
             .FirstOrDefaultAsync(item => item.Id == member.Id);
 
         if (existingMember is null)
@@ -188,6 +207,26 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
         existingMember.Games.Clear();
         existingMember.Games.AddRange(await GetSelectedGamesAsync(gameIds));
 
+        // Remove existing game contributions
+        dbContext.Set<GameMemberContribution>().RemoveRange(existingMember.GameContributions);
+
+        // Add updated contributions
+        if (gameContributions.Any())
+        {
+            foreach (var contribution in gameContributions)
+            {
+                var gameMemberContribution = new GameMemberContribution
+                {
+                    GameId = contribution.GameId,
+                    CollectiveMemberId = member.Id,
+                    InvolvementLevel = contribution.InvolvementLevel,
+                    WorkAreas = contribution.SelectedWorkAreas
+                };
+
+                dbContext.Set<GameMemberContribution>().Add(gameMemberContribution);
+            }
+        }
+
         await dbContext.SaveChangesAsync();
     }
 
@@ -199,6 +238,34 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
             dbContext.CollectiveMembers.Remove(member);
             await dbContext.SaveChangesAsync();
         }
+    }
+
+    public async Task<SiteDisplaySettings> GetDisplaySettingsAsync()
+    {
+        var settings = await dbContext.SiteDisplaySettings.AsNoTracking().FirstOrDefaultAsync();
+
+        return settings ?? new SiteDisplaySettings { Id = 1 };
+    }
+
+    public async Task UpdateDisplaySettingsAsync(SiteDisplaySettings settings)
+    {
+        var existing = await dbContext.SiteDisplaySettings.FirstOrDefaultAsync();
+
+        if (existing is null)
+        {
+            settings.Id = 1;
+            dbContext.SiteDisplaySettings.Add(settings);
+        }
+        else
+        {
+            existing.ShowFullMembers = settings.ShowFullMembers;
+            existing.ShowSubscribedMembers = settings.ShowSubscribedMembers;
+            existing.ShowUnsubscribedMembers = settings.ShowUnsubscribedMembers;
+            existing.ShowCollectiveGames = settings.ShowCollectiveGames;
+            existing.ShowExternalGames = settings.ShowExternalGames;
+        }
+
+        await dbContext.SaveChangesAsync();
     }
 
     private async Task<List<Game>> GetSelectedGamesAsync(IReadOnlyCollection<int> gameIds)

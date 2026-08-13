@@ -50,7 +50,8 @@ public class AdminController(
             AllMembers = await collectiveService.GetCollectiveMembersAsync(),
             AllGames = await collectiveService.GetGamesAsync(),
             AllBlogPosts = await blogPostService.GetAllBlogPostsAsync(),
-            AllEvents = await eventService.GetUpcomingEventsAsync()
+            AllEvents = await eventService.GetUpcomingEventsAsync(),
+            DisplaySettings = await collectiveService.GetDisplaySettingsAsync()
         };
 
         return View(viewModel);
@@ -299,6 +300,16 @@ public class AdminController(
         await eventService.DeleteEventAsync(id);
         TempData["SuccessMessage"] = "Event deleted successfully!";
         return RedirectToAction(nameof(Dashboard), new { tab = "manage-events" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateDisplaySettings([Bind(Prefix = "DisplaySettings")] DisplaySettingsViewModel displaySettings)
+    {
+        await collectiveService.UpdateDisplaySettingsAsync(displaySettings);
+        TempData["SuccessMessage"] = "Display settings updated successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "display-settings" });
     }
 
     private void ValidateMemberFormByMembershipType(CollectiveMemberFormViewModel memberForm)

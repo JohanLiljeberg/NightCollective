@@ -12,4 +12,5 @@ public class AdminDashboardViewModel
     public IReadOnlyCollection<GameViewModel> AllGames { get; set; } = [];
     public IReadOnlyCollection<BlogPost> AllBlogPosts { get; set; } = [];
     public IReadOnlyCollection<EventViewModel> AllEvents { get; set; } = [];
+    public DisplaySettingsViewModel DisplaySettings { get; set; } = new();
 }

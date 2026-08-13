@@ -54,29 +54,25 @@
                      data-title="@game.Title"
                      data-year="@game.ReleaseYear"
                      data-developer="@game.DeveloperPublisher">
-                    @await Component.InvokeAsync("GameCardVC", new { game })
+                    <div data-bs-toggle="modal" data-bs-target="#gameModal-@game.Id" style="cursor:pointer;">
+                        @await Component.InvokeAsync("GameCardVC", new { game })
+                    </div>
+                </div>
+
+                <!-- Game Detail Modal -->
+                <div class="modal fade" id="gameModal-@game.Id" tabindex="-1" aria-labelledby="gameModalLabel-@game.Id" aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header border-0 pb-0">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body pt-0">
+                                @await Component.InvokeAsync("GameDetailVC", new { game })
+                            </div>
+                        </div>
+                    </div>
                 </div>
             }
-        </div>
-
-        <!-- Statistics Section -->
-        <div class="row mt-5 pt-5 border-top">
-            <div class="col-md-3 text-center mb-4 mb-md-0">
-                <div class="display-6 fw-bold text-primary">@Model.Count()</div>
-                <p class="text-muted mb-0">Total Games</p>
-            </div>
-            <div class="col-md-3 text-center mb-4 mb-md-0">
-                <div class="display-6 fw-bold text-success">@Model.Count(g => g.FromCollective)</div>
-                <p class="text-muted mb-0">Collective Games</p>
-            </div>
-            <div class="col-md-3 text-center mb-4 mb-md-0">
-                <div class="display-6 fw-bold text-info">@Model.SelectMany(g => g.MemberContributions).Select(mc => mc.MemberId).Distinct().Count()</div>
-                <p class="text-muted mb-0">Contributing Members</p>
-            </div>
-            <div class="col-md-3 text-center">
-                <div class="display-6 fw-bold text-warning">@Model.Where(g => !string.IsNullOrEmpty(g.YouTubeTrailerUrl)).Count()</div>
-                <p class="text-muted mb-0">With Trailers</p>
-            </div>
         </div>
     }
 </div>

@@ -59,6 +59,11 @@
             📅 Manage Events
         </button>
     </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "display-settings" ? "active" : "")" id="display-settings-tab" data-bs-toggle="tab" data-bs-target="#display-settings" type="button" role="tab">
+            👁️ Display Settings
+        </button>
+    </li>
 </ul>
 
 <div class="tab-content" id="adminTabsContent">
@@ -647,6 +652,78 @@
             </div>
         </div>
     </div>
+
+    <!-- Display Settings Tab -->
+    <div class="tab-pane fade @(activeTab == "display-settings" ? "show active" : "")" id="display-settings" role="tabpanel">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="bi bi-eye"></i> Display Settings</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Control which members and games are visible on the public Members and Games pages. Hidden items remain fully manageable here in the admin dashboard.</p>
+                <form asp-action="UpdateDisplaySettings" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <h5 class="mb-3">👥 Members</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="show-full-members"
+                                       name="DisplaySettings.ShowFullMembers" value="true"
+                                       @(Model.DisplaySettings.ShowFullMembers ? "checked" : string.Empty) />
+                                <input name="DisplaySettings.ShowFullMembers" value="false" type="hidden" />
+                                <label class="form-check-label" for="show-full-members">Full Members</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="show-subscribed-members"
+                                       name="DisplaySettings.ShowSubscribedMembers" value="true"
+                                       @(Model.DisplaySettings.ShowSubscribedMembers ? "checked" : string.Empty) />
+                                <input name="DisplaySettings.ShowSubscribedMembers" value="false" type="hidden" />
+                                <label class="form-check-label" for="show-subscribed-members">Subscribed Members</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="show-unsubscribed-members"
+                                       name="DisplaySettings.ShowUnsubscribedMembers" value="true"
+                                       @(Model.DisplaySettings.ShowUnsubscribedMembers ? "checked" : string.Empty) />
+                                <input name="DisplaySettings.ShowUnsubscribedMembers" value="false" type="hidden" />
+                                <label class="form-check-label" for="show-unsubscribed-members">Unsubscribed (Active) Members</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3">🎮 Games</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="show-collective-games"
+                                       name="DisplaySettings.ShowCollectiveGames" value="true"
+                                       @(Model.DisplaySettings.ShowCollectiveGames ? "checked" : string.Empty) />
+                                <input name="DisplaySettings.ShowCollectiveGames" value="false" type="hidden" />
+                                <label class="form-check-label" for="show-collective-games">Games by the Collective</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="show-external-games"
+                                       name="DisplaySettings.ShowExternalGames" value="true"
+                                       @(Model.DisplaySettings.ShowExternalGames ? "checked" : string.Empty) />
+                                <input name="DisplaySettings.ShowExternalGames" value="false" type="hidden" />
+                                <label class="form-check-label" for="show-external-games">Other Games</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save Display Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 @* Edit Member Modals *@
@@ -676,6 +753,14 @@
                                 SelectedGameIds = member.Games.Select(g => g.Id).ToList(),
                                 AvailableGames = Model.AllGames
                                     .Select(g => new Night.ViewModels.GameSelectViewModel { Id = g.Id, Title = g.Title })
+                                    .ToList(),
+                                GameContributions = member.GameContributions
+                                    .Select(gc => new Night.ViewModels.MemberGameContributionFormViewModel
+                                    {
+                                        GameId = gc.GameId,
+                                        InvolvementLevel = gc.InvolvementLevel,
+                                        SelectedWorkAreas = gc.WorkAreas.ToList()
+                                    })
                                     .ToList()
                             };
                         }
@@ -1117,6 +1202,7 @@
 
 @section Scripts {
     <script src="~/js/game-form.js" asp-append-version="true"></script>
+    <script src="~/js/member-form.js" asp-append-version="true"></script>
     <partial name="_ValidationScriptsPartial" />
 
     <script>

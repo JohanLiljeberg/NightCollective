@@ -19,6 +19,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<GameScreenshot> GameScreenshots => Set<GameScreenshot>();
 
+    public DbSet<SiteDisplaySettings> SiteDisplaySettings => Set<SiteDisplaySettings>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -165,6 +167,21 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(s => s.ImageSmallUrl).HasMaxLength(500);
             entity.Property(s => s.ImageMediumUrl).HasMaxLength(500);
             entity.Property(s => s.ImageLargeUrl).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<SiteDisplaySettings>(entity =>
+        {
+            entity.ToTable("SiteDisplaySettings");
+
+            entity.HasData(new SiteDisplaySettings
+            {
+                Id = 1,
+                ShowFullMembers = true,
+                ShowSubscribedMembers = true,
+                ShowUnsubscribedMembers = true,
+                ShowCollectiveGames = true,
+                ShowExternalGames = true
+            });
         });
     }
 }

@@ -1,15 +1,15 @@
 /**
- * GameFormHandler - Manages dynamic member contributions in game forms
+ * MemberFormHandler - Manages dynamic game contributions in member forms
  */
-class GameFormHandler {
-    constructor(gameId, initialCount = 0) {
-        this.gameId = gameId;
+class MemberFormHandler {
+    constructor(memberId, initialCount = 0) {
+        this.memberId = memberId;
         this.currentIndex = initialCount;
-        this.container = document.getElementById(`member-contributions-list-${gameId}`);
-        this.addButton = document.querySelector(`[data-game-id="${gameId}"].add-contribution-btn`);
+        this.container = document.getElementById(`game-contributions-list-${memberId}`);
+        this.addButton = document.querySelector(`[data-member-id="${memberId}"].add-game-contribution-btn`);
 
         if (!this.container) {
-            console.error(`Container not found for game ID: ${gameId}`);
+            console.error(`Container not found for member ID: ${memberId}`);
             return;
         }
 
@@ -24,14 +24,14 @@ class GameFormHandler {
 
         // Delegate remove button clicks to container
         this.container.addEventListener('click', (e) => {
-            if (e.target.closest('.remove-contribution-btn')) {
-                this.removeContribution(e.target.closest('.remove-contribution-btn'));
+            if (e.target.closest('.remove-game-contribution-btn')) {
+                this.removeContribution(e.target.closest('.remove-game-contribution-btn'));
             }
         });
     }
 
     /**
-     * Add a new member contribution form item
+     * Add a new game contribution form item
      */
     addContribution() {
         const index = this.currentIndex++;
@@ -43,7 +43,7 @@ class GameFormHandler {
      * Remove a contribution item and reindex remaining items
      */
     removeContribution(button) {
-        const item = button.closest('.member-contribution-item');
+        const item = button.closest('.game-contribution-item');
         if (!item) return;
 
         // Bootstrap fade out animation
@@ -58,11 +58,11 @@ class GameFormHandler {
      * Reindex all contribution items after removal
      */
     reindexItems() {
-        const items = this.container.querySelectorAll('.member-contribution-item');
+        const items = this.container.querySelectorAll('.game-contribution-item');
         items.forEach((item, idx) => {
             const heading = item.querySelector('h6');
             if (heading) {
-                heading.textContent = `Member Contribution #${idx + 1}`;
+                heading.textContent = `Game Contribution #${idx + 1}`;
             }
         });
     }
@@ -71,27 +71,27 @@ class GameFormHandler {
      * Build HTML for a new contribution item
      */
     buildContributionHtml(index) {
-        const memberOptions = this.getMemberOptionsHtml();
+        const gameOptions = this.getGameOptionsHtml();
         const workAreaCheckboxes = this.getWorkAreaCheckboxesHtml(index);
 
         return `
-            <div class="member-contribution-item card mb-3" data-index="${index}">
+            <div class="game-contribution-item card mb-3" data-index="${index}">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h6 class="mb-0">Member Contribution #${index + 1}</h6>
-                        <button type="button" class="btn btn-sm btn-danger remove-contribution-btn" data-index="${index}">
+                        <h6 class="mb-0">Game Contribution #${index + 1}</h6>
+                        <button type="button" class="btn btn-sm btn-danger remove-game-contribution-btn" data-index="${index}">
                             <span aria-hidden="true">&times;</span> Remove
                         </button>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="member-select-${this.gameId}-${index}">Member</label>
+                        <label class="form-label" for="game-select-${this.memberId}-${index}">Game</label>
                         <select class="form-select" 
-                                id="member-select-${this.gameId}-${index}"
-                                name="GameForm.MemberContributions[${index}].MemberId" 
+                                id="game-select-${this.memberId}-${index}"
+                                name="MemberForm.GameContributions[${index}].GameId" 
                                 required>
-                            <option value="">Select a member...</option>
-                            ${memberOptions}
+                            <option value="">Select a game...</option>
+                            ${gameOptions}
                         </select>
                     </div>
 
@@ -100,32 +100,32 @@ class GameFormHandler {
                         <div class="btn-group w-100" role="group" aria-label="Involvement level selection">
                             <input type="radio" 
                                    class="btn-check" 
-                                   name="GameForm.MemberContributions[${index}].InvolvementLevel" 
-                                   id="involvement-${this.gameId}-${index}-0" 
+                                   name="MemberForm.GameContributions[${index}].InvolvementLevel" 
+                                   id="game-involvement-${this.memberId}-${index}-0" 
                                    value="0" 
                                    checked 
                                    autocomplete="off" />
-                            <label class="btn btn-outline-primary" for="involvement-${this.gameId}-${index}-0">
+                            <label class="btn btn-outline-primary" for="game-involvement-${this.memberId}-${index}-0">
                                 🥉 Supporting
                             </label>
 
                             <input type="radio" 
                                    class="btn-check" 
-                                   name="GameForm.MemberContributions[${index}].InvolvementLevel" 
-                                   id="involvement-${this.gameId}-${index}-1" 
+                                   name="MemberForm.GameContributions[${index}].InvolvementLevel" 
+                                   id="game-involvement-${this.memberId}-${index}-1" 
                                    value="1" 
                                    autocomplete="off" />
-                            <label class="btn btn-outline-primary" for="involvement-${this.gameId}-${index}-1">
+                            <label class="btn btn-outline-primary" for="game-involvement-${this.memberId}-${index}-1">
                                 🥈 Major
                             </label>
 
                             <input type="radio" 
                                    class="btn-check" 
-                                   name="GameForm.MemberContributions[${index}].InvolvementLevel" 
-                                   id="involvement-${this.gameId}-${index}-2" 
+                                   name="MemberForm.GameContributions[${index}].InvolvementLevel" 
+                                   id="game-involvement-${this.memberId}-${index}-2" 
                                    value="2" 
                                    autocomplete="off" />
-                            <label class="btn btn-outline-primary" for="involvement-${this.gameId}-${index}-2">
+                            <label class="btn btn-outline-primary" for="game-involvement-${this.memberId}-${index}-2">
                                 🥇 Lead
                             </label>
                         </div>
@@ -143,12 +143,12 @@ class GameFormHandler {
     }
 
     /**
-     * Get member select options from an existing contribution select, falling back
+     * Get game select options from an existing contribution select, falling back
      * to the hidden template select (used when there are zero existing contributions)
      */
-    getMemberOptionsHtml() {
+    getGameOptionsHtml() {
         const existingSelect = this.container.querySelector('.form-select')
-            ?? document.getElementById(`member-options-template-${this.gameId}`);
+            ?? document.getElementById(`game-options-template-${this.memberId}`);
 
         if (existingSelect) {
             const options = Array.from(existingSelect.options)
@@ -165,10 +165,10 @@ class GameFormHandler {
      * hidden template (used when there are zero existing contributions)
      */
     getWorkAreaCheckboxesHtml(index) {
-        const firstItem = this.container.querySelector('.member-contribution-item');
+        const firstItem = this.container.querySelector('.game-contribution-item');
         const workAreaContainer = firstItem
             ? firstItem.querySelector('.row.g-2')
-            : document.getElementById(`work-area-template-${this.gameId}`)?.querySelector('.row.g-2');
+            : document.getElementById(`game-work-area-template-${this.memberId}`)?.querySelector('.row.g-2');
 
         if (!workAreaContainer) return '';
 
@@ -182,14 +182,14 @@ class GameFormHandler {
 
             const value = checkbox.value;
             const labelText = label.textContent.trim();
-            const newCheckboxId = `work-area-${this.gameId}-${index}-${value}`;
+            const newCheckboxId = `game-work-area-${this.memberId}-${index}-${value}`;
 
             return `
                 <div class="col-sm-6">
                     <div class="form-check">
                         <input class="form-check-input" 
                                type="checkbox" 
-                               name="GameForm.MemberContributions[${index}].SelectedWorkAreas" 
+                               name="MemberForm.GameContributions[${index}].SelectedWorkAreas" 
                                id="${newCheckboxId}" 
                                value="${value}" />
                         <label class="form-check-label" for="${newCheckboxId}">
@@ -203,4 +203,4 @@ class GameFormHandler {
 }
 
 // Make it available globally
-window.GameFormHandler = GameFormHandler;
+window.MemberFormHandler = MemberFormHandler;

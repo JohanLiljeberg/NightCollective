@@ -34,4 +34,6 @@ public class CollectiveMemberFormViewModel
     public List<int> SelectedGameIds { get; set; } = [];
 
     public IReadOnlyCollection<GameSelectViewModel> AvailableGames { get; set; } = [];
+
+    public List<MemberGameContributionFormViewModel> GameContributions { get; set; } = new();
 }

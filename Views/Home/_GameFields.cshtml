@@ -1,5 +1,6 @@
 @model Night.ViewModels.GameFormViewModel
 @using Night.Models
+@using Night.Extensions
 
 @Html.AntiForgeryToken()
 <input type="hidden" name="GameForm.Id" value="@Model.Id" />
@@ -113,6 +114,58 @@
 
     <div class="col-12">
         <fieldset class="border border-2 rounded p-3">
+            <legend class="form-label d-block mb-2">
+                <i class="bi bi-people-fill"></i> Member Contributions
+                <small class="text-muted fw-normal">(optional)</small>
+            </legend>
+            <p class="small text-muted mb-3">Add Night Collective members who contributed to this game, their involvement level and work areas.</p>
+
+            <div id="member-contributions-list-@(Model.Id?.ToString() ?? "new")">
+                @for (int i = 0; i < Model.MemberContributions.Count; i++)
+                {
+                    @await Component.InvokeAsync("MemberContributionFormItemVC", new
+                    {
+                        contribution = Model.MemberContributions[i],
+                        availableMembers = Model.AvailableMembers.ToList(),
+                        index = i,
+                        gameFormId = Model.Id?.ToString() ?? "new"
+                    })
+                }
+            </div>
+
+         
+            <select id="member-options-template-@(Model.Id?.ToString() ?? "new")" class="d-none" aria-hidden="true">
+                @foreach (var member in Model.AvailableMembers)
+                {
+                    <option value="@member.Value">@member.Text</option>
+                }
+            </select>
+
+        
+            <div id="work-area-template-@(Model.Id?.ToString() ?? "new")" class="d-none" aria-hidden="true">
+                <div class="row g-2">
+                    @foreach (var workArea in WorkAreaExtensions.GetAllWorkAreas())
+                    {
+                        <div class="col-sm-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="@((int)workArea)" />
+                                <label class="form-check-label">@workArea.GetIconWithName()</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <button type="button"
+                    class="btn btn-outline-primary btn-sm add-contribution-btn"
+                    data-game-id="@(Model.Id?.ToString() ?? "new")">
+                <i class="bi bi-plus-circle"></i> Add Member Contribution
+            </button>
+        </fieldset>
+    </div>
+
+    <div class="col-12">
+        <fieldset class="border border-2 rounded p-3">
             <legend class="form-label d-block mb-3">Game Screenshots <small class="text-muted">(optional, max 3)</small></legend>
             <p class="small text-muted mb-4">Upload up to 3 screenshots of the game</p>
 
@@ -156,7 +209,7 @@
         if (platformSelect) platformSelect.value = '@((int)Model.Platforms)';
         if (genreSelect) genreSelect.value = '@((int)Model.GenreGameplayType)';
 
-        // Initialize game form handler
-        const gameFormHandler = new GameFormHandler('@Model.Id', @Model.MemberContributions.Count);
+        // Initialize game form handler (use "new" as id when creating a new game)
+        const gameFormHandler = new GameFormHandler('@(Model.Id?.ToString() ?? "new")', @Model.MemberContributions.Count);
     });
 </script>

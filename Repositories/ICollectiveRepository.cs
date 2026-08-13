@@ -21,9 +21,13 @@ public interface ICollectiveRepository
 
     Task DeleteGameAsync(int id);
 
-    Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds);
+    Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds, IReadOnlyCollection<MemberGameContributionFormViewModel> gameContributions);
 
-    Task UpdateCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds);
+    Task UpdateCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds, IReadOnlyCollection<MemberGameContributionFormViewModel> gameContributions);
 
     Task DeleteCollectiveMemberAsync(int id);
+
+    Task<SiteDisplaySettings> GetDisplaySettingsAsync();
+
+    Task UpdateDisplaySettingsAsync(SiteDisplaySettings settings);
 }

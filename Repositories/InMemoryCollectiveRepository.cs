@@ -171,16 +171,36 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
         return Task.CompletedTask;
     }
 
-    public Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds)
+    public Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds, IReadOnlyCollection<MemberGameContributionFormViewModel> gameContributions)
     {
         member.Id = CollectiveMembers.Count == 0 ? 1 : CollectiveMembers.Max(item => item.Id) + 1;
         member.Games = Games.Where(game => gameIds.Contains(game.Id)).ToList();
+
+        foreach (var contribution in gameContributions)
+        {
+            var game = Games.FirstOrDefault(g => g.Id == contribution.GameId);
+            if (game is null)
+            {
+                continue;
+            }
+
+            member.GameContributions.Add(new GameMemberContribution
+            {
+                GameId = contribution.GameId,
+                Game = game,
+                CollectiveMemberId = member.Id,
+                CollectiveMember = member,
+                InvolvementLevel = contribution.InvolvementLevel,
+                WorkAreas = contribution.SelectedWorkAreas
+            });
+        }
+
         CollectiveMembers.Add(member);
 
         return Task.CompletedTask;
     }
 
-    public Task UpdateCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds)
+    public Task UpdateCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds, IReadOnlyCollection<MemberGameContributionFormViewModel> gameContributions)
     {
         var existingMember = CollectiveMembers.FirstOrDefault(item => item.Id == member.Id);
 
@@ -200,6 +220,26 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
             : null;
         existingMember.Games = Games.Where(game => gameIds.Contains(game.Id)).ToList();
 
+        existingMember.GameContributions.Clear();
+        foreach (var contribution in gameContributions)
+        {
+            var game = Games.FirstOrDefault(g => g.Id == contribution.GameId);
+            if (game is null)
+            {
+                continue;
+            }
+
+            existingMember.GameContributions.Add(new GameMemberContribution
+            {
+                GameId = contribution.GameId,
+                Game = game,
+                CollectiveMemberId = existingMember.Id,
+                CollectiveMember = existingMember,
+                InvolvementLevel = contribution.InvolvementLevel,
+                WorkAreas = contribution.SelectedWorkAreas
+            });
+        }
+
         return Task.CompletedTask;
     }
 
@@ -210,6 +250,21 @@ public class InMemoryCollectiveRepository : ICollectiveRepository
         {
             CollectiveMembers.Remove(member);
         }
+        return Task.CompletedTask;
+    }
+
+    private static SiteDisplaySettings DisplaySettings { get; } = new() { Id = 1 };
+
+    public Task<SiteDisplaySettings> GetDisplaySettingsAsync() => Task.FromResult(DisplaySettings);
+
+    public Task UpdateDisplaySettingsAsync(SiteDisplaySettings settings)
+    {
+        DisplaySettings.ShowFullMembers = settings.ShowFullMembers;
+        DisplaySettings.ShowSubscribedMembers = settings.ShowSubscribedMembers;
+        DisplaySettings.ShowUnsubscribedMembers = settings.ShowUnsubscribedMembers;
+        DisplaySettings.ShowCollectiveGames = settings.ShowCollectiveGames;
+        DisplaySettings.ShowExternalGames = settings.ShowExternalGames;
+
         return Task.CompletedTask;
     }
 }

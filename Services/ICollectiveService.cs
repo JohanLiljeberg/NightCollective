@@ -12,6 +12,8 @@ public interface ICollectiveService
 
     Task<IReadOnlyCollection<GameViewModel>> GetGamesAsync();
 
+    Task<IReadOnlyCollection<GameViewModel>> GetVisibleGamesAsync();
+
     Task<EventBasicInfoViewModel?> GetNextUpcomingEventBasicInfoAsync();
 
     Task AddCollectiveMemberAsync(CollectiveMemberFormViewModel viewModel);
@@ -29,4 +31,8 @@ public interface ICollectiveService
     Task<GameFormViewModel> GetGameFormAsync();
 
     Task<CollectiveMemberFormViewModel> GetMemberFormAsync();
+
+    Task<DisplaySettingsViewModel> GetDisplaySettingsAsync();
+
+    Task UpdateDisplaySettingsAsync(DisplaySettingsViewModel settings);
 }

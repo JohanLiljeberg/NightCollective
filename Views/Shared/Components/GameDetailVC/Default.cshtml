@@ -64,17 +64,39 @@
                     <div class="list-group">
                         @foreach (var contribution in Model.MemberContributions)
                         {
+                            var (badgeColor, badgeIcon) = contribution.InvolvementLevel switch
+                            {
+                                Night.Models.InvolvementLevel.Lead  => ("danger",    "star-fill"),
+                                Night.Models.InvolvementLevel.Major => ("warning",   "star-half"),
+                                _                                   => ("secondary", "star")
+                            };
                             <div class="list-group-item">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1">@contribution.Name</h6>
-                                        <small class="text-muted">
-                                            <strong>@contribution.InvolvementLevel</strong>
-                                            @if (contribution.WorkAreas.Any())
-                                            {
-                                                <span> - @string.Join(", ", contribution.WorkAreas)</span>
-                                            }
-                                        </small>
+                                <div class="d-flex align-items-center gap-3">
+                                    @if (!string.IsNullOrEmpty(contribution.ImageMediumUrl))
+                                    {
+                                        <img src="@contribution.ImageMediumUrl"
+                                             alt="@contribution.Name"
+                                             class="rounded-circle border border-2 flex-shrink-0"
+                                             style="width:48px;height:48px;object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center border border-2 flex-shrink-0"
+                                             style="width:48px;height:48px;">
+                                            <i class="bi bi-person-fill text-white fs-5"></i>
+                                        </div>
+                                    }
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <h6 class="mb-0">@contribution.Name</h6>
+                                            <span class="badge bg-@badgeColor">
+                                                <i class="bi bi-@badgeIcon me-1"></i>@contribution.InvolvementLevel
+                                            </span>
+                                        </div>
+                                        @if (contribution.WorkAreas.Any())
+                                        {
+                                            <small class="text-muted">@string.Join(", ", contribution.WorkAreas)</small>
+                                        }
                                     </div>
                                 </div>
                             </div>

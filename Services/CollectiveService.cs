@@ -10,20 +10,33 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
     public async Task<HomeIndexViewModel> GetHomePageContentAsync()
     {
         var today = DateTime.Today;
+        var settings = await collectiveRepository.GetDisplaySettingsAsync();
 
         return new HomeIndexViewModel
         {
             FeaturedProjects = (await collectiveRepository.GetFeaturedProjectsAsync()).Select(MapProject).ToList(),
             LatestBlogPosts = await blogPostService.GetLatestPublishedAsync(3),
             UpcomingEvents = (await collectiveRepository.GetUpcomingEventsAsync(today)).Select(MapEvent).ToList(),
-            Members = (await collectiveRepository.GetCollectiveMembersAsync()).Select(MapMember).ToList()
+            Members = (await collectiveRepository.GetCollectiveMembersAsync())
+                .Where(member => IsMemberVisible(member, settings))
+                .Select(MapMember)
+                .ToList()
         };
     }
 
     public async Task<MembersPageViewModel> GetMembersPageAsync()
     {
-        var members = (await collectiveRepository.GetCollectiveMembersAsync()).Select(MapMember).ToList();
-        var games = (await collectiveRepository.GetGamesAsync()).Select(MapGame).ToList();
+        var settings = await collectiveRepository.GetDisplaySettingsAsync();
+
+        var members = (await collectiveRepository.GetCollectiveMembersAsync())
+            .Where(member => IsMemberVisible(member, settings))
+            .Select(MapMember)
+            .ToList();
+
+        var games = (await collectiveRepository.GetGamesAsync())
+            .Where(game => IsGameVisible(game, settings))
+            .Select(MapGame)
+            .ToList();
 
         return new MembersPageViewModel
         {
@@ -42,6 +55,16 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
         return (await collectiveRepository.GetGamesAsync()).Select(MapGame).ToList();
     }
 
+    public async Task<IReadOnlyCollection<GameViewModel>> GetVisibleGamesAsync()
+    {
+        var settings = await collectiveRepository.GetDisplaySettingsAsync();
+
+        return (await collectiveRepository.GetGamesAsync())
+            .Where(game => IsGameVisible(game, settings))
+            .Select(MapGame)
+            .ToList();
+    }
+
     public async Task<EventBasicInfoViewModel?> GetNextUpcomingEventBasicInfoAsync()
     {
         var collectiveEvent = await collectiveRepository.GetNextUpcomingEventAsync(DateTime.Today);
@@ -52,7 +75,7 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
     public async Task AddCollectiveMemberAsync(CollectiveMemberFormViewModel viewModel)
     {
         var member = await MapMemberForm(viewModel);
-        await collectiveRepository.AddCollectiveMemberAsync(member, viewModel.SelectedGameIds);
+        await collectiveRepository.AddCollectiveMemberAsync(member, viewModel.SelectedGameIds, viewModel.GameContributions);
     }
 
     public async Task UpdateCollectiveMemberAsync(CollectiveMemberFormViewModel viewModel)
@@ -63,7 +86,7 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
         }
 
         var member = await MapMemberForm(viewModel);
-        await collectiveRepository.UpdateCollectiveMemberAsync(member, viewModel.SelectedGameIds);
+        await collectiveRepository.UpdateCollectiveMemberAsync(member, viewModel.SelectedGameIds, viewModel.GameContributions);
     }
 
     public async Task DeleteCollectiveMemberAsync(int id)
@@ -116,6 +139,44 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
                 .ToList()
         };
     }
+
+    public async Task<DisplaySettingsViewModel> GetDisplaySettingsAsync()
+    {
+        var settings = await collectiveRepository.GetDisplaySettingsAsync();
+
+        return new DisplaySettingsViewModel
+        {
+            ShowFullMembers = settings.ShowFullMembers,
+            ShowSubscribedMembers = settings.ShowSubscribedMembers,
+            ShowUnsubscribedMembers = settings.ShowUnsubscribedMembers,
+            ShowCollectiveGames = settings.ShowCollectiveGames,
+            ShowExternalGames = settings.ShowExternalGames
+        };
+    }
+
+    public async Task UpdateDisplaySettingsAsync(DisplaySettingsViewModel settings)
+    {
+        await collectiveRepository.UpdateDisplaySettingsAsync(new SiteDisplaySettings
+        {
+            Id = 1,
+            ShowFullMembers = settings.ShowFullMembers,
+            ShowSubscribedMembers = settings.ShowSubscribedMembers,
+            ShowUnsubscribedMembers = settings.ShowUnsubscribedMembers,
+            ShowCollectiveGames = settings.ShowCollectiveGames,
+            ShowExternalGames = settings.ShowExternalGames
+        });
+    }
+
+    private static bool IsMemberVisible(CollectiveMember member, SiteDisplaySettings settings) => member.MembershipType switch
+    {
+        MembershipType.Full => settings.ShowFullMembers,
+        MembershipType.Subscribed => settings.ShowSubscribedMembers,
+        MembershipType.Unsubscribed => settings.ShowUnsubscribedMembers,
+        _ => true
+    };
+
+    private static bool IsGameVisible(Game game, SiteDisplaySettings settings) =>
+        game.FromCollective ? settings.ShowCollectiveGames : settings.ShowExternalGames;
 
     private static ProjectCardViewModel MapProject(CollectiveProject project) => new()
     {

@@ -44,10 +44,38 @@
 
             @if (Model.MemberContributions.Any())
             {
-                <div class="text-muted">
-                    <small>
-                        <i class="bi bi-people"></i> @Model.MemberContributions.Count contributor(s)
-                    </small>
+                <div class="mt-2">
+                    <small class="text-muted d-block mb-1"><i class="bi bi-people"></i> Contributors</small>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var contribution in Model.MemberContributions)
+                            {
+                                var badgeColor = contribution.InvolvementLevel switch
+                                {
+                                    Night.Models.InvolvementLevel.Lead => "danger",
+                                    Night.Models.InvolvementLevel.Major => "warning",
+                                    _ => "secondary"
+                                };
+                            <div class="d-flex align-items-center gap-1" 
+                                 data-bs-toggle="tooltip" 
+                                 title="@contribution.Name — @contribution.InvolvementLevel">
+                                @if (!string.IsNullOrEmpty(contribution.ImageSmallUrl))
+                                {
+                                    <img src="@contribution.ImageSmallUrl"
+                                         alt="@contribution.Name"
+                                         class="rounded-circle border border-2"
+                                         style="width:32px;height:32px;object-fit:cover;" />
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center border border-2"
+                                         style="width:32px;height:32px;flex-shrink:0;">
+                                        <i class="bi bi-person-fill text-white" style="font-size:0.8rem;"></i>
+                                    </div>
+                                }
+                                <span class="badge bg-@badgeColor" style="font-size:0.65rem;">@contribution.InvolvementLevel</span>
+                            </div>
+                        }
+                    </div>
                 </div>
             }
         </div>

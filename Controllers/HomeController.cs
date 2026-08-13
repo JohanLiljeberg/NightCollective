@@ -24,7 +24,7 @@ public class HomeController(ICollectiveService collectiveService) : Controller
 
     public async Task<IActionResult> Games()
     {
-        var games = await collectiveService.GetGamesAsync();
+        var games = await collectiveService.GetVisibleGamesAsync();
 
         return View(games);
     }

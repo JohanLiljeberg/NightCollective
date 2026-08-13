@@ -1,4 +1,7 @@
 @model Night.ViewModels.CollectiveMemberFormViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Night.Models
+@using Night.Extensions
 
 @Html.AntiForgeryToken()
 <input type="hidden" name="MemberForm.Id" value="@Model.Id" />
@@ -63,14 +66,55 @@
     </div>
 
     <div class="col-12" id="all-games-section-@Model.Id">
-        <label class="form-label" for="member-games-@Model.Id">All Games</label>
-        <select class="form-select" id="member-games-@Model.Id" name="MemberForm.SelectedGameIds" multiple size="4">
-            @foreach (var game in Model.AvailableGames)
-            {
-                <option value="@game.Id">@game.Title</option>
-            }
-        </select>
-        <div class="form-text">Hold Ctrl (Windows) or Cmd (Mac) to select multiple games</div>
+        <fieldset class="border border-2 rounded p-3">
+            <legend class="form-label d-block mb-2">
+                <i class="bi bi-controller"></i> Game Contributions
+                <small class="text-muted fw-normal">(optional)</small>
+            </legend>
+            <p class="small text-muted mb-3">Add the games this member worked on, their involvement level and work areas.</p>
+
+            <div id="game-contributions-list-@(Model.Id?.ToString() ?? "new")">
+                @for (int i = 0; i < Model.GameContributions.Count; i++)
+                {
+                    @await Component.InvokeAsync("GameContributionFormItemVC", new
+                    {
+                        contribution = Model.GameContributions[i],
+                        availableGames = Model.AvailableGames.Select(g => new SelectListItem(g.Title, g.Id.ToString())).ToList(),
+                        index = i,
+                        memberFormId = Model.Id?.ToString() ?? "new"
+                    })
+                }
+            </div>
+
+          
+            <select id="game-options-template-@(Model.Id?.ToString() ?? "new")" class="d-none" aria-hidden="true">
+                @foreach (var game in Model.AvailableGames)
+                {
+                    <option value="@game.Id">@game.Title</option>
+                }
+            </select>
+
+            
+            <div id="game-work-area-template-@(Model.Id?.ToString() ?? "new")" class="d-none" aria-hidden="true">
+                <div class="row g-2">
+                    @foreach (var workArea in WorkAreaExtensions.GetAllWorkAreas())
+                    {
+                        <div class="col-sm-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="@((int)workArea)" />
+                                <label class="form-check-label">@workArea.GetIconWithName()</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <button type="button"
+                    class="btn btn-outline-primary btn-sm add-game-contribution-btn"
+                    data-member-id="@(Model.Id?.ToString() ?? "new")">
+                <i class="bi bi-plus-circle"></i> Add Game Contribution
+            </button>
+        </fieldset>
     </div>
 </div>
 
@@ -119,5 +163,8 @@
 
         membershipSelect.addEventListener('change', toggleFields);
         toggleFields(); // Initialize on page load
+
+        // Initialize member form handler (use "new" as id when creating a new member)
+        const memberFormHandler = new MemberFormHandler('@(Model.Id?.ToString() ?? "new")', @Model.GameContributions.Count);
     });
 </script>
