@@ -123,7 +123,9 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
         return new GameFormViewModel
         {
             AvailableMembers = members
-                .Select(member => new SelectListItem(member.Name, member.Id.ToString()))
+                .OrderByDescending(member => member.MembershipType)
+                .ThenBy(member => member.Name)
+                .Select(MapMemberSelect)
                 .ToList()
         };
     }
@@ -135,7 +137,9 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
         return new CollectiveMemberFormViewModel
         {
             AvailableGames = games
-                .Select(game => new GameSelectViewModel { Id = game.Id, Title = game.Title })
+                .OrderByDescending(game => game.FromCollective)
+                .ThenBy(game => game.Title)
+                .Select(MapGameSelect)
                 .ToList()
         };
     }
@@ -278,10 +282,20 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
             .ToList()
     };
 
-    private static GameSelectViewModel MapGameSelect(GameViewModel game) => new()
+    private static GameSelectViewModel MapGameSelect(Game game) => new()
     {
         Id = game.Id,
-        Title = game.Title
+        Title = game.Title,
+        ImageUrl = game.ImageSmallUrl ?? game.Image,
+        FromCollective = game.FromCollective
+    };
+
+    private static MemberSelectViewModel MapMemberSelect(CollectiveMember member) => new()
+    {
+        Id = member.Id,
+        Name = member.Name,
+        ImageUrl = member.ImageSmallUrl ?? member.Image,
+        MembershipType = member.MembershipType
     };
 
     private async Task<CollectiveMember> MapMemberForm(CollectiveMemberFormViewModel viewModel)
@@ -333,9 +347,9 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
 
     private async Task<Game> MapGameForm(GameFormViewModel viewModel)
     {
-        string? smallUrl = null;
-        string? mediumUrl = null;
-        string? largeUrl = null;
+        string? smallUrl = viewModel.ExistingImageSmallUrl;
+        string? mediumUrl = viewModel.ExistingImageMediumUrl;
+        string? largeUrl = viewModel.ExistingImageLargeUrl;
         string? legacyImage = viewModel.Image;
 
         if (viewModel.ImageFile is not null && viewModel.ImageFile.Length > 0)
@@ -362,14 +376,39 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
                 legacyImage = sizes.MediumUrl; // Set legacy field to medium URL
             }
         }
-
-        // Process screenshots (up to 3)
-        var screenshots = new List<GameScreenshot>();
-        var screenshotFiles = new[] { viewModel.Screenshot1, viewModel.Screenshot2, viewModel.Screenshot3 };
-
-        for (int i = 0; i < screenshotFiles.Length; i++)
+        else if (viewModel.RemoveImage)
         {
-            var file = screenshotFiles[i];
+            // Admin explicitly removed the image without providing a replacement
+            smallUrl = null;
+            mediumUrl = null;
+            largeUrl = null;
+            legacyImage = string.Empty;
+        }
+
+        // Process screenshots (up to 3 new uploads, preserving existing ones not marked for removal)
+        var screenshots = new List<GameScreenshot>();
+
+        foreach (var existing in viewModel.ExistingScreenshots)
+        {
+            if (viewModel.RemoveScreenshotIds.Contains(existing.Id))
+            {
+                continue;
+            }
+
+            screenshots.Add(new GameScreenshot
+            {
+                ImageSmallUrl = existing.ImageSmallUrl,
+                ImageMediumUrl = existing.ImageMediumUrl,
+                ImageLargeUrl = existing.ImageLargeUrl,
+                DisplayOrder = existing.DisplayOrder
+            });
+        }
+
+        var screenshotFiles = new[] { viewModel.Screenshot1, viewModel.Screenshot2, viewModel.Screenshot3 };
+        var nextDisplayOrder = screenshots.Count > 0 ? screenshots.Max(s => s.DisplayOrder) + 1 : 1;
+
+        foreach (var file in screenshotFiles)
+        {
             if (file is not null && file.Length > 0)
             {
                 var screenshotSizes = await imageService.UploadImageAsync(file, ImageType.Games);
@@ -380,7 +419,7 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
                         ImageSmallUrl = screenshotSizes.SmallUrl,
                         ImageMediumUrl = screenshotSizes.MediumUrl,
                         ImageLargeUrl = screenshotSizes.LargeUrl,
-                        DisplayOrder = i + 1
+                        DisplayOrder = nextDisplayOrder++
                     });
                 }
             }

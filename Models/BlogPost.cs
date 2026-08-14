@@ -6,7 +6,13 @@ public class BlogPost
 
     public required string Title { get; set; }
 
+    public string? Author { get; set; }
+
+    public string? Summary { get; set; }
+
     public required string Content { get; set; }
+
+    public string? Tags { get; set; }
 
     public string? ExternalLink { get; set; }
 

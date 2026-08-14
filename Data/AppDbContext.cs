@@ -25,6 +25,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<BlogPost>(entity =>
+        {
+            entity.Property(post => post.Title).HasMaxLength(200).IsRequired();
+            entity.Property(post => post.Author).HasMaxLength(100);
+            entity.Property(post => post.Summary).HasMaxLength(300);
+            entity.Property(post => post.Content).HasMaxLength(5000).IsRequired();
+            entity.Property(post => post.Tags).HasMaxLength(200);
+            entity.Property(post => post.ExternalLink).HasMaxLength(500);
+        });
+
         modelBuilder.Entity<CollectiveProject>(entity =>
         {
             entity.Property(project => project.Title).HasMaxLength(120).IsRequired();

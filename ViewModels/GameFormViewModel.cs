@@ -20,6 +20,12 @@ public class GameFormViewModel
     public IFormFile? ImageFile { get; set; }
     public string? ImageUrl { get; set; }
 
+    // Existing image (used to preview/preserve the current image while editing)
+    public string? ExistingImageSmallUrl { get; set; }
+    public string? ExistingImageMediumUrl { get; set; }
+    public string? ExistingImageLargeUrl { get; set; }
+    public bool RemoveImage { get; set; }
+
     [Range(1970, 2100)]
     public int ReleaseYear { get; set; } = DateTime.Today.Year;
 
@@ -44,9 +50,13 @@ public class GameFormViewModel
     public IFormFile? Screenshot2 { get; set; }
     public IFormFile? Screenshot3 { get; set; }
 
+    // Existing screenshots (used to preview/preserve current screenshots while editing)
+    public List<GameScreenshotViewModel> ExistingScreenshots { get; set; } = new();
+    public List<int> RemoveScreenshotIds { get; set; } = new();
+
     public List<int> SelectedMemberIds { get; set; } = [];
 
-    public IReadOnlyCollection<SelectListItem> AvailableMembers { get; set; } = [];
+    public IReadOnlyCollection<MemberSelectViewModel> AvailableMembers { get; set; } = [];
 
     public List<GameMemberContributionFormViewModel> MemberContributions { get; set; } = new();
 }

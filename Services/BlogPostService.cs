@@ -62,7 +62,10 @@ public class BlogPostService(IBlogPostRepository blogPostRepository, IImageServi
         {
             Id = blogPost.Id,
             Title = blogPost.Title,
+            Author = blogPost.Author,
+            Summary = blogPost.Summary,
             Content = blogPost.Content,
+            Tags = blogPost.Tags,
             ExternalLink = blogPost.ExternalLink,
             ImageUrl = blogPost.ImageMediumUrl ?? blogPost.ImageSmallUrl ?? blogPost.ImageLargeUrl,
             IsPublished = blogPost.IsPublished
@@ -102,7 +105,10 @@ public class BlogPostService(IBlogPostRepository blogPostRepository, IImageServi
         {
             Id = viewModel.Id,
             Title = viewModel.Title,
+            Author = viewModel.Author,
+            Summary = viewModel.Summary,
             Content = viewModel.Content,
+            Tags = viewModel.Tags,
             ExternalLink = viewModel.ExternalLink,
             ImageSmallUrl = smallUrl,
             ImageMediumUrl = mediumUrl,

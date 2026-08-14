@@ -12,11 +12,23 @@ public class BlogPostFormViewModel
     [Display(Name = "Title")]
     public string Title { get; init; } = string.Empty;
 
+    [StringLength(100)]
+    [Display(Name = "Author")]
+    public string? Author { get; init; }
+
+    [StringLength(300)]
+    [Display(Name = "Summary/Excerpt")]
+    public string? Summary { get; init; }
+
     [Required]
     [StringLength(5000)]
     [DataType(DataType.MultilineText)]
     [Display(Name = "Story/Content")]
     public string Content { get; init; } = string.Empty;
+
+    [StringLength(200)]
+    [Display(Name = "Tags (comma-separated)")]
+    public string? Tags { get; init; }
 
     [StringLength(500)]
     [DataType(DataType.Url)]

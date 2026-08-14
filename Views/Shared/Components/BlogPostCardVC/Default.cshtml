@@ -25,9 +25,19 @@
         <div class="p-4">
             <h3 class="h4 mb-2">@Model.Title</h3>
             <p class="text-muted small mb-3">
+                @if (!string.IsNullOrWhiteSpace(Model.Author))
+                {
+                    <span><i class="bi bi-person-circle"></i> @Model.Author</span>
+                    <span class="mx-1">&middot;</span>
+                }
                 <i class="bi bi-calendar3"></i> @Model.CreatedAt.ToString("MMMM dd, yyyy")
             </p>
-            <p class="mb-3">@(Model.Content.Length > 150 ? Model.Content.Substring(0, 150) + "..." : Model.Content)</p>
+            @{
+                var preview = !string.IsNullOrWhiteSpace(Model.Summary)
+                    ? Model.Summary
+                    : (Model.Content.Length > 150 ? Model.Content.Substring(0, 150) + "..." : Model.Content);
+            }
+            <p class="mb-3">@preview</p>
             @if (!string.IsNullOrEmpty(Model.ExternalLink))
             {
                 <p class="small text-accent mb-0">

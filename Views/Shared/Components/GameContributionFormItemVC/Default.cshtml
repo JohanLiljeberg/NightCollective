@@ -13,17 +13,25 @@
 
         <div class="mb-3">
             <label class="form-label" for="game-select-@Model.MemberFormId-@Model.Index">Game</label>
-            <select class="form-select" 
-                    id="game-select-@Model.MemberFormId-@Model.Index"
-                    name="MemberForm.GameContributions[@Model.Index].GameId" 
-                    required>
-                <option value="">Select a game...</option>
-                @foreach (var game in Model.AvailableGames)
-                {
-                    var isSelected = game.Value == Model.Contribution.GameId.ToString();
-                    <option value="@game.Value" selected="@isSelected">@game.Text</option>
-                }
-            </select>
+            <div class="d-flex align-items-center gap-2">
+                <img class="game-select-preview rounded-circle border" width="32" height="32" style="object-fit: cover;" src="" alt="" />
+                <select class="form-select game-select" 
+                        id="game-select-@Model.MemberFormId-@Model.Index"
+                        name="MemberForm.GameContributions[@Model.Index].GameId" 
+                        required>
+                    <option value="">Select a game...</option>
+                    @foreach (var group in Model.AvailableGames.GroupBy(g => g.FromCollective).OrderByDescending(g => g.Key))
+                    {
+                        <optgroup label="@(group.Key ? "Collective Games" : "Other Games")">
+                            @foreach (var game in group)
+                            {
+                                var isSelected = game.Id.ToString() == Model.Contribution.GameId.ToString();
+                                <option value="@game.Id" data-img="@game.ImageUrl" selected="@isSelected">@game.Title</option>
+                            }
+                        </optgroup>
+                    }
+                </select>
+            </div>
         </div>
 
         <div class="mb-3">

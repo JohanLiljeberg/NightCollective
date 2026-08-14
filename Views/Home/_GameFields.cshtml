@@ -19,7 +19,35 @@
     <div class="col-12">
         <fieldset class="border border-2 rounded p-3">
             <legend class="form-label d-block mb-3">Game Image</legend>
-            <p class="small text-muted mb-4">Choose one: Upload a file <strong>OR</strong> provide an image URL</p>
+
+            @{
+                var existingImageUrl = Model.ExistingImageMediumUrl ?? Model.ExistingImageSmallUrl ?? Model.ExistingImageLargeUrl;
+            }
+            @if (!string.IsNullOrEmpty(existingImageUrl))
+            {
+                <div class="mb-3">
+                    <h6 class="mb-2">Current Image</h6>
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="@existingImageUrl" alt="Current game image" class="rounded border" style="width: 120px; height: 120px; object-fit: cover;" />
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="game-remove-image-@Model.Id" 
+                                   name="GameForm.RemoveImage" 
+                                   value="true" />
+                            <input name="GameForm.RemoveImage" value="false" type="hidden" />
+                            <label class="form-check-label" for="game-remove-image-@Model.Id">
+                                Remove current image
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="GameForm.ExistingImageSmallUrl" value="@Model.ExistingImageSmallUrl" />
+                <input type="hidden" name="GameForm.ExistingImageMediumUrl" value="@Model.ExistingImageMediumUrl" />
+                <input type="hidden" name="GameForm.ExistingImageLargeUrl" value="@Model.ExistingImageLargeUrl" />
+            }
+
+            <p class="small text-muted mb-4">To replace the image, choose one: Upload a file <strong>OR</strong> provide an image URL</p>
 
             <div class="mb-3">
                 <h6 class="mb-2">📁 Upload Image</h6>
@@ -135,9 +163,14 @@
 
          
             <select id="member-options-template-@(Model.Id?.ToString() ?? "new")" class="d-none" aria-hidden="true">
-                @foreach (var member in Model.AvailableMembers)
+                @foreach (var group in Model.AvailableMembers.GroupBy(m => m.MembershipType).OrderByDescending(g => g.Key))
                 {
-                    <option value="@member.Value">@member.Text</option>
+                    <optgroup label="@(group.Key + " Members")">
+                        @foreach (var member in group)
+                        {
+                            <option value="@member.Id" data-img="@member.ImageUrl">@member.Name</option>
+                        }
+                    </optgroup>
                 }
             </select>
 
@@ -167,7 +200,35 @@
     <div class="col-12">
         <fieldset class="border border-2 rounded p-3">
             <legend class="form-label d-block mb-3">Game Screenshots <small class="text-muted">(optional, max 3)</small></legend>
-            <p class="small text-muted mb-4">Upload up to 3 screenshots of the game</p>
+
+            @if (Model.ExistingScreenshots.Any())
+            {
+                <div class="mb-3">
+                    <h6 class="mb-2">Current Screenshots</h6>
+                    <div class="row g-3">
+                        @for (int i = 0; i < Model.ExistingScreenshots.Count; i++)
+                        {
+                            var screenshot = Model.ExistingScreenshots[i];
+                            var screenshotUrl = screenshot.ImageMediumUrl ?? screenshot.ImageSmallUrl ?? screenshot.ImageLargeUrl;
+                            <div class="col-auto">
+                                <img src="@screenshotUrl" alt="Screenshot @(i + 1)" class="rounded border" style="width: 140px; height: 90px; object-fit: cover;" />
+                                <div class="form-check mt-1">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           id="remove-screenshot-@Model.Id-@screenshot.Id" 
+                                           name="GameForm.RemoveScreenshotIds" 
+                                           value="@screenshot.Id" />
+                                    <label class="form-check-label small" for="remove-screenshot-@Model.Id-@screenshot.Id">
+                                        Remove
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <p class="small text-muted mb-4">Upload up to 3 new screenshots (uploading replaces removed slots without affecting the others above)</p>
 
             <div class="mb-3">
                 <label class="form-label" for="screenshot1-@Model.Id">Screenshot 1</label>

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Night.ViewModels;
 
 namespace Night.ViewComponents;
@@ -8,7 +7,7 @@ public class MemberContributionFormItemVC : ViewComponent
 {
     public Task<IViewComponentResult> InvokeAsync(
         GameMemberContributionFormViewModel contribution,
-        List<SelectListItem> availableMembers,
+        List<MemberSelectViewModel> availableMembers,
         int index,
         string gameFormId)
     {

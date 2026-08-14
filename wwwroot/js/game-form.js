@@ -28,6 +28,34 @@ class GameFormHandler {
                 this.removeContribution(e.target.closest('.remove-contribution-btn'));
             }
         });
+
+        // Delegate member select change to update avatar preview
+        this.container.addEventListener('change', (e) => {
+            if (e.target.classList.contains('member-select')) {
+                this.updateMemberPreview(e.target);
+            }
+        });
+
+        // Initialize previews for existing items
+        this.container.querySelectorAll('.member-select').forEach(select => this.updateMemberPreview(select));
+    }
+
+    /**
+     * Show/hide the avatar preview next to a member select based on the selected option
+     */
+    updateMemberPreview(select) {
+        const preview = select.closest('.mb-3')?.querySelector('.member-select-preview');
+        if (!preview) return;
+
+        const selectedOption = select.options[select.selectedIndex];
+        const imgUrl = selectedOption?.getAttribute('data-img');
+
+        if (imgUrl) {
+            preview.src = imgUrl;
+            preview.style.display = '';
+        } else {
+            preview.style.display = 'none';
+        }
     }
 
     /**
@@ -86,13 +114,16 @@ class GameFormHandler {
 
                     <div class="mb-3">
                         <label class="form-label" for="member-select-${this.gameId}-${index}">Member</label>
-                        <select class="form-select" 
-                                id="member-select-${this.gameId}-${index}"
-                                name="GameForm.MemberContributions[${index}].MemberId" 
-                                required>
-                            <option value="">Select a member...</option>
-                            ${memberOptions}
-                        </select>
+                        <div class="d-flex align-items-center gap-2">
+                            <img class="member-select-preview rounded-circle border" width="32" height="32" style="object-fit: cover;" src="" alt="" />
+                            <select class="form-select member-select" 
+                                    id="member-select-${this.gameId}-${index}"
+                                    name="GameForm.MemberContributions[${index}].MemberId" 
+                                    required>
+                                <option value="">Select a member...</option>
+                                ${memberOptions}
+                            </select>
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -143,7 +174,7 @@ class GameFormHandler {
     }
 
     /**
-     * Get member select options from an existing contribution select, falling back
+     * Get member select optgroups/options HTML from an existing contribution select, falling back
      * to the hidden template select (used when there are zero existing contributions)
      */
     getMemberOptionsHtml() {
@@ -151,11 +182,21 @@ class GameFormHandler {
             ?? document.getElementById(`member-options-template-${this.gameId}`);
 
         if (existingSelect) {
-            const options = Array.from(existingSelect.options)
-                .filter(opt => opt.value !== '')
-                .map(opt => `<option value="${opt.value}">${opt.text}</option>`)
+            return Array.from(existingSelect.children)
+                .map(child => {
+                    if (child.tagName === 'OPTGROUP') {
+                        const options = Array.from(child.children)
+                            .filter(opt => opt.value !== '')
+                            .map(opt => `<option value="${opt.value}" data-img="${opt.getAttribute('data-img') ?? ''}">${opt.text}</option>`)
+                            .join('');
+                        return `<optgroup label="${child.label}">${options}</optgroup>`;
+                    }
+                    if (child.tagName === 'OPTION' && child.value !== '') {
+                        return `<option value="${child.value}" data-img="${child.getAttribute('data-img') ?? ''}">${child.text}</option>`;
+                    }
+                    return '';
+                })
                 .join('');
-            return options;
         }
         return '';
     }

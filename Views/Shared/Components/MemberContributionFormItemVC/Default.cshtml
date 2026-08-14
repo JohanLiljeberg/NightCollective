@@ -13,17 +13,25 @@
 
         <div class="mb-3">
             <label class="form-label" for="member-select-@Model.GameFormId-@Model.Index">Member</label>
-            <select class="form-select" 
-                    id="member-select-@Model.GameFormId-@Model.Index"
-                    name="GameForm.MemberContributions[@Model.Index].MemberId" 
-                    required>
-                <option value="">Select a member...</option>
-                @foreach (var member in Model.AvailableMembers)
-                {
-                    var isSelected = member.Value == Model.Contribution.MemberId.ToString();
-                    <option value="@member.Value" selected="@isSelected">@member.Text</option>
-                }
-            </select>
+            <div class="d-flex align-items-center gap-2">
+                <img class="member-select-preview rounded-circle border" width="32" height="32" style="object-fit: cover;" src="" alt="" />
+                <select class="form-select member-select" 
+                        id="member-select-@Model.GameFormId-@Model.Index"
+                        name="GameForm.MemberContributions[@Model.Index].MemberId" 
+                        required>
+                    <option value="">Select a member...</option>
+                    @foreach (var group in Model.AvailableMembers.GroupBy(m => m.MembershipType).OrderByDescending(g => g.Key))
+                    {
+                        <optgroup label="@(group.Key + " Members")">
+                            @foreach (var member in group)
+                            {
+                                var isSelected = member.Id.ToString() == Model.Contribution.MemberId.ToString();
+                                <option value="@member.Id" data-img="@member.ImageUrl" selected="@isSelected">@member.Name</option>
+                            }
+                        </optgroup>
+                    }
+                </select>
+            </div>
         </div>
 
         <div class="mb-3">

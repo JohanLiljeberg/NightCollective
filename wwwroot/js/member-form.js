@@ -28,6 +28,34 @@ class MemberFormHandler {
                 this.removeContribution(e.target.closest('.remove-game-contribution-btn'));
             }
         });
+
+        // Delegate game select change to update thumbnail preview
+        this.container.addEventListener('change', (e) => {
+            if (e.target.classList.contains('game-select')) {
+                this.updateGamePreview(e.target);
+            }
+        });
+
+        // Initialize previews for existing items
+        this.container.querySelectorAll('.game-select').forEach(select => this.updateGamePreview(select));
+    }
+
+    /**
+     * Show/hide the thumbnail preview next to a game select based on the selected option
+     */
+    updateGamePreview(select) {
+        const preview = select.closest('.mb-3')?.querySelector('.game-select-preview');
+        if (!preview) return;
+
+        const selectedOption = select.options[select.selectedIndex];
+        const imgUrl = selectedOption?.getAttribute('data-img');
+
+        if (imgUrl) {
+            preview.src = imgUrl;
+            preview.style.display = '';
+        } else {
+            preview.style.display = 'none';
+        }
     }
 
     /**
@@ -86,13 +114,16 @@ class MemberFormHandler {
 
                     <div class="mb-3">
                         <label class="form-label" for="game-select-${this.memberId}-${index}">Game</label>
-                        <select class="form-select" 
-                                id="game-select-${this.memberId}-${index}"
-                                name="MemberForm.GameContributions[${index}].GameId" 
-                                required>
-                            <option value="">Select a game...</option>
-                            ${gameOptions}
-                        </select>
+                        <div class="d-flex align-items-center gap-2">
+                            <img class="game-select-preview rounded-circle border" width="32" height="32" style="object-fit: cover;" src="" alt="" />
+                            <select class="form-select game-select" 
+                                    id="game-select-${this.memberId}-${index}"
+                                    name="MemberForm.GameContributions[${index}].GameId" 
+                                    required>
+                                <option value="">Select a game...</option>
+                                ${gameOptions}
+                            </select>
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -143,7 +174,7 @@ class MemberFormHandler {
     }
 
     /**
-     * Get game select options from an existing contribution select, falling back
+     * Get game select optgroups/options HTML from an existing contribution select, falling back
      * to the hidden template select (used when there are zero existing contributions)
      */
     getGameOptionsHtml() {
@@ -151,11 +182,21 @@ class MemberFormHandler {
             ?? document.getElementById(`game-options-template-${this.memberId}`);
 
         if (existingSelect) {
-            const options = Array.from(existingSelect.options)
-                .filter(opt => opt.value !== '')
-                .map(opt => `<option value="${opt.value}">${opt.text}</option>`)
+            return Array.from(existingSelect.children)
+                .map(child => {
+                    if (child.tagName === 'OPTGROUP') {
+                        const options = Array.from(child.children)
+                            .filter(opt => opt.value !== '')
+                            .map(opt => `<option value="${opt.value}" data-img="${opt.getAttribute('data-img') ?? ''}">${opt.text}</option>`)
+                            .join('');
+                        return `<optgroup label="${child.label}">${options}</optgroup>`;
+                    }
+                    if (child.tagName === 'OPTION' && child.value !== '') {
+                        return `<option value="${child.value}" data-img="${child.getAttribute('data-img') ?? ''}">${child.text}</option>`;
+                    }
+                    return '';
+                })
                 .join('');
-            return options;
         }
         return '';
     }

@@ -57,9 +57,14 @@
         <label class="form-label" for="member-featured-game-@Model.Id">Featured Game (for Subscribed members)</label>
         <select class="form-select" id="member-featured-game-@Model.Id" name="MemberForm.FeaturedGameId">
             <option value="">-- Select a featured game --</option>
-            @foreach (var game in Model.AvailableGames)
+            @foreach (var group in Model.AvailableGames.GroupBy(g => g.FromCollective).OrderByDescending(g => g.Key))
             {
-                <option value="@game.Id" selected="@(Model.FeaturedGameId == game.Id)">@game.Title</option>
+                <optgroup label="@(group.Key ? "Collective Games" : "Other Games")">
+                    @foreach (var game in group)
+                    {
+                        <option value="@game.Id" data-img="@game.ImageUrl" selected="@(Model.FeaturedGameId == game.Id)">@game.Title</option>
+                    }
+                </optgroup>
             }
         </select>
         <div class="form-text">This game will be highlighted on the member card for subscribed members</div>
@@ -79,7 +84,7 @@
                     @await Component.InvokeAsync("GameContributionFormItemVC", new
                     {
                         contribution = Model.GameContributions[i],
-                        availableGames = Model.AvailableGames.Select(g => new SelectListItem(g.Title, g.Id.ToString())).ToList(),
+                        availableGames = Model.AvailableGames.ToList(),
                         index = i,
                         memberFormId = Model.Id?.ToString() ?? "new"
                     })
@@ -88,9 +93,14 @@
 
           
             <select id="game-options-template-@(Model.Id?.ToString() ?? "new")" class="d-none" aria-hidden="true">
-                @foreach (var game in Model.AvailableGames)
+                @foreach (var group in Model.AvailableGames.GroupBy(g => g.FromCollective).OrderByDescending(g => g.Key))
                 {
-                    <option value="@game.Id">@game.Title</option>
+                    <optgroup label="@(group.Key ? "Collective Games" : "Other Games")">
+                        @foreach (var game in group)
+                        {
+                            <option value="@game.Id" data-img="@game.ImageUrl">@game.Title</option>
+                        }
+                    </optgroup>
                 }
             </select>
 

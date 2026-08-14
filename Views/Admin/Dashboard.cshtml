@@ -415,9 +415,28 @@
                     </div>
 
                     <div class="mb-3">
+                        <label asp-for="BlogPostForm.Author" class="form-label"></label>
+                        <input asp-for="BlogPostForm.Author" class="form-control" placeholder="e.g. Jane Doe" />
+                        <span asp-validation-for="BlogPostForm.Author" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BlogPostForm.Summary" class="form-label"></label>
+                        <textarea asp-for="BlogPostForm.Summary" class="form-control" rows="2" placeholder="A short teaser shown in article listings"></textarea>
+                        <span asp-validation-for="BlogPostForm.Summary" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
                         <label asp-for="BlogPostForm.Content" class="form-label"></label>
                         <textarea asp-for="BlogPostForm.Content" class="form-control" rows="10" required></textarea>
                         <span asp-validation-for="BlogPostForm.Content" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BlogPostForm.Tags" class="form-label"></label>
+                        <input asp-for="BlogPostForm.Tags" class="form-control" placeholder="e.g. gamedev, indie, art" />
+                        <span asp-validation-for="BlogPostForm.Tags" class="text-danger"></span>
+                        <small class="form-text text-muted">Separate tags with commas</small>
                     </div>
 
                     <div class="mb-3">
@@ -752,7 +771,15 @@
                                 FeaturedGameId = member.FeaturedGame?.Id,
                                 SelectedGameIds = member.Games.Select(g => g.Id).ToList(),
                                 AvailableGames = Model.AllGames
-                                    .Select(g => new Night.ViewModels.GameSelectViewModel { Id = g.Id, Title = g.Title })
+                                    .OrderByDescending(g => g.FromCollective)
+                                    .ThenBy(g => g.Title)
+                                    .Select(g => new Night.ViewModels.GameSelectViewModel
+                                    {
+                                        Id = g.Id,
+                                        Title = g.Title,
+                                        ImageUrl = g.ImageSmallUrl ?? g.Image,
+                                        FromCollective = g.FromCollective
+                                    })
                                     .ToList(),
                                 GameContributions = member.GameContributions
                                     .Select(gc => new Night.ViewModels.MemberGameContributionFormViewModel
@@ -847,6 +874,9 @@
                                 Id = game.Id,
                                 Title = game.Title,
                                 Image = game.Image,
+                                ExistingImageSmallUrl = game.ImageSmallUrl,
+                                ExistingImageMediumUrl = game.ImageMediumUrl,
+                                ExistingImageLargeUrl = game.ImageLargeUrl,
                                 ReleaseYear = game.ReleaseYear,
                                 DeveloperPublisher = game.DeveloperPublisher,
                                 Platforms = game.Platforms,
@@ -855,6 +885,9 @@
                                 Description = game.Description,
                                 YouTubeTrailerUrl = game.YouTubeTrailerUrl,
                                 AvailableMembers = Model.GameForm.AvailableMembers,
+                                ExistingScreenshots = game.Screenshots
+                                    .OrderBy(s => s.DisplayOrder)
+                                    .ToList(),
                                 MemberContributions = game.MemberContributions
                                     .Select((mc, index) => new Night.ViewModels.GameMemberContributionFormViewModel
                                     {
@@ -955,8 +988,24 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="editAuthor-@post.Id" class="form-label">Author</label>
+                            <input type="text" class="form-control" id="editAuthor-@post.Id" name="BlogPostForm.Author" value="@post.Author" placeholder="e.g. Jane Doe" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editSummary-@post.Id" class="form-label">Summary/Excerpt</label>
+                            <textarea class="form-control" id="editSummary-@post.Id" name="BlogPostForm.Summary" rows="2" placeholder="A short teaser shown in article listings">@post.Summary</textarea>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="editContent-@post.Id" class="form-label">Story/Content</label>
                             <textarea class="form-control" id="editContent-@post.Id" name="BlogPostForm.Content" rows="10" required>@post.Content</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editTags-@post.Id" class="form-label">Tags (comma-separated)</label>
+                            <input type="text" class="form-control" id="editTags-@post.Id" name="BlogPostForm.Tags" value="@post.Tags" placeholder="e.g. gamedev, indie, art" />
+                            <small class="form-text text-muted">Separate tags with commas</small>
                         </div>
 
                         <div class="mb-3">
