@@ -43,6 +43,15 @@ button.accept-policy {
   position: absolute;
   bottom: 0;
   width: 100%;
-  white-space: nowrap;
   line-height: 60px;
+}
+
+@media (max-width: 575.98px) {
+  .footer {
+    position: static;
+    line-height: 1.4;
+    padding: 0.75rem 0;
+    text-align: center;
+    white-space: normal;
+  }
 }

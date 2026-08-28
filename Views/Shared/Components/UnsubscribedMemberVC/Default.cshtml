@@ -1,0 +1,33 @@
+@model Night.ViewModels.CollectiveMemberViewModel
+
+<article class="unsubscribed-member-card card h-100 border-0 shadow-sm">
+    <div class="card-body d-flex flex-column align-items-center justify-content-center p-2 text-center">
+        @* Circular Profile Picture with Icon Badge *@
+        <div class="mb-2">
+            <div class="position-relative d-inline-block">
+                <img src="@(Model.ImageSmallUrl ?? Model.Image)" 
+                     alt="@Model.Name" 
+                     class="rounded-circle border border-2 border-info shadow-sm"
+                     width="60" 
+                     height="60"
+                     loading="lazy"
+                     decoding="async"
+                     style="object-fit: cover;" />
+                <span class="position-absolute bottom-0 end-0 badge bg-info rounded-circle p-1" title="Active Member - No Game Contributions">
+                    <i class="bi bi-person-check" style="font-size: 0.7rem;"></i>
+                </span>
+            </div>
+        </div>
+
+        @* Name *@
+        <h3 class="h6 card-title mb-1 fw-bold text-truncate" style="font-size: 0.85rem;">@Model.Name</h3>
+
+        @* Position (if available) *@
+        @if (!string.IsNullOrEmpty(Model.Position))
+        {
+            <p class="small text-muted mb-0 text-truncate" style="font-size: 0.75rem;">
+                @Model.Position
+            </p>
+        }
+    </div>
+</article>

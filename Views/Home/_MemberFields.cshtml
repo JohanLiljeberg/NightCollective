@@ -1,4 +1,7 @@
 @model Night.ViewModels.CollectiveMemberFormViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Night.Models
+@using Night.Extensions
 
 @Html.AntiForgeryToken()
 <input type="hidden" name="MemberForm.Id" value="@Model.Id" />
@@ -10,28 +13,185 @@
     </div>
 
     <div class="col-12">
-        <label class="form-label" for="member-image-@Model.Id">Image URL</label>
-        <input class="form-control" id="member-image-@Model.Id" name="MemberForm.Image" value="@Model.Image" maxlength="240" required />
+        <label class="form-label" for="member-membership-type-@Model.Id">Membership Type</label>
+        <select class="form-select" id="member-membership-type-@Model.Id" name="MemberForm.MembershipType" required>
+            <option value="@((int)Night.Models.MembershipType.Full)" selected="@(Model.MembershipType == Night.Models.MembershipType.Full)">Full Member - Complete profile with all games</option>
+            <option value="@((int)Night.Models.MembershipType.Subscribed)" selected="@(Model.MembershipType == Night.Models.MembershipType.Subscribed)">Subscribed - Name, icon, and featured game</option>
+            <option value="@((int)Night.Models.MembershipType.Unsubscribed)" selected="@(Model.MembershipType == Night.Models.MembershipType.Unsubscribed)">Unsubscribed - Name and icon only</option>
+        </select>
+        <div class="form-text">Choose the membership level to determine what information is shown on the member card</div>
+    </div>
+
+    <div class="col-12">
+        <div class="form-check form-switch">
+            <input class="form-check-input" 
+                   type="checkbox" 
+                   role="switch" 
+                   id="member-hidden-@Model.Id" 
+                   name="MemberForm.IsHidden" 
+                   value="true" 
+                   @(Model.IsHidden ? "checked" : string.Empty) />
+            <input name="MemberForm.IsHidden" value="false" type="hidden" />
+            <label class="form-check-label" for="member-hidden-@Model.Id">
+                <i class="bi bi-eye-slash"></i> Hide this member from public pages
+            </label>
+            <small class="form-text text-muted d-block">The member stays fully editable here; it just won't show on the public Members page.</small>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <fieldset class="border border-2 rounded p-3">
+            <legend class="form-label d-block mb-3">Member Image</legend>
+            <p class="small text-muted mb-4">Choose one: Upload a file <strong>OR</strong> provide an image URL</p>
+
+            <div class="mb-3">
+                <h6 class="mb-2">📁 Upload Image</h6>
+                <input type="file" class="form-control" name="MemberForm.ImageFile" accept="image/*" />
+            </div>
+
+            <div class="text-center text-muted my-3">
+                <small><strong>— OR —</strong></small>
+            </div>
+
+            <div class="mb-3">
+                <h6 class="mb-2">🔗 Add Image URL</h6>
+                <input type="text" class="form-control" name="MemberForm.ImageUrl" value="@Model.Image" placeholder="https://example.com/image.jpg" />
+            </div>
+        </fieldset>
     </div>
 
     <div class="col-12">
         <label class="form-label" for="member-position-@Model.Id">Position</label>
-        <input class="form-control" id="member-position-@Model.Id" name="MemberForm.Position" value="@Model.Position" maxlength="160" required />
+        <input class="form-control" id="member-position-@Model.Id" name="MemberForm.Position" value="@Model.Position" maxlength="160" />
     </div>
 
     <div class="col-12">
         <label class="form-label" for="member-quote-@Model.Id">Quote</label>
-        <textarea class="form-control" id="member-quote-@Model.Id" name="MemberForm.Quote" rows="4" maxlength="600" required>@Model.Quote</textarea>
+        <textarea class="form-control" id="member-quote-@Model.Id" name="MemberForm.Quote" rows="4" maxlength="600">@Model.Quote</textarea>
     </div>
 
-    <div class="col-12">
-        <label class="form-label" for="member-games-@Model.Id">Games from database</label>
-        <select class="form-select" id="member-games-@Model.Id" name="MemberForm.SelectedGameIds" multiple size="4">
-            @foreach (var game in Model.AvailableGames)
+    <div class="col-12" id="featured-game-section-@Model.Id">
+        <label class="form-label" for="member-featured-game-@Model.Id">Featured Game (for Subscribed members)</label>
+        <select class="form-select" id="member-featured-game-@Model.Id" name="MemberForm.FeaturedGameId">
+            <option value="">-- Select a featured game --</option>
+            @foreach (var group in Model.AvailableGames.GroupBy(g => g.FromCollective).OrderByDescending(g => g.Key))
             {
-                <option value="@game.Id">@game.Title</option>
+                <optgroup label="@(group.Key ? "Collective Games" : "Other Games")">
+                    @foreach (var game in group)
+                    {
+                        <option value="@game.Id" data-img="@game.ImageUrl" selected="@(Model.FeaturedGameId == game.Id)">@game.Title</option>
+                    }
+                </optgroup>
             }
         </select>
-        <div class="form-text">Hold Ctrl (Windows) or Cmd (Mac) to select multiple games</div>
+        <div class="form-text">This game will be highlighted on the member card for subscribed members</div>
+    </div>
+
+    <div class="col-12" id="all-games-section-@Model.Id">
+        <fieldset class="border border-2 rounded p-3">
+            <legend class="form-label d-block mb-2">
+                <i class="bi bi-controller"></i> Game Contributions
+                <small class="text-muted fw-normal">(optional)</small>
+            </legend>
+            <p class="small text-muted mb-3">Add the games this member worked on, their involvement level and work areas.</p>
+
+            <div id="game-contributions-list-@(Model.Id?.ToString() ?? "new")">
+                @for (int i = 0; i < Model.GameContributions.Count; i++)
+                {
+                    @await Component.InvokeAsync("GameContributionFormItemVC", new
+                    {
+                        contribution = Model.GameContributions[i],
+                        availableGames = Model.AvailableGames.ToList(),
+                        index = i,
+                        memberFormId = Model.Id?.ToString() ?? "new"
+                    })
+                }
+            </div>
+
+          
+            <select id="game-options-template-@(Model.Id?.ToString() ?? "new")" class="d-none" aria-hidden="true">
+                @foreach (var group in Model.AvailableGames.GroupBy(g => g.FromCollective).OrderByDescending(g => g.Key))
+                {
+                    <optgroup label="@(group.Key ? "Collective Games" : "Other Games")">
+                        @foreach (var game in group)
+                        {
+                            <option value="@game.Id" data-img="@game.ImageUrl">@game.Title</option>
+                        }
+                    </optgroup>
+                }
+            </select>
+
+            
+            <div id="game-work-area-template-@(Model.Id?.ToString() ?? "new")" class="d-none" aria-hidden="true">
+                <div class="row g-2">
+                    @foreach (var workArea in WorkAreaExtensions.GetAllWorkAreas())
+                    {
+                        <div class="col-sm-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="@((int)workArea)" />
+                                <label class="form-check-label">@workArea.GetIconWithName()</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <button type="button"
+                    class="btn btn-outline-primary btn-sm add-game-contribution-btn"
+                    data-member-id="@(Model.Id?.ToString() ?? "new")">
+                <i class="bi bi-plus-circle"></i> Add Game Contribution
+            </button>
+        </fieldset>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const membershipSelect = document.getElementById('member-membership-type-@Model.Id');
+        const featuredGameSection = document.getElementById('featured-game-section-@Model.Id');
+        const allGamesSection = document.getElementById('all-games-section-@Model.Id');
+        const positionField = document.querySelector('#member-position-@Model.Id').closest('.col-12');
+        const quoteField = document.querySelector('#member-quote-@Model.Id').closest('.col-12');
+        const positionInput = document.getElementById('member-position-@Model.Id');
+        const quoteInput = document.getElementById('member-quote-@Model.Id');
+
+        function toggleFields() {
+            const membershipType = parseInt(membershipSelect.value);
+
+            // 0 = Unsubscribed, 1 = Subscribed, 2 = Full
+            switch(membershipType) {
+                case 0: // Unsubscribed
+                    featuredGameSection.style.display = 'none';
+                    allGamesSection.style.display = 'none';
+                    positionField.style.display = 'none';
+                    quoteField.style.display = 'none';
+                    positionInput.removeAttribute('required');
+                    quoteInput.removeAttribute('required');
+                    break;
+                case 1: // Subscribed
+                    featuredGameSection.style.display = 'block';
+                    allGamesSection.style.display = 'none';
+                    positionField.style.display = 'block';
+                    quoteField.style.display = 'none';
+                    positionInput.setAttribute('required', 'required');
+                    quoteInput.removeAttribute('required');
+                    break;
+                case 2: // Full
+                default:
+                    featuredGameSection.style.display = 'none';
+                    allGamesSection.style.display = 'block';
+                    positionField.style.display = 'block';
+                    quoteField.style.display = 'block';
+                    positionInput.setAttribute('required', 'required');
+                    quoteInput.setAttribute('required', 'required');
+                    break;
+            }
+        }
+
+        membershipSelect.addEventListener('change', toggleFields);
+        toggleFields(); // Initialize on page load
+
+        // Initialize member form handler (use "new" as id when creating a new member)
+        const memberFormHandler = new MemberFormHandler('@(Model.Id?.ToString() ?? "new")', @Model.GameContributions.Count);
+    });
+</script>

@@ -3,10 +3,16 @@ using Night.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(2);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
+builder.Services.AddScoped<Night.Filters.AdminAuthorizationFilter>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddNightCollectiveServices(builder.Configuration);
-//builder.Services.AddScoped<IImageService, ImageService>();
 
 var app = builder.Build();
 
@@ -21,8 +27,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // Explicit static file middleware for images
 app.UseRouting();
 
+app.UseSession();
 app.UseAuthorization();
 
 app.MapStaticAssets();

@@ -3,90 +3,6 @@
     ViewData["Title"] = "Games as Art";
 }
 
-<section class="hero-section rounded-4 p-4 p-lg-5 mb-5">
-    <div class="row align-items-center g-4">
-        <div class="col-lg-8">
-            <p class="eyebrow mb-2">~ Your game — Our passion ~</p>
-            <h1 class="display-3 fw-bold mb-3">@Model.HeroTitle</h1>
-            <p class="lead mb-4">@Model.HeroSubtitle</p>
-            <p class="hero-copy mb-4">@Model.HeroDescription</p>
-            <div class="d-flex flex-wrap gap-3">
-                <a class="btn btn-primary btn-lg" href="#projects">Explore featured games</a>
-                <a class="btn btn-outline-light btn-lg" asp-controller="Events" asp-action="Index">Join the next event</a>
-            </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="mission-card p-4 rounded-4">
-                <h2 class="h4">The Vision</h2>
-                <p class="mb-0">Cooperative Publishing, ride the highs and weather the lows - Together</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="mb-5" aria-labelledby="mission-heading">
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="content-card h-100 p-4 rounded-4">
-                <h2 id="mission-heading" class="h4">What are you working on?</h2>
-                <p>Share works in progress.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="content-card h-100 p-4 rounded-4">
-                <h2 class="h4">Featured GAMES</h2>
-                <p>Showcase</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="content-card h-100 p-4 rounded-4">
-                <h2 class="h4">ENTER THE JAR</h2>
-                <p>Host EVENTS, showcases, and collaborative experiments for artists, developers, and players.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section id="projects" class="mb-5" aria-labelledby="projects-heading">
-    <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
-        <div>
-            <p class="eyebrow mb-1">Featured work</p>
-            <h2 id="projects-heading" class="mb-0">Showcase</h2>
-        </div>
-    </div>
-    <div class="row g-4">
-        @foreach (var project in Model.FeaturedProjects)
-        {
-            <div class="col-md-4">
-                <article class="content-card h-100 p-4 rounded-4">
-                    <span class="badge rounded-pill text-bg-dark mb-3">@project.Medium</span>
-                    <h3 class="h4">@project.Title</h3>
-                    <p class="text-accent mb-2">@project.Creator</p>
-                    <p class="mb-0">@project.Description</p>
-                </article>
-            </div>
-        }
-    </div>
-</section>
-
-<section id="events" class="mb-5" aria-labelledby="events-heading">
-    <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
-        <div>
-            <p class="eyebrow mb-1">Gatherings</p>
-            <h2 id="events-heading" class="mb-0">Upcoming community events</h2>
-        </div>
-        <a class="btn btn-primary" asp-controller="Events" asp-action="Index">See all events</a>
-    </div>
-    <div class="row g-4">
-        @foreach (var collectiveEvent in Model.UpcomingEvents.Take(2))
-        {
-            <div class="col-lg-6">
-                @await Component.InvokeAsync("EventCardVC", new { collectiveEvent })
-            </div>
-        }
-    </div>
-</section>
-
 <section class="mb-5" aria-labelledby="collective-heading">
     <div class="content-card p-4 rounded-4">
         <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
@@ -99,3 +15,93 @@
         <p class="mb-0">Curators, developers, artists, and players championing small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms.</p>
     </div>
 </section>
+
+<section class="hero-section rounded-4 p-4 p-lg-5 mb-5">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <p class="eyebrow mb-2">~ Your game — Our passion ~</p>
+            <h1 class="display-3 fw-bold mb-3">@Model.HeroTitle</h1>
+            <p class="lead mb-4">@Model.HeroSubtitle</p>
+            <p class="hero-copy mb-4">@Model.HeroDescription</p>
+            <div class="d-flex flex-wrap gap-3">
+                <a class="btn btn-primary btn-lg" asp-controller="Blog" asp-action="Index">What's New?</a>
+                <a class="btn btn-outline-light btn-lg" asp-controller="Events" asp-action="Index">Join the next event</a>
+                <a class="btn btn-outline-light btn-lg" href="https://discord.com/invite/BktWs8Y32s" target="_blank" rel="noopener noreferrer">
+                    <i class="bi bi-discord me-2"></i>Join the Discord
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="mission-card p-4 rounded-4">
+                <h2 class="h4">The Vision</h2>
+                <p class="mb-0">Cooperative Publishing, ride the highs and weather the lows - Together</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-strip p-4 p-lg-5 mb-5">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <p class="eyebrow mb-2">Showcase — Network — Finance</p>
+            <h2 class="h3 fw-bold mb-2">Bring your game to a collective that has your back</h2>
+            <p class="mb-0">Whether you're looking to display your project, find collaborators, or connect with people who can help fund your next release, this is where it starts.</p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a class="btn btn-outline-light btn-lg" asp-controller="Home" asp-action="Games">Explore the gallery</a>
+        </div>
+    </div>
+</section>
+
+<section id="projects" class="mb-5" aria-labelledby="projects-heading">
+    <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
+        <div>
+            <p class="eyebrow mb-1">Latest stories</p>
+            <h2 id="projects-heading" class="mb-0">Showcase</h2>
+        </div>
+        @if (Model.LatestBlogPosts.Any())
+        {
+            <a class="btn btn-primary" asp-controller="Blog" asp-action="Index">View all posts</a>
+        }
+    </div>
+    @if (!Model.LatestBlogPosts.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No blog posts published yet. Check back soon for updates!
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var post in Model.LatestBlogPosts)
+            {
+                <div class="col-md-4">
+                    @await Component.InvokeAsync("BlogPostCardVC", new { blogPost = post })
+                </div>
+            }
+        </div>
+    }
+</section>
+
+<hr class="section-divider" />
+
+<section id="events" class="mb-5" aria-labelledby="events-heading">
+    <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
+        <div>
+            <p class="eyebrow mb-1">Gatherings</p>
+            <h2 id="events-heading" class="mb-0">Upcoming community events</h2>
+        </div>
+        <a class="btn btn-primary" asp-controller="Events" asp-action="Index">See all events</a>
+    </div>
+    <div class="row g-4">
+        @foreach (var collectiveEvent in Model.UpcomingEvents.Take(3))
+        {
+            <div class="col-md-4">
+                @await Component.InvokeAsync("EventCardVC", new { collectiveEvent })
+            </div>
+        }
+    </div>
+</section>
+
+
+

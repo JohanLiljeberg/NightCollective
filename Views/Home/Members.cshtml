@@ -5,119 +5,85 @@
 }
 
 <div class="container py-5">
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
-        <div>
-            <p class="eyebrow mb-2">About the collective</p>
-            <h1 class="display-6 fw-bold mb-0">Members & games</h1>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#addMemberOffcanvas" aria-controls="addMemberOffcanvas">Add collective member</button>
-            <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#addGameOffcanvas" aria-controls="addGameOffcanvas">Add game</button>
-        </div>
+    <div class="mission-card rounded-4 p-4 p-lg-5 mb-5 text-center">
+
+        <h1 class="display-6 fw-bold mb-3">Meet Our Members</h1>
+        <p class="lead mb-3">Night Collective Group</p>
+
     </div>
 
-    <div class="row g-4">
-        @foreach (var member in Model.Members)
-        {
-            <div class="col">
-                <div class="h-100 position-relative">
-                    <div class="position-absolute top-0 end-0 z-1 m-3">
-                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="offcanvas" data-bs-target="#editMemberOffcanvas-@member.Id" aria-controls="editMemberOffcanvas-@member.Id">Edit</button>
-                    </div>
-                    @await Component.InvokeAsync("CollectiveMemberVC", new { member })
+    @* Full Members Section *@
+    @{
+        var fullMembers = Model.Members.Where(m => m.MembershipType == Night.Models.MembershipType.Full).ToList();
+    }
+    @if (fullMembers.Any())
+    {
+        <section class="section-alt p-4 p-lg-5 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <p class="eyebrow mb-1">Core team</p>
+                    <h2 class="h4 fw-bold mb-0">The collective</h2>
                 </div>
+                <span class="badge bg-primary rounded-pill fs-6">@fullMembers.Count</span>
             </div>
-        }
-    </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var member in fullMembers)
+                {
+                    <div class="col">
+                        @await Component.InvokeAsync("CollectiveMemberVC", new { member })
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    @* Subscribed Members Section *@
+    @{
+        var subscribedMembers = Model.Members.Where(m => m.MembershipType == Night.Models.MembershipType.Subscribed).ToList();
+    }
+    @if (subscribedMembers.Any())
+    {
+        <section class="section-alt p-4 p-lg-5 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <p class="eyebrow mb-1">Backed by the collective</p>
+                    <h2 class="h4 fw-bold mb-0">Subscribed Members</h2>
+                </div>
+                <span class="badge badge-teal rounded-pill fs-6">@subscribedMembers.Count</span>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var member in subscribedMembers)
+                {
+                    <div class="col">
+                        @await Component.InvokeAsync("SubscribedMemberVC", new { member })
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    @* Active Members (Unsubscribed) Section *@
+    @{
+        var unsubscribedMembers = Model.Members.Where(m => m.MembershipType == Night.Models.MembershipType.Unsubscribed).ToList();
+    }
+    @if (unsubscribedMembers.Any())
+    {
+        <section class="section-alt p-4 p-lg-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <p class="eyebrow mb-1">Community</p>
+                    <h2 class="h4 fw-bold mb-0">Active Members</h2>
+                </div>
+                <span class="badge badge-grey rounded-pill fs-6">@unsubscribedMembers.Count</span>
+            </div>
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                @foreach (var member in unsubscribedMembers)
+                {
+                    <div class="col">
+                        @await Component.InvokeAsync("UnsubscribedMemberVC", new { member })
+                    </div>
+                }
+            </div>
+        </section>
+    }
 </div>
-
-<section class="mb-5" aria-labelledby="member-admin-heading">
-    <div class="content-card rounded-4 p-4 p-lg-5">
-        <p class="eyebrow mb-1">Create</p>
-        <h2 id="member-admin-heading" class="h3 mb-4">Add members and games to the database</h2>
-        <div class="row g-4">
-            <div class="col-lg-6">
-                <div class="card border-0 bg-light h-100">
-                    <div class="card-body">
-                        <h3 class="h5 mb-3">Add game to database</h3>
-                        <form asp-controller="Home" asp-action="AddGame" method="post">
-                            <partial name="_GameFields" model="Model.GameForm" />
-                            <button type="submit" class="btn btn-primary mt-3">Add game</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="card border-0 bg-light h-100">
-                    <div class="card-body">
-                        <h3 class="h5 mb-3">Add member to collective</h3>
-                        <form asp-controller="Home" asp-action="AddMember" method="post">
-                            <partial name="_MemberFields" model="Model.MemberForm" />
-                            <button type="submit" class="btn btn-primary mt-3">Add member</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="mb-5" aria-labelledby="games-gallery-heading">
-    <div class="d-flex align-items-end justify-content-between gap-3 mb-3">
-        <div>
-            <p class="eyebrow mb-1">Gallery</p>
-            <h2 id="games-gallery-heading" class="h3 mb-0">Games database</h2>
-        </div>
-    </div>
-    @if (Model.Games.Any())
-    {
-        <div class="row g-4">
-            @foreach (var game in Model.Games)
-            {
-                <div class="col-sm-6 col-lg-4 col-xl-3">
-                    <article class="card h-100 border-0 overflow-hidden">
-                        <img class="card-img-top" src="@game.Image" alt="Artwork for @game.Title" />
-                        <div class="card-body">
-                            <h3 class="h6 card-title mb-1">@game.Title</h3>
-                            <p class="text-muted mb-1">@game.DeveloperPublisher · @game.ReleaseYear</p>
-                            @if (game.MemberContributions.Any())
-                            {
-                                <div class="d-flex flex-wrap gap-1 mt-2">
-                                    @foreach (var member in game.MemberContributions)
-                                    {
-                                        var workAreasText = string.Join(", ", member.WorkAreas.Select(wa => wa.GetIconWithName()));
-                                        var tooltipText = $"{member.Name} - {member.InvolvementLevel}\n{workAreasText}";
-                                        <div class="position-relative" title="@tooltipText" data-bs-toggle="tooltip" data-bs-placement="top">
-                                            <img class="rounded-circle border" src="@member.Image" alt="@member.Name" width="40" height="40" />
-                                            <div class="position-absolute bottom-0 end-0 translate-middle-x" style="font-size: 0.9rem;">
-                                                @(member.InvolvementLevel switch
-                                                {
-                                                    Night.Models.InvolvementLevel.Lead => "🥇",
-                                                    Night.Models.InvolvementLevel.Major => "🥈",
-                                                    Night.Models.InvolvementLevel.Supporting => "🥉",
-                                                    _ => ""
-                                                })
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            }
-                            else
-                            {
-                                <p class="small text-muted mb-0">External / non-member game</p>
-                            }
-                        </div>
-                    </article>
-                </div>
-            }
-        </div>
-    }
-    else
-    {
-        <p class="text-muted mb-0">No games in the database yet.</p>
-    }
-</section>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

@@ -39,6 +39,7 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
     {
         return await dbContext.CollectiveMembers
             .AsNoTracking()
+            .Include(member => member.FeaturedGame)
             .Include(member => member.GameContributions)
                 .ThenInclude(gc => gc.Game)
             .AsSplitQuery()
@@ -50,6 +51,7 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
     {
         return await dbContext.Games
             .AsNoTracking()
+            .Include(game => game.Screenshots)
             .Include(game => game.MemberContributions)
                 .ThenInclude(mc => mc.CollectiveMember)
             .AsSplitQuery()
@@ -82,9 +84,12 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
         }
     }
 
-    public async Task UpdateGameAsync(Game game)
+    public async Task UpdateGameAsync(Game game, IReadOnlyCollection<GameMemberContributionFormViewModel> contributions)
     {
-        var existingGame = await dbContext.Games.FirstOrDefaultAsync(item => item.Id == game.Id);
+        var existingGame = await dbContext.Games
+            .Include(g => g.MemberContributions)
+            .Include(g => g.Screenshots)
+            .FirstOrDefaultAsync(item => item.Id == game.Id);
 
         if (existingGame is null)
         {
@@ -93,27 +98,102 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
 
         existingGame.Title = game.Title;
         existingGame.Image = game.Image;
+        existingGame.ImageSmallUrl = game.ImageSmallUrl;
+        existingGame.ImageMediumUrl = game.ImageMediumUrl;
+        existingGame.ImageLargeUrl = game.ImageLargeUrl;
         existingGame.ReleaseYear = game.ReleaseYear;
+        existingGame.IsReleased = game.IsReleased;
+        existingGame.ReleaseDate = game.ReleaseDate;
         existingGame.DeveloperPublisher = game.DeveloperPublisher;
         existingGame.Platforms = game.Platforms;
         existingGame.GenreGameplayType = game.GenreGameplayType;
         existingGame.FromCollective = game.FromCollective;
+        existingGame.IsHidden = game.IsHidden;
+        existingGame.Description = game.Description;
+        existingGame.YouTubeTrailerUrl = game.YouTubeTrailerUrl;
+
+        // Update screenshots - remove existing and add new ones
+        if (existingGame.Screenshots.Any())
+        {
+            dbContext.GameScreenshots.RemoveRange(existingGame.Screenshots);
+        }
+
+        if (game.Screenshots.Any())
+        {
+            foreach (var screenshot in game.Screenshots)
+            {
+                screenshot.GameId = existingGame.Id;
+                dbContext.GameScreenshots.Add(screenshot);
+            }
+        }
+
+        // Remove existing contributions
+        dbContext.Set<GameMemberContribution>().RemoveRange(existingGame.MemberContributions);
+
+        // Add updated contributions
+        if (contributions.Any())
+        {
+            foreach (var contribution in contributions)
+            {
+                var gameMemberContribution = new GameMemberContribution
+                {
+                    GameId = game.Id,
+                    CollectiveMemberId = contribution.MemberId,
+                    InvolvementLevel = contribution.InvolvementLevel,
+                    WorkAreas = contribution.SelectedWorkAreas
+                };
+
+                dbContext.Set<GameMemberContribution>().Add(gameMemberContribution);
+            }
+        }
 
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds)
+    public async Task DeleteGameAsync(int id)
+    {
+        var game = await dbContext.Games.FirstOrDefaultAsync(g => g.Id == id);
+
+        if (game is null)
+        {
+            return;
+        }
+
+        dbContext.Games.Remove(game);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task AddCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds, IReadOnlyCollection<MemberGameContributionFormViewModel> gameContributions)
     {
         member.Games = await GetSelectedGamesAsync(gameIds);
 
         dbContext.CollectiveMembers.Add(member);
         await dbContext.SaveChangesAsync();
+
+        if (gameContributions.Any())
+        {
+            foreach (var contribution in gameContributions)
+            {
+                var gameMemberContribution = new GameMemberContribution
+                {
+                    GameId = contribution.GameId,
+                    CollectiveMemberId = member.Id,
+                    InvolvementLevel = contribution.InvolvementLevel,
+                    WorkAreas = contribution.SelectedWorkAreas
+                };
+
+                dbContext.Set<GameMemberContribution>().Add(gameMemberContribution);
+            }
+
+            await dbContext.SaveChangesAsync();
+        }
     }
 
-    public async Task UpdateCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds)
+    public async Task UpdateCollectiveMemberAsync(CollectiveMember member, IReadOnlyCollection<int> gameIds, IReadOnlyCollection<MemberGameContributionFormViewModel> gameContributions)
     {
         var existingMember = await dbContext.CollectiveMembers
             .Include(item => item.Games)
+            .Include(item => item.GameContributions)
             .FirstOrDefaultAsync(item => item.Id == member.Id);
 
         if (existingMember is null)
@@ -125,8 +205,69 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
         existingMember.Image = member.Image;
         existingMember.Position = member.Position;
         existingMember.Quote = member.Quote;
+        existingMember.MembershipType = member.MembershipType;
+        existingMember.IsHidden = member.IsHidden;
+        existingMember.FeaturedGameId = member.FeaturedGameId;
         existingMember.Games.Clear();
         existingMember.Games.AddRange(await GetSelectedGamesAsync(gameIds));
+
+        // Remove existing game contributions
+        dbContext.Set<GameMemberContribution>().RemoveRange(existingMember.GameContributions);
+
+        // Add updated contributions
+        if (gameContributions.Any())
+        {
+            foreach (var contribution in gameContributions)
+            {
+                var gameMemberContribution = new GameMemberContribution
+                {
+                    GameId = contribution.GameId,
+                    CollectiveMemberId = member.Id,
+                    InvolvementLevel = contribution.InvolvementLevel,
+                    WorkAreas = contribution.SelectedWorkAreas
+                };
+
+                dbContext.Set<GameMemberContribution>().Add(gameMemberContribution);
+            }
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteCollectiveMemberAsync(int id)
+    {
+        var member = await dbContext.CollectiveMembers.FindAsync(id);
+        if (member is not null)
+        {
+            dbContext.CollectiveMembers.Remove(member);
+            await dbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task<SiteDisplaySettings> GetDisplaySettingsAsync()
+    {
+        var settings = await dbContext.SiteDisplaySettings.AsNoTracking().FirstOrDefaultAsync();
+
+        return settings ?? new SiteDisplaySettings { Id = 1 };
+    }
+
+    public async Task UpdateDisplaySettingsAsync(SiteDisplaySettings settings)
+    {
+        var existing = await dbContext.SiteDisplaySettings.FirstOrDefaultAsync();
+
+        if (existing is null)
+        {
+            settings.Id = 1;
+            dbContext.SiteDisplaySettings.Add(settings);
+        }
+        else
+        {
+            existing.ShowFullMembers = settings.ShowFullMembers;
+            existing.ShowSubscribedMembers = settings.ShowSubscribedMembers;
+            existing.ShowUnsubscribedMembers = settings.ShowUnsubscribedMembers;
+            existing.ShowCollectiveGames = settings.ShowCollectiveGames;
+            existing.ShowExternalGames = settings.ShowExternalGames;
+        }
 
         await dbContext.SaveChangesAsync();
     }

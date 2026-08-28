@@ -15,6 +15,12 @@ namespace Night.Models
 
         public int ReleaseYear { get; set; }
 
+     
+        public bool IsReleased { get; set; } = true;
+
+      
+        public DateTime? ReleaseDate { get; set; }
+
         public string DeveloperPublisher { get; set; } = string.Empty;
 
         public Platforms Platforms { get; set; } = Platforms.PC;
@@ -22,6 +28,14 @@ namespace Night.Models
         public genreGameplayType GenreGameplayType { get; set; } = genreGameplayType.Action;
 
         public bool FromCollective { get; set; }
+
+        public bool IsHidden { get; set; }
+
+        public string Description { get; set; } = string.Empty;
+
+        public string? YouTubeTrailerUrl { get; set; }
+
+        public List<GameScreenshot> Screenshots { get; set; } = new();
 
         [NotMapped]
         public int? CollectiveMemberId { get; set; }

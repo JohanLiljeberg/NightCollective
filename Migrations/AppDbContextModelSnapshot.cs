@@ -22,6 +22,63 @@ namespace Night.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Night.Models.BlogPost", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Author")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExternalLink")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ImageLargeUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageMediumUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageSmallUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BlogPosts");
+                });
+
             modelBuilder.Entity("Night.Models.CollectiveEvent", b =>
                 {
                     b.Property<int>("Id")
@@ -102,6 +159,9 @@ namespace Night.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("FeaturedGameId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Image")
                         .IsRequired()
                         .HasMaxLength(240)
@@ -116,22 +176,28 @@ namespace Night.Migrations
                     b.Property<string>("ImageSmallUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MembershipType")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
                     b.Property<string>("Position")
-                        .IsRequired()
                         .HasMaxLength(160)
                         .HasColumnType("nvarchar(160)");
 
                     b.Property<string>("Quote")
-                        .IsRequired()
                         .HasMaxLength(600)
                         .HasColumnType("nvarchar(600)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FeaturedGameId");
 
                     b.ToTable("CollectiveMembers");
 
@@ -140,6 +206,8 @@ namespace Night.Migrations
                         {
                             Id = 1,
                             Image = "/images/collective-members/night-collective.jpg",
+                            IsHidden = false,
+                            MembershipType = 2,
                             Name = "Night Collective",
                             Position = "Curator",
                             Quote = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms."
@@ -253,6 +321,11 @@ namespace Night.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
                     b.Property<int?>("DeveloperId")
                         .HasColumnType("int");
 
@@ -281,8 +354,17 @@ namespace Night.Migrations
                     b.Property<string>("ImageSmallUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsReleased")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Platforms")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("ReleaseDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("ReleaseYear")
                         .HasColumnType("int");
@@ -291,6 +373,10 @@ namespace Night.Migrations
                         .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("YouTubeTrailerUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("Id");
 
@@ -321,6 +407,88 @@ namespace Night.Migrations
                     b.ToTable("GameMemberContributions", (string)null);
                 });
 
+            modelBuilder.Entity("Night.Models.GameScreenshot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GameId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageLargeUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ImageMediumUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ImageSmallUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameId");
+
+                    b.ToTable("GameScreenshots", (string)null);
+                });
+
+            modelBuilder.Entity("Night.Models.SiteDisplaySettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("ShowCollectiveGames")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ShowExternalGames")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ShowFullMembers")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ShowSubscribedMembers")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ShowUnsubscribedMembers")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SiteDisplaySettings", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ShowCollectiveGames = true,
+                            ShowExternalGames = true,
+                            ShowFullMembers = true,
+                            ShowSubscribedMembers = true,
+                            ShowUnsubscribedMembers = true
+                        });
+                });
+
+            modelBuilder.Entity("Night.Models.CollectiveMember", b =>
+                {
+                    b.HasOne("Night.Models.Game", "FeaturedGame")
+                        .WithMany()
+                        .HasForeignKey("FeaturedGameId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("FeaturedGame");
+                });
+
             modelBuilder.Entity("Night.Models.Game", b =>
                 {
                     b.HasOne("Night.Models.Developer", null)
@@ -347,6 +515,17 @@ namespace Night.Migrations
                     b.Navigation("Game");
                 });
 
+            modelBuilder.Entity("Night.Models.GameScreenshot", b =>
+                {
+                    b.HasOne("Night.Models.Game", "Game")
+                        .WithMany("Screenshots")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Game");
+                });
+
             modelBuilder.Entity("Night.Models.CollectiveMember", b =>
                 {
                     b.Navigation("GameContributions");
@@ -360,6 +539,8 @@ namespace Night.Migrations
             modelBuilder.Entity("Night.Models.Game", b =>
                 {
                     b.Navigation("MemberContributions");
+
+                    b.Navigation("Screenshots");
                 });
 #pragma warning restore 612, 618
         }

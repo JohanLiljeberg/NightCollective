@@ -1,0 +1,30 @@
+@model Night.Models.ResponsiveImageModel
+
+<picture>
+    @if (!string.IsNullOrEmpty(Model.ImageLargeUrl) && !string.IsNullOrEmpty(Model.ImageMediumUrl) && !string.IsNullOrEmpty(Model.ImageSmallUrl))
+    {
+        @* Modern browsers with srcset - browser picks based on viewport and DPR *@
+        <source srcset="@Model.ImageSmallUrl 640w,
+                        @Model.ImageMediumUrl 1024w,
+                        @Model.ImageLargeUrl 1600w"
+                sizes="(max-width: 768px) 100vw,
+                       (max-width: 1200px) 50vw,
+                       33vw"
+                type="image/webp">
+    }
+    else if (!string.IsNullOrEmpty(Model.ImageSmallUrl))
+    {
+        @* Fallback if only one size exists *@
+        <source srcset="@Model.ImageSmallUrl" type="image/webp">
+    }
+
+    @* Fallback img tag for browsers that don't support picture *@
+    <img src="@(Model.ImageSmallUrl ?? Model.ImageMediumUrl ?? Model.ImageLargeUrl ?? Model.Image)"
+         class="@Model.CssClass"
+         alt="@Model.AltText"
+         loading="lazy"
+         decoding="async"
+         @if (Model.Width.HasValue) { <text>width="@Model.Width"</text> }
+         @if (Model.Height.HasValue) { <text>height="@Model.Height"</text> }
+         @if (!string.IsNullOrEmpty(Model.AspectRatio)) { <text>style="aspect-ratio: @Model.AspectRatio; object-fit: cover;"</text> }>
+</picture>

@@ -15,9 +15,25 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<CollectiveMember> CollectiveMembers => Set<CollectiveMember>();
 
+    public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
+
+    public DbSet<GameScreenshot> GameScreenshots => Set<GameScreenshot>();
+
+    public DbSet<SiteDisplaySettings> SiteDisplaySettings => Set<SiteDisplaySettings>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<BlogPost>(entity =>
+        {
+            entity.Property(post => post.Title).HasMaxLength(200).IsRequired();
+            entity.Property(post => post.Author).HasMaxLength(100);
+            entity.Property(post => post.Summary).HasMaxLength(300);
+            entity.Property(post => post.Content).HasMaxLength(5000).IsRequired();
+            entity.Property(post => post.Tags).HasMaxLength(200);
+            entity.Property(post => post.ExternalLink).HasMaxLength(500);
+        });
 
         modelBuilder.Entity<CollectiveProject>(entity =>
         {
@@ -106,8 +122,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             entity.Property(member => member.Name).HasMaxLength(120).IsRequired();
             entity.Property(member => member.Image).HasMaxLength(240).IsRequired();
-            entity.Property(member => member.Position).HasMaxLength(160).IsRequired();
-            entity.Property(member => member.Quote).HasMaxLength(600).IsRequired();
+            entity.Property(member => member.Position).HasMaxLength(160);
+            entity.Property(member => member.Quote).HasMaxLength(600);
+
+            // Configure FeaturedGame relationship
+            entity.HasOne(member => member.FeaturedGame)
+                .WithMany()
+                .HasForeignKey(member => member.FeaturedGameId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             entity.HasMany(member => member.Games)
                 .WithMany(game => game.Members)
@@ -127,7 +149,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 Name = "Night Collective",
                 Image = "/images/collective-members/night-collective.jpg",
                 Position = "Curator",
-                Quote = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms."
+                Quote = "We champion small teams, expressive play, accessible tools, and games that belong in galleries as much as living rooms.",
+                MembershipType = MembershipType.Full
             });
         });
 
@@ -138,6 +161,37 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(game => game.Title).HasMaxLength(120).IsRequired();
             entity.Property(game => game.Image).HasMaxLength(240).IsRequired();
             entity.Property(game => game.DeveloperPublisher).HasMaxLength(160).IsRequired();
+            entity.Property(game => game.Description).HasMaxLength(2000).IsRequired();
+            entity.Property(game => game.YouTubeTrailerUrl).HasMaxLength(500);
+
+            // Configure Screenshots relationship
+            entity.HasMany(game => game.Screenshots)
+                .WithOne(screenshot => screenshot.Game)
+                .HasForeignKey(screenshot => screenshot.GameId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<GameScreenshot>(entity =>
+        {
+            entity.ToTable("GameScreenshots");
+            entity.Property(s => s.ImageSmallUrl).HasMaxLength(500);
+            entity.Property(s => s.ImageMediumUrl).HasMaxLength(500);
+            entity.Property(s => s.ImageLargeUrl).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<SiteDisplaySettings>(entity =>
+        {
+            entity.ToTable("SiteDisplaySettings");
+
+            entity.HasData(new SiteDisplaySettings
+            {
+                Id = 1,
+                ShowFullMembers = true,
+                ShowSubscribedMembers = true,
+                ShowUnsubscribedMembers = true,
+                ShowCollectiveGames = true,
+                ShowExternalGames = true
+            });
         });
     }
 }

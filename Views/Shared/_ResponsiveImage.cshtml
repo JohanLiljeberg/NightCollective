@@ -3,15 +3,21 @@
 <picture>
     @if (!string.IsNullOrEmpty(Model.ImageLargeUrl))
     {
+        @* Desktop 2x displays (1600px+) *@
         <source srcset="@Model.ImageLargeUrl" media="(min-width: 1200px)" type="image/webp">
+        @* Tablets and small desktops (1024px) *@
         <source srcset="@Model.ImageMediumUrl" media="(min-width: 768px)" type="image/webp">
     }
+    @* Mobile phones (640px) - default *@
     <source srcset="@Model.ImageSmallUrl ?? Model.Image" type="image/webp">
 
     <img src="@(Model.ImageSmallUrl ?? Model.Image)"
-         class="img-fluid"
+         class="@Model.CssClass"
          alt="@Model.AltText"
          loading="lazy"
-         width="400" height="300"
-         style="aspect-ratio: 4/3; object-fit: cover;">
+         decoding="async"
+         @if (Model.Width.HasValue) { <text>width="@Model.Width"</text> }
+         @if (Model.Height.HasValue) { <text>height="@Model.Height"</text> }
+         @* Dynamic aspect ratio passed by caller: no Bootstrap utility supports arbitrary ratios *@
+         @if (!string.IsNullOrEmpty(Model.AspectRatio)) { <text>style="aspect-ratio: @Model.AspectRatio; object-fit: cover;"</text> }>
 </picture>

@@ -1,0 +1,243 @@
+@model Night.ViewModels.GameViewModel
+
+<div class="game-detail p-2 p-lg-3">
+    <div class="row g-4 align-items-start">
+        <!-- Main Game Cover -->
+        <div class="col-lg-5">
+            @if (!string.IsNullOrEmpty(Model.ImageLargeUrl))
+            {
+                @* srcset lets the browser pick the smallest suitable size instead of always loading the large image *@
+                <img src="@Model.ImageMediumUrl"
+                     srcset="@Model.ImageSmallUrl 640w, @Model.ImageMediumUrl 1024w, @Model.ImageLargeUrl 1600w"
+                     sizes="(max-width: 991px) 100vw, 40vw"
+                     class="img-fluid rounded-4 shadow w-100" 
+                     style="aspect-ratio: 3 / 4; object-fit: cover;"
+                     loading="lazy"
+                     decoding="async"
+                     alt="@Model.Title" />
+            }
+            else
+            {
+                <div class="bg-light rounded-4 shadow d-flex align-items-center justify-content-center w-100" style="aspect-ratio: 3 / 4;">
+                    <i class="bi bi-controller" style="font-size: 5rem; color: #ccc;"></i>
+                </div>
+            }
+        </div>
+
+        <!-- Game Info -->
+        <div class="col-lg-7">
+            <p class="eyebrow mb-1">@Model.GenreGameplayType</p>
+            <h1 class="display-5 fw-bold mb-3">@Model.Title</h1>
+
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <span class="badge badge-grey px-3 py-2">
+                    @Model.ReleaseYear
+                </span>
+                <span class="badge badge-teal px-3 py-2">
+                    <i class="bi bi-@(Model.Platforms == Night.Models.Platforms.PC ? "pc-display" : 
+                                       Model.Platforms == Night.Models.Platforms.Console ? "controller" : 
+                                       "phone")"></i> @Model.Platforms
+                </span>
+                @if (Model.FromCollective)
+                {
+                    <span class="badge badge-gold px-3 py-2">
+                        Made by Night Collective
+                    </span>
+                }
+                @if (Model.IsReleased)
+                {
+                    <span class="badge bg-success px-3 py-2">
+                        <i class="bi bi-check-circle"></i> Released
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark px-3 py-2">
+                        <i class="bi bi-hourglass-split"></i> 
+                        @(Model.ReleaseDate.HasValue ? $"Coming {Model.ReleaseDate.Value:MMM d, yyyy}" : "Coming Soon")
+                    </span>
+                }
+            </div>
+
+            <div class="mb-4 pb-4 border-bottom">
+                <p class="eyebrow mb-1">Developer / Publisher</p>
+                <p class="lead mb-0">@Model.DeveloperPublisher</p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="mb-4 pb-4 border-bottom">
+                    <p class="eyebrow mb-1">About this game</p>
+                    <p class="mb-0">@Model.Description</p>
+                </div>
+            }
+
+            @if (Model.MemberContributions.Any())
+            {
+                <div>
+                    <p class="eyebrow mb-2">Contributors from Night Collective</p>
+                    <div class="list-group">
+                        @foreach (var contribution in Model.MemberContributions)
+                        {
+                            var (badgeClass, badgeIcon) = contribution.InvolvementLevel switch
+                            {
+                                Night.Models.InvolvementLevel.Lead  => ("badge-gold",  "star-fill"),
+                                Night.Models.InvolvementLevel.Major => ("badge-teal",  "star-half"),
+                                _                                   => ("badge-grey",  "star")
+                            };
+                            <div class="list-group-item border-0 border-bottom rounded-0 px-0 py-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    @* Fixed 48px avatar size: no direct Bootstrap utility for custom pixel dimensions *@
+                                    @if (!string.IsNullOrEmpty(contribution.ImageMediumUrl))
+                                    {
+                                        <img src="@contribution.ImageMediumUrl"
+                                             alt="@contribution.Name"
+                                             class="rounded-circle border border-2 flex-shrink-0"
+                                             style="width:48px;height:48px;object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center border border-2 flex-shrink-0"
+                                             style="width:48px;height:48px;">
+                                            <i class="bi bi-person-fill text-white fs-5"></i>
+                                        </div>
+                                    }
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                            <h6 class="mb-0">@contribution.Name</h6>
+                                            <span class="badge @badgeClass">
+                                                <i class="bi bi-@badgeIcon me-1"></i>@contribution.InvolvementLevel
+                                            </span>
+                                        </div>
+                                        @if (contribution.WorkAreas.Any())
+                                        {
+                                            <small class="text-muted">@string.Join(", ", contribution.WorkAreas)</small>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.YouTubeTrailerUrl))
+    {
+        <div class="mt-4 pt-4 border-top">
+            <p class="eyebrow mb-2">Trailer</p>
+            <div class="ratio ratio-16x9">
+                @{
+                    var videoId = ExtractYouTubeVideoId(Model.YouTubeTrailerUrl);
+                }
+                @if (!string.IsNullOrEmpty(videoId))
+                {
+                    <iframe src="https://www.youtube.com/embed/@videoId" 
+                            title="@Model.Title Trailer" 
+                            allowfullscreen
+                            class="rounded-4 shadow"></iframe>
+                }
+                else
+                {
+                    <div class="alert alert-warning">Invalid YouTube URL</div>
+                }
+            </div>
+        </div>
+    }
+
+    @if (Model.Screenshots.Any())
+    {
+        <div class="mt-4 pt-4 border-top">
+            <p class="eyebrow mb-2">Screenshots</p>
+            <div class="row g-3">
+                @foreach (var screenshot in Model.Screenshots.OrderBy(s => s.DisplayOrder))
+                {
+                    <div class="col-sm-6 col-lg-4">
+                        @* Nested Bootstrap modals are not supported (backdrop/focus stacking breaks the page),
+                           so screenshots open in a lightweight custom lightbox instead of a second modal. *@
+                        <img src="@screenshot.ImageMediumUrl"
+                             data-full-src="@screenshot.ImageLargeUrl"
+                             class="img-fluid rounded-4 shadow-sm w-100 screenshot-thumb screenshot-lightbox-trigger-@Model.Id"
+                             style="aspect-ratio: 16 / 9; object-fit: cover;"
+                             alt="Screenshot @screenshot.DisplayOrder"
+                             loading="lazy"
+                             decoding="async" />
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Lightbox overlay for full-size screenshots, scoped per game so multiple game modals on one page don't conflict -->
+<div class="screenshot-lightbox" id="screenshot-lightbox-@Model.Id" tabindex="-1">
+    <button type="button" class="screenshot-lightbox-close" aria-label="Close">&times;</button>
+    <img src="" alt="Full size screenshot" />
+</div>
+
+<script>
+    (function () {
+        var lightbox = document.getElementById('screenshot-lightbox-@Model.Id');
+        if (!lightbox || lightbox.dataset.lightboxInit) return;
+        lightbox.dataset.lightboxInit = 'true';
+
+        var lightboxImg = lightbox.querySelector('img');
+        var closeBtn = lightbox.querySelector('.screenshot-lightbox-close');
+
+        function openLightbox(fullSrc) {
+            lightboxImg.src = fullSrc;
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            lightboxImg.src = '';
+        }
+
+        document.querySelectorAll('.screenshot-lightbox-trigger-@Model.Id').forEach(function (thumb) {
+            thumb.addEventListener('click', function () {
+                openLightbox(thumb.dataset.fullSrc || thumb.src);
+            });
+        });
+
+        closeBtn.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', function (e) {
+            if (e.target === lightbox) closeLightbox();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeLightbox();
+        });
+    })();
+</script>
+
+@functions {
+    private string? ExtractYouTubeVideoId(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return null;
+
+        // Handle different YouTube URL formats
+        var uri = new Uri(url);
+
+        // Standard watch URL: https://www.youtube.com/watch?v=VIDEO_ID
+        if (uri.Host.Contains("youtube.com") && uri.AbsolutePath == "/watch")
+        {
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            return query["v"];
+        }
+
+        // Short URL: https://youtu.be/VIDEO_ID
+        if (uri.Host == "youtu.be")
+        {
+            return uri.AbsolutePath.TrimStart('/');
+        }
+
+        // Embed URL: https://www.youtube.com/embed/VIDEO_ID
+        if (uri.Host.Contains("youtube.com") && uri.AbsolutePath.StartsWith("/embed/"))
+        {
+            return uri.AbsolutePath.Replace("/embed/", "");
+        }
+
+        return null;
+    }
+}

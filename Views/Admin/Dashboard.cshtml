@@ -1,0 +1,1308 @@
+@model Night.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    var activeTab = Context.Request.Query["tab"].ToString();
+    if (string.IsNullOrEmpty(activeTab)) activeTab = "events";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h1 class="h3 mb-0">🛠️ Admin Dashboard</h1>
+    <a asp-action="Logout" class="btn btn-outline-danger">Logout</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<ul class="nav nav-pills mb-2 flex-wrap gap-2" id="adminCreateTabs" role="tablist">
+    <li class="nav-item w-100">
+        <small class="text-muted text-uppercase fw-bold">Create</small>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "events" ? "active" : "")" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
+            📅 Create Event
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "games" ? "active" : "")" id="games-tab" data-bs-toggle="tab" data-bs-target="#games" type="button" role="tab">
+            🎮 Add Game
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "members" ? "active" : "")" id="members-tab" data-bs-toggle="tab" data-bs-target="#members" type="button" role="tab">
+            👥 Add Member
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "blog-posts" ? "active" : "")" id="blog-posts-tab" data-bs-toggle="tab" data-bs-target="#blog-posts" type="button" role="tab">
+            📝 Create Blog Post
+        </button>
+    </li>
+</ul>
+
+<ul class="nav nav-pills mb-4 flex-wrap gap-2" id="adminManageTabs" role="tablist">
+    <li class="nav-item w-100">
+        <small class="text-muted text-uppercase fw-bold">Manage Existing</small>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "manage-events" ? "active" : "")" id="manage-events-tab" data-bs-toggle="tab" data-bs-target="#manage-events" type="button" role="tab">
+            📅 Manage Events
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "manage-games" ? "active" : "")" id="manage-games-tab" data-bs-toggle="tab" data-bs-target="#manage-games" type="button" role="tab">
+            🎯 Manage Games
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "manage-members" ? "active" : "")" id="manage-members-tab" data-bs-toggle="tab" data-bs-target="#manage-members" type="button" role="tab">
+            📋 Manage Members
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "manage-blog-posts" ? "active" : "")" id="manage-blog-posts-tab" data-bs-toggle="tab" data-bs-target="#manage-blog-posts" type="button" role="tab">
+            📰 Manage Blog Posts
+        </button>
+    </li>
+</ul>
+
+<ul class="nav nav-pills mb-4 flex-wrap gap-2" id="adminSettingsTabs" role="tablist">
+    <li class="nav-item w-100">
+        <small class="text-muted text-uppercase fw-bold">Settings</small>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "display-settings" ? "active" : "")" id="display-settings-tab" data-bs-toggle="tab" data-bs-target="#display-settings" type="button" role="tab">
+            👁️ Display Settings
+        </button>
+    </li>
+</ul>
+
+
+<div class="tab-content" id="adminTabsContent">
+    <!-- Events Tab -->
+    <div class="tab-pane fade @(activeTab == "events" ? "show active" : "")" id="events" role="tabpanel">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Create New Event</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateEvent" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input asp-for="EventForm.Id" type="hidden" />
+
+                    <div class="mb-3">
+                        <label asp-for="EventForm.Title" class="form-label"></label>
+                        <input asp-for="EventForm.Title" class="form-control" required />
+                        <span asp-validation-for="EventForm.Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="EventForm.Date" class="form-label"></label>
+                        <input asp-for="EventForm.Date" class="form-control" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                        <span asp-validation-for="EventForm.Date" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="EventForm.Location" class="form-label"></label>
+                        <input asp-for="EventForm.Location" class="form-control" required />
+                        <span asp-validation-for="EventForm.Location" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="EventForm.Description" class="form-label"></label>
+                        <textarea asp-for="EventForm.Description" class="form-control" rows="5" required></textarea>
+                        <span asp-validation-for="EventForm.Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <fieldset class="border border-2 rounded p-3">
+                            <legend class="form-label d-block mb-3">Event Image</legend>
+                            <p class="small text-muted mb-4">Choose one: Upload a file <strong>OR</strong> provide an image URL</p>
+
+                            <div class="mb-3">
+                                <h6 class="mb-2">📁 Upload Image</h6>
+                                <input asp-for="EventForm.ImageFile" type="file" class="form-control" accept="image/*" />
+                            </div>
+
+                            <div class="text-center text-muted my-3">
+                                <small><strong>— OR —</strong></small>
+                            </div>
+
+                            <div class="mb-3">
+                                <h6 class="mb-2">🔗 Add Image URL</h6>
+                                <input asp-for="EventForm.ImageUrl" class="form-control" placeholder="https://example.com/image.svg" />
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Create Event</button>
+                    <a asp-controller="Events" asp-action="Index" class="btn btn-outline-secondary">View All Events</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Games Tab -->
+    <div class="tab-pane fade @(activeTab == "games" ? "show active" : "")" id="games" role="tabpanel">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Add New Game</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateGame" method="post" enctype="multipart/form-data">
+                    @Html.Partial("~/Views/Home/_GameFields.cshtml", Model.GameForm)
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Add Game</button>
+                        <a asp-controller="Home" asp-action="Members" class="btn btn-outline-secondary">View All Games</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Members Tab -->
+    <div class="tab-pane fade @(activeTab == "members" ? "show active" : "")" id="members" role="tabpanel">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Add New Member</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateMember" method="post" enctype="multipart/form-data">
+                    @Html.Partial("~/Views/Home/_MemberFields.cshtml", Model.MemberForm)
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Add Member</button>
+                        <a asp-controller="Home" asp-action="Members" class="btn btn-outline-secondary">View All Members</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Members Tab -->
+    <div class="tab-pane fade @(activeTab == "manage-members" ? "show active" : "")" id="manage-members" role="tabpanel">
+        <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h3 class="mb-0">Manage All Members</h3>
+                <span class="badge bg-primary">@Model.AllMembers.Count Total</span>
+            </div>
+            <div class="card-body">
+                @* Filter Buttons *@
+                <div class="btn-group mb-4 d-flex flex-nowrap overflow-auto" role="group" aria-label="Filter members">
+                    <input type="radio" class="btn-check" name="memberFilter" id="filterAll" value="all" autocomplete="off" checked />
+                    <label class="btn btn-outline-primary" for="filterAll">
+                        All (@Model.AllMembers.Count)
+                    </label>
+
+                    <input type="radio" class="btn-check" name="memberFilter" id="filterFull" value="@((int)Night.Models.MembershipType.Full)" autocomplete="off" />
+                    <label class="btn btn-outline-success" for="filterFull">
+                        <i class="bi bi-star-fill"></i> Full Members (@Model.AllMembers.Count(m => m.MembershipType == Night.Models.MembershipType.Full))
+                    </label>
+
+                    <input type="radio" class="btn-check" name="memberFilter" id="filterSubscribed" value="@((int)Night.Models.MembershipType.Subscribed)" autocomplete="off" />
+                    <label class="btn btn-outline-info" for="filterSubscribed">
+                        <i class="bi bi-person-check"></i> Subscribed (@Model.AllMembers.Count(m => m.MembershipType == Night.Models.MembershipType.Subscribed))
+                    </label>
+
+                    <input type="radio" class="btn-check" name="memberFilter" id="filterUnsubscribed" value="@((int)Night.Models.MembershipType.Unsubscribed)" autocomplete="off" />
+                    <label class="btn btn-outline-secondary" for="filterUnsubscribed">
+                        <i class="bi bi-person-dash"></i> Unsubscribed (@Model.AllMembers.Count(m => m.MembershipType == Night.Models.MembershipType.Unsubscribed))
+                    </label>
+                </div>
+
+                @* Members List *@
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">Image</th>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th style="width: 150px;">Type</th>
+                                <th style="width: 100px;">Games</th>
+                                <th style="width: 180px;" class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTableBody">
+                            @foreach (var member in Model.AllMembers.OrderBy(m => m.Name))
+                            {
+                                var membershipClass = member.MembershipType switch
+                                {
+                                    Night.Models.MembershipType.Full => "bg-success-subtle text-success",
+                                    Night.Models.MembershipType.Subscribed => "bg-info-subtle text-info",
+                                    Night.Models.MembershipType.Unsubscribed => "bg-secondary-subtle text-secondary",
+                                    _ => ""
+                                };
+
+                                var membershipIcon = member.MembershipType switch
+                                {
+                                    Night.Models.MembershipType.Full => "bi-star-fill",
+                                    Night.Models.MembershipType.Subscribed => "bi-person-check",
+                                    Night.Models.MembershipType.Unsubscribed => "bi-person-dash",
+                                    _ => ""
+                                };
+
+                                <tr class="member-row" data-membership-type="@((int)member.MembershipType)">
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(member.ImageSmallUrl))
+                                        {
+                                            <img src="@member.ImageSmallUrl" 
+                                                 alt="@member.Name" 
+                                                 class="rounded" 
+                                                 width="60" 
+                                                 height="60" 
+                                                 style="object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                <i class="bi bi-person-circle fs-3 text-muted"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <strong>@member.Name</strong>
+                                        @if (member.IsHidden)
+                                        {
+                                            <span class="badge bg-secondary ms-1"><i class="bi bi-eye-slash"></i> Hidden</span>
+                                        }
+                                    </td>
+                                    <td class="text-muted">
+                                        <small>@member.Position</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge @membershipClass px-3 py-2">
+                                            <i class="bi @membershipIcon"></i>
+                                            @member.MembershipType
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark border">
+                                            @member.GameContributions.Count
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-primary me-1" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editMemberModal-@member.Id">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </button>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteMemberModal-@member.Id">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Games Tab -->
+    <div class="tab-pane fade @(activeTab == "manage-games" ? "show active" : "")" id="manage-games" role="tabpanel">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">
+                    <i class="bi bi-controller"></i> Manage Games
+                </h3>
+            </div>
+            <div class="card-body">
+                @if (!Model.AllGames.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> No games added yet. Use the "Add Game" tab to create your first game.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Cover</th>
+                                    <th>Title</th>
+                                    <th>Year</th>
+                                    <th>Developer</th>
+                                    <th>Platform</th>
+                                    <th class="text-center">Contributors</th>
+                                    <th class="text-center">Collective</th>
+                                    <th class="text-end" style="width: 180px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var game in Model.AllGames.OrderBy(g => g.Title))
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(game.ImageSmallUrl))
+                                            {
+                                                <img src="@game.ImageSmallUrl" 
+                                                     alt="@game.Title" 
+                                                     class="rounded" 
+                                                     width="80" 
+                                                     height="80" 
+                                                     style="object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                                    <i class="bi bi-controller fs-3 text-muted"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong>@game.Title</strong>
+                                            @if (game.IsHidden)
+                                            {
+                                                <span class="badge bg-secondary ms-1"><i class="bi bi-eye-slash"></i> Hidden</span>
+                                            }
+                                            <br />
+                                            <small class="text-muted">@game.GenreGameplayType</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">@game.ReleaseYear</span>
+                                        </td>
+                                        <td>
+                                            <small>@game.DeveloperPublisher</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info text-dark">
+                                                <i class="bi bi-@(game.Platforms == Night.Models.Platforms.PC ? "pc-display" : 
+                                                                   game.Platforms == Night.Models.Platforms.Console ? "controller" : 
+                                                                   "phone")"></i>
+                                                @game.Platforms
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark border">
+                                                @game.MemberContributions.Count
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            @if (game.FromCollective)
+                                            {
+                                                <i class="bi bi-check-circle-fill text-success" title="From Collective"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-dash-circle text-muted" title="Not from Collective"></i>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-primary me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editGameModal-@game.Id">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </button>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteGameModal-@game.Id">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Posts Tab -->
+    <div class="tab-pane fade @(activeTab == "blog-posts" ? "show active" : "")" id="blog-posts" role="tabpanel">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Create New Blog Post</h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateBlogPost" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input asp-for="BlogPostForm.Id" type="hidden" />
+
+                    <div class="mb-3">
+                        <label asp-for="BlogPostForm.Title" class="form-label"></label>
+                        <input asp-for="BlogPostForm.Title" class="form-control" required />
+                        <span asp-validation-for="BlogPostForm.Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BlogPostForm.Author" class="form-label"></label>
+                        <input asp-for="BlogPostForm.Author" class="form-control" placeholder="e.g. Jane Doe" />
+                        <span asp-validation-for="BlogPostForm.Author" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BlogPostForm.Summary" class="form-label"></label>
+                        <textarea asp-for="BlogPostForm.Summary" class="form-control" rows="2" placeholder="A short teaser shown in article listings"></textarea>
+                        <span asp-validation-for="BlogPostForm.Summary" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BlogPostForm.Content" class="form-label"></label>
+                        <textarea asp-for="BlogPostForm.Content" class="form-control" rows="10" required></textarea>
+                        <span asp-validation-for="BlogPostForm.Content" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BlogPostForm.Tags" class="form-label"></label>
+                        <input asp-for="BlogPostForm.Tags" class="form-control" placeholder="e.g. gamedev, indie, art" />
+                        <span asp-validation-for="BlogPostForm.Tags" class="text-danger"></span>
+                        <small class="form-text text-muted">Separate tags with commas</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BlogPostForm.ExternalLink" class="form-label"></label>
+                        <input asp-for="BlogPostForm.ExternalLink" class="form-control" type="url" placeholder="https://example.com" />
+                        <span asp-validation-for="BlogPostForm.ExternalLink" class="text-danger"></span>
+                        <small class="form-text text-muted">Optional: Add a link to share with readers</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <fieldset class="border border-2 rounded p-3">
+                            <legend class="form-label d-block mb-3">Blog Post Image</legend>
+                            <p class="small text-muted mb-4">Choose one: Upload a file <strong>OR</strong> provide an image URL</p>
+
+                            <div class="mb-3">
+                                <h6 class="mb-2">📁 Upload Image</h6>
+                                <input asp-for="BlogPostForm.ImageFile" type="file" class="form-control" accept="image/*" />
+                            </div>
+
+                            <div class="text-center text-muted my-3">
+                                <small><strong>— OR —</strong></small>
+                            </div>
+
+                            <div class="mb-3">
+                                <h6 class="mb-2">🔗 Add Image URL</h6>
+                                <input asp-for="BlogPostForm.ImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="BlogPostForm.IsPublished" class="form-check-input" type="checkbox" />
+                        <label asp-for="BlogPostForm.IsPublished" class="form-check-label"></label>
+                        <small class="form-text text-muted d-block">Uncheck to save as draft</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Create Blog Post</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Blog Posts Tab -->
+    <div class="tab-pane fade @(activeTab == "manage-blog-posts" ? "show active" : "")" id="manage-blog-posts" role="tabpanel">
+        <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h3 class="mb-0">
+                    <i class="bi bi-newspaper"></i> Manage Blog Posts
+                </h3>
+                <span class="badge bg-primary">@Model.AllBlogPosts.Count Total</span>
+            </div>
+            <div class="card-body">
+                @if (!Model.AllBlogPosts.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> No blog posts yet. Use the "Create Blog Post" tab to write your first post.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Image</th>
+                                    <th>Title</th>
+                                    <th style="width: 150px;">Created</th>
+                                    <th class="text-center" style="width: 100px;">Status</th>
+                                    <th class="text-end" style="width: 180px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var post in Model.AllBlogPosts)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(post.ImageSmallUrl))
+                                            {
+                                                <img src="@post.ImageSmallUrl" 
+                                                     alt="@post.Title" 
+                                                     class="rounded" 
+                                                     width="80" 
+                                                     height="80" 
+                                                     style="object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                                    <i class="bi bi-file-text fs-3 text-muted"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong>@post.Title</strong>
+                                            <br />
+                                            <small class="text-muted">@(post.Content.Length > 100 ? post.Content.Substring(0, 100) + "..." : post.Content)</small>
+                                            @if (!string.IsNullOrEmpty(post.ExternalLink))
+                                            {
+                                                <br />
+                                                <small><i class="bi bi-link-45deg"></i> <a href="@post.ExternalLink" target="_blank">External Link</a></small>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @post.CreatedAt.ToString("MMM dd, yyyy")
+                                                @if (post.UpdatedAt.HasValue)
+                                                {
+                                                    <br />
+                                                    <span class="badge bg-secondary">Edited</span>
+                                                }
+                                            </small>
+                                        </td>
+                                        <td class="text-center">
+                                            @if (post.IsPublished)
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle"></i> Published
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="bi bi-clock"></i> Draft
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-primary me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editBlogPostModal-@post.Id">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </button>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteBlogPostModal-@post.Id">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Events Tab -->
+    <div class="tab-pane fade @(activeTab == "manage-events" ? "show active" : "")" id="manage-events" role="tabpanel">
+        <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h3 class="mb-0">
+                    <i class="bi bi-calendar-event"></i> Manage All Events
+                </h3>
+                <span class="badge bg-primary">@Model.AllEvents.Count Total</span>
+            </div>
+            <div class="card-body">
+                @if (!Model.AllEvents.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> No events yet. Use the "📅 Create Event" tab to add your first event.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Image</th>
+                                    <th>Title</th>
+                                    <th>Date</th>
+                                    <th>Location</th>
+                                    <th class="text-end" style="width: 180px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var evt in Model.AllEvents)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(evt.ImageSmallUrl))
+                                            {
+                                                <img src="@evt.ImageSmallUrl" 
+                                                     alt="@evt.Title" 
+                                                     class="rounded" 
+                                                     width="80" 
+                                                     height="80" 
+                                                     style="object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                                    <i class="bi bi-calendar-event fs-3 text-muted"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong>@evt.Title</strong>
+                                            <br />
+                                            <small class="text-muted">@(evt.Description.Length > 80 ? evt.Description.Substring(0, 80) + "..." : evt.Description)</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">@evt.DateDisplay</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">@evt.Location</small>
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-primary me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editEventModal-@evt.Id">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </button>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteEventModal-@evt.Id">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Display Settings Tab -->
+    <div class="tab-pane fade @(activeTab == "display-settings" ? "show active" : "")" id="display-settings" role="tabpanel">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="bi bi-eye"></i> Display Settings</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Control which members and games are visible on the public Members and Games pages. Hidden items remain fully manageable here in the admin dashboard.</p>
+                <form asp-action="UpdateDisplaySettings" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <h5 class="mb-3">👥 Members</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="show-full-members"
+                                       name="DisplaySettings.ShowFullMembers" value="true"
+                                       @(Model.DisplaySettings.ShowFullMembers ? "checked" : string.Empty) />
+                                <input name="DisplaySettings.ShowFullMembers" value="false" type="hidden" />
+                                <label class="form-check-label" for="show-full-members">Full Members</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="show-subscribed-members"
+                                       name="DisplaySettings.ShowSubscribedMembers" value="true"
+                                       @(Model.DisplaySettings.ShowSubscribedMembers ? "checked" : string.Empty) />
+                                <input name="DisplaySettings.ShowSubscribedMembers" value="false" type="hidden" />
+                                <label class="form-check-label" for="show-subscribed-members">Subscribed Members</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="show-unsubscribed-members"
+                                       name="DisplaySettings.ShowUnsubscribedMembers" value="true"
+                                       @(Model.DisplaySettings.ShowUnsubscribedMembers ? "checked" : string.Empty) />
+                                <input name="DisplaySettings.ShowUnsubscribedMembers" value="false" type="hidden" />
+                                <label class="form-check-label" for="show-unsubscribed-members">Unsubscribed (Active) Members</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3">🎮 Games</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="show-collective-games"
+                                       name="DisplaySettings.ShowCollectiveGames" value="true"
+                                       @(Model.DisplaySettings.ShowCollectiveGames ? "checked" : string.Empty) />
+                                <input name="DisplaySettings.ShowCollectiveGames" value="false" type="hidden" />
+                                <label class="form-check-label" for="show-collective-games">Games by the Collective</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="show-external-games"
+                                       name="DisplaySettings.ShowExternalGames" value="true"
+                                       @(Model.DisplaySettings.ShowExternalGames ? "checked" : string.Empty) />
+                                <input name="DisplaySettings.ShowExternalGames" value="false" type="hidden" />
+                                <label class="form-check-label" for="show-external-games">Other Games</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save Display Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Edit Member Modals *@
+@foreach (var member in Model.AllMembers)
+{
+    <div class="modal fade" id="editMemberModal-@member.Id" tabindex="-1" aria-labelledby="editMemberModalLabel-@member.Id" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editMemberModalLabel-@member.Id">
+                        <i class="bi bi-pencil"></i> Edit @member.Name
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="UpdateMember" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        @{
+                            var editForm = new Night.ViewModels.CollectiveMemberFormViewModel
+                            {
+                                Id = member.Id,
+                                Name = member.Name,
+                                Image = member.Image,
+                                Position = member.Position,
+                                Quote = member.Quote,
+                                MembershipType = member.MembershipType,
+                                IsHidden = member.IsHidden,
+                                FeaturedGameId = member.FeaturedGame?.Id,
+                                SelectedGameIds = member.Games.Select(g => g.Id).ToList(),
+                                AvailableGames = Model.AllGames
+                                    .OrderByDescending(g => g.FromCollective)
+                                    .ThenBy(g => g.Title)
+                                    .Select(g => new Night.ViewModels.GameSelectViewModel
+                                    {
+                                        Id = g.Id,
+                                        Title = g.Title,
+                                        ImageUrl = g.ImageSmallUrl ?? g.Image,
+                                        FromCollective = g.FromCollective
+                                    })
+                                    .ToList(),
+                                GameContributions = member.GameContributions
+                                    .Select(gc => new Night.ViewModels.MemberGameContributionFormViewModel
+                                    {
+                                        GameId = gc.GameId,
+                                        InvolvementLevel = gc.InvolvementLevel,
+                                        SelectedWorkAreas = gc.WorkAreas.ToList()
+                                    })
+                                    .ToList()
+                            };
+                        }
+                        @Html.Partial("~/Views/Home/_MemberFields.cshtml", editForm)
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* Delete Member Modals *@
+@foreach (var member in Model.AllMembers)
+{
+    <div class="modal fade" id="deleteMemberModal-@member.Id" tabindex="-1" aria-labelledby="deleteMemberModalLabel-@member.Id" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteMemberModalLabel-@member.Id">
+                        <i class="bi bi-exclamation-triangle"></i> Confirm Deletion
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="DeleteMember" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@member.Id" />
+                    <div class="modal-body">
+                        <p class="mb-3">Are you sure you want to <strong>permanently delete</strong> this member?</p>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center gap-3">
+                                    @if (!string.IsNullOrEmpty(member.ImageSmallUrl))
+                                    {
+                                        <img src="@member.ImageSmallUrl" alt="@member.Name" class="rounded" width="60" height="60" style="object-fit: cover;" />
+                                    }
+                                    <div>
+                                        <h6 class="mb-1">@member.Name</h6>
+                                        <p class="small text-muted mb-0">@member.Position</p>
+                                        <span class="badge bg-secondary mt-1">@member.MembershipType</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Warning:</strong> This action cannot be undone. All associated data will be removed.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete Permanently
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* Edit Game Modals *@
+@foreach (var game in Model.AllGames)
+{
+    <div class="modal fade" id="editGameModal-@game.Id" tabindex="-1" aria-labelledby="editGameModalLabel-@game.Id" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editGameModalLabel-@game.Id">
+                        <i class="bi bi-pencil"></i> Edit @game.Title
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="UpdateGame" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        @{
+                            var editGameForm = new Night.ViewModels.GameFormViewModel
+                            {
+                                Id = game.Id,
+                                Title = game.Title,
+                                Image = game.Image,
+                                ExistingImageSmallUrl = game.ImageSmallUrl,
+                                ExistingImageMediumUrl = game.ImageMediumUrl,
+                                ExistingImageLargeUrl = game.ImageLargeUrl,
+                                ReleaseYear = game.ReleaseYear,
+                                IsReleased = game.IsReleased,
+                                ReleaseDate = game.ReleaseDate,
+                                DeveloperPublisher = game.DeveloperPublisher,
+                                Platforms = game.Platforms,
+                                GenreGameplayType = game.GenreGameplayType,
+                                FromCollective = game.FromCollective,
+                                IsHidden = game.IsHidden,
+                                Description = game.Description,
+                                YouTubeTrailerUrl = game.YouTubeTrailerUrl,
+                                AvailableMembers = Model.GameForm.AvailableMembers,
+                                ExistingScreenshots = game.Screenshots
+                                    .OrderBy(s => s.DisplayOrder)
+                                    .ToList(),
+                                MemberContributions = game.MemberContributions
+                                    .Select((mc, index) => new Night.ViewModels.GameMemberContributionFormViewModel
+                                    {
+                                        MemberId = mc.MemberId,
+                                        InvolvementLevel = mc.InvolvementLevel,
+                                        SelectedWorkAreas = mc.WorkAreas.ToList()
+                                    })
+                                    .ToList()
+                            };
+                        }
+                        @Html.Partial("~/Views/Home/_GameFields.cshtml", editGameForm)
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* Delete Game Modals *@
+@foreach (var game in Model.AllGames)
+{
+    <div class="modal fade" id="deleteGameModal-@game.Id" tabindex="-1" aria-labelledby="deleteGameModalLabel-@game.Id" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteGameModalLabel-@game.Id">
+                        <i class="bi bi-exclamation-triangle"></i> Delete Game
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="DeleteGame" method="post">
+                    <input type="hidden" name="id" value="@game.Id" />
+                    <div class="modal-body">
+                        <p class="mb-3">Are you sure you want to delete this game?</p>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(game.ImageSmallUrl))
+                                    {
+                                        <img src="@game.ImageSmallUrl" 
+                                             alt="@game.Title" 
+                                             class="rounded me-3" 
+                                             width="80" 
+                                             height="80" 
+                                             style="object-fit: cover;" />
+                                    }
+                                    <div>
+                                        <h6 class="mb-1">@game.Title</h6>
+                                        <p class="small text-muted mb-0">@game.DeveloperPublisher (@game.ReleaseYear)</p>
+                                        <span class="badge bg-info text-dark mt-1">@game.Platforms</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Warning:</strong> This action cannot be undone. All associated data will be removed.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete Permanently
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* Edit Blog Post Modals *@
+@foreach (var post in Model.AllBlogPosts)
+{
+    <div class="modal fade" id="editBlogPostModal-@post.Id" tabindex="-1" aria-labelledby="editBlogPostModalLabel-@post.Id" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editBlogPostModalLabel-@post.Id">
+                        <i class="bi bi-pencil"></i> Edit Blog Post
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="UpdateBlogPost" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        <input type="hidden" name="BlogPostForm.Id" value="@post.Id" />
+
+                        <div class="mb-3">
+                            <label for="editTitle-@post.Id" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="editTitle-@post.Id" name="BlogPostForm.Title" value="@post.Title" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editAuthor-@post.Id" class="form-label">Author</label>
+                            <input type="text" class="form-control" id="editAuthor-@post.Id" name="BlogPostForm.Author" value="@post.Author" placeholder="e.g. Jane Doe" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editSummary-@post.Id" class="form-label">Summary/Excerpt</label>
+                            <textarea class="form-control" id="editSummary-@post.Id" name="BlogPostForm.Summary" rows="2" placeholder="A short teaser shown in article listings">@post.Summary</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editContent-@post.Id" class="form-label">Story/Content</label>
+                            <textarea class="form-control" id="editContent-@post.Id" name="BlogPostForm.Content" rows="10" required>@post.Content</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editTags-@post.Id" class="form-label">Tags (comma-separated)</label>
+                            <input type="text" class="form-control" id="editTags-@post.Id" name="BlogPostForm.Tags" value="@post.Tags" placeholder="e.g. gamedev, indie, art" />
+                            <small class="form-text text-muted">Separate tags with commas</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editExternalLink-@post.Id" class="form-label">External Link (optional)</label>
+                            <input type="url" class="form-control" id="editExternalLink-@post.Id" name="BlogPostForm.ExternalLink" value="@post.ExternalLink" />
+                        </div>
+
+                        <div class="mb-4">
+                            <fieldset class="border border-2 rounded p-3">
+                                <legend class="form-label d-block mb-3">Blog Post Image</legend>
+
+                                @if (!string.IsNullOrEmpty(post.ImageMediumUrl))
+                                {
+                                    <div class="mb-3">
+                                        <p class="small text-muted">Current image:</p>
+                                        <img src="@post.ImageMediumUrl" alt="Current" class="img-thumbnail" style="max-width: 200px;" />
+                                    </div>
+                                }
+
+                                <div class="mb-3">
+                                    <h6 class="mb-2">📁 Upload New Image</h6>
+                                    <input type="file" class="form-control" name="BlogPostForm.ImageFile" accept="image/*" />
+                                </div>
+
+                                <div class="text-center text-muted my-3">
+                                    <small><strong>— OR —</strong></small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6 class="mb-2">🔗 Add Image URL</h6>
+                                    <input type="text" class="form-control" name="BlogPostForm.ImageUrl" value="@post.ImageMediumUrl" placeholder="https://example.com/image.jpg" />
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="editIsPublished-@post.Id" name="BlogPostForm.IsPublished" value="true" @(post.IsPublished ? "checked" : "") />
+                            <label class="form-check-label" for="editIsPublished-@post.Id">Published</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* Delete Blog Post Modals *@
+@foreach (var post in Model.AllBlogPosts)
+{
+    <div class="modal fade" id="deleteBlogPostModal-@post.Id" tabindex="-1" aria-labelledby="deleteBlogPostModalLabel-@post.Id" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteBlogPostModalLabel-@post.Id">
+                        <i class="bi bi-exclamation-triangle"></i> Delete Blog Post
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="DeleteBlogPost" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@post.Id" />
+                    <div class="modal-body">
+                        <p class="mb-3">Are you sure you want to permanently delete this blog post?</p>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(post.ImageSmallUrl))
+                                    {
+                                        <img src="@post.ImageSmallUrl" 
+                                             alt="@post.Title" 
+                                             class="rounded me-3" 
+                                             width="80" 
+                                             height="80" 
+                                             style="object-fit: cover;" />
+                                    }
+                                    <div>
+                                        <h6 class="mb-1">@post.Title</h6>
+                                        <p class="small text-muted mb-0">@post.CreatedAt.ToString("MMM dd, yyyy")</p>
+                                        @if (post.IsPublished)
+                                        {
+                                            <span class="badge bg-success mt-1">Published</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark mt-1">Draft</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Warning:</strong> This action cannot be undone.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete Permanently
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* Edit Event Modals *@
+@foreach (var evt in Model.AllEvents)
+{
+    <div class="modal fade" id="editEventModal-@evt.Id" tabindex="-1" aria-labelledby="editEventModalLabel-@evt.Id" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEventModalLabel-@evt.Id">
+                        <i class="bi bi-pencil"></i> Edit Event
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="UpdateEvent" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        <input type="hidden" name="EventForm.Id" value="@evt.Id" />
+
+                        <div class="mb-3">
+                            <label for="editEventTitle-@evt.Id" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="editEventTitle-@evt.Id" name="EventForm.Title" value="@evt.Title" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editEventDate-@evt.Id" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="editEventDate-@evt.Id" name="EventForm.Date" value="@evt.Date.ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editEventLocation-@evt.Id" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="editEventLocation-@evt.Id" name="EventForm.Location" value="@evt.Location" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editEventDescription-@evt.Id" class="form-label">Description</label>
+                            <textarea class="form-control" id="editEventDescription-@evt.Id" name="EventForm.Description" rows="5" required>@evt.Description</textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <fieldset class="border border-2 rounded p-3">
+                                <legend class="form-label d-block mb-3">Event Image</legend>
+
+                                @if (!string.IsNullOrEmpty(evt.ImageMediumUrl))
+                                {
+                                    <div class="mb-3">
+                                        <p class="small text-muted">Current image:</p>
+                                        <img src="@evt.ImageMediumUrl" alt="Current" class="img-thumbnail" style="max-width: 200px;" />
+                                    </div>
+                                }
+
+                                <div class="mb-3">
+                                    <h6 class="mb-2">📁 Upload New Image</h6>
+                                    <input type="file" class="form-control" name="EventForm.ImageFile" accept="image/*" />
+                                </div>
+
+                                <div class="text-center text-muted my-3">
+                                    <small><strong>— OR —</strong></small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6 class="mb-2">🔗 Add Image URL</h6>
+                                    <input type="text" class="form-control" name="EventForm.ImageUrl" value="@evt.ImageMediumUrl" placeholder="https://example.com/image.jpg" />
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@* Delete Event Modals *@
+@foreach (var evt in Model.AllEvents)
+{
+    <div class="modal fade" id="deleteEventModal-@evt.Id" tabindex="-1" aria-labelledby="deleteEventModalLabel-@evt.Id" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteEventModalLabel-@evt.Id">
+                        <i class="bi bi-exclamation-triangle"></i> Delete Event
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="DeleteEvent" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@evt.Id" />
+                    <div class="modal-body">
+                        <p class="mb-3">Are you sure you want to permanently delete this event?</p>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(evt.ImageSmallUrl))
+                                    {
+                                        <img src="@evt.ImageSmallUrl" 
+                                             alt="@evt.Title" 
+                                             class="rounded me-3" 
+                                             width="80" 
+                                             height="80" 
+                                             style="object-fit: cover;" />
+                                    }
+                                    <div>
+                                        <h6 class="mb-1">@evt.Title</h6>
+                                        <p class="small text-muted mb-0">@evt.Date.ToString("MMM dd, yyyy") - @evt.Location</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Warning:</strong> This action cannot be undone.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete Permanently
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/game-form.js" asp-append-version="true"></script>
+    <script src="~/js/member-form.js" asp-append-version="true"></script>
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Member filtering functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('input[name="memberFilter"]');
+            const memberRows = document.querySelectorAll('.member-row');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('change', function() {
+                    const filterValue = this.value;
+
+                    memberRows.forEach(row => {
+                        const membershipType = row.getAttribute('data-membership-type');
+
+                        if (filterValue === 'all' || membershipType === filterValue) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

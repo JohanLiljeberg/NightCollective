@@ -1,0 +1,351 @@
+using Microsoft.AspNetCore.Mvc;
+using Night.Filters;
+using Night.Services;
+using Night.ViewModels;
+
+namespace Night.Controllers;
+
+public class AdminController(
+    IConfiguration configuration,
+    IEventService eventService,
+    ICollectiveService collectiveService,
+    IBlogPostService blogPostService) : Controller
+{
+    [HttpGet("admin")]
+    [HttpGet("admin/login")]
+    public IActionResult Login()
+    {
+        // If already logged in, redirect to dashboard
+        if (HttpContext.Session.GetString("IsAdmin") == "true")
+        {
+            return RedirectToAction(nameof(Dashboard));
+        }
+
+        return View();
+    }
+
+    [HttpPost("admin")]
+    [HttpPost("admin/login")]
+    [ValidateAntiForgeryToken]
+    public IActionResult Login(string password)
+    {
+        var adminPassword = configuration["Admin:Password"];
+
+        if (password == adminPassword)
+        {
+            HttpContext.Session.SetString("IsAdmin", "true");
+            return RedirectToAction(nameof(Dashboard));
+        }
+
+        ViewBag.Error = "Invalid password";
+        return View();
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    public async Task<IActionResult> Dashboard()
+    {
+        var viewModel = new AdminDashboardViewModel
+        {
+            EventForm = await eventService.GetCreateEventFormAsync(),
+            GameForm = await collectiveService.GetGameFormAsync(),
+            MemberForm = await collectiveService.GetMemberFormAsync(),
+            BlogPostForm = await blogPostService.GetCreateBlogPostFormAsync(),
+            AllMembers = await collectiveService.GetCollectiveMembersAsync(),
+            AllGames = await collectiveService.GetGamesAsync(),
+            AllBlogPosts = await blogPostService.GetAllBlogPostsAsync(),
+            AllEvents = await eventService.GetUpcomingEventsAsync(),
+            DisplaySettings = await collectiveService.GetDisplaySettingsAsync()
+        };
+
+        return View(viewModel);
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateEvent(EventFormViewModel eventForm)
+    {
+        bool hasFile = eventForm.ImageFile is not null && eventForm.ImageFile.Length > 0;
+        bool hasUrl = !string.IsNullOrWhiteSpace(eventForm.ImageUrl?.Trim());
+
+        if (!hasFile && !hasUrl)
+        {
+            ModelState.AddModelError("", "Please provide an image by uploading a file or entering a URL.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            var viewModel = new AdminDashboardViewModel
+            {
+                EventForm = eventForm,
+                GameForm = await collectiveService.GetGameFormAsync(),
+                MemberForm = await collectiveService.GetMemberFormAsync()
+            };
+            return View("Dashboard", viewModel);
+        }
+
+        await eventService.CreateEventAsync(eventForm);
+        TempData["SuccessMessage"] = "Event created successfully!";
+        return RedirectToAction(nameof(Dashboard));
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateGame([Bind(Prefix = "GameForm")] GameFormViewModel gameForm)
+    {
+        if (!ModelState.IsValid)
+        {
+            var viewModel = new AdminDashboardViewModel
+            {
+                EventForm = await eventService.GetCreateEventFormAsync(),
+                GameForm = gameForm,
+                MemberForm = await collectiveService.GetMemberFormAsync()
+            };
+            return View("Dashboard", viewModel);
+        }
+
+        await collectiveService.AddGameAsync(gameForm);
+        TempData["SuccessMessage"] = "Game added successfully!";
+        return RedirectToAction(nameof(Dashboard));
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateMember([Bind(Prefix = "MemberForm")] CollectiveMemberFormViewModel memberForm)
+    {
+        // Validate required fields based on membership type
+        ValidateMemberFormByMembershipType(memberForm);
+
+        if (!ModelState.IsValid)
+        {
+            var viewModel = new AdminDashboardViewModel
+            {
+                EventForm = await eventService.GetCreateEventFormAsync(),
+                GameForm = await collectiveService.GetGameFormAsync(),
+                MemberForm = memberForm
+            };
+            return View("Dashboard", viewModel);
+        }
+
+        await collectiveService.AddCollectiveMemberAsync(memberForm);
+        TempData["SuccessMessage"] = "Member added successfully!";
+        return RedirectToAction(nameof(Dashboard));
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    public IActionResult Logout()
+    {
+        HttpContext.Session.Clear();
+        return RedirectToAction("Index", "Home");
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateMember([Bind(Prefix = "MemberForm")] CollectiveMemberFormViewModel memberForm)
+    {
+        // Validate required fields based on membership type
+        ValidateMemberFormByMembershipType(memberForm);
+
+        if (!ModelState.IsValid)
+        {
+            var viewModel = new AdminDashboardViewModel
+            {
+                EventForm = await eventService.GetCreateEventFormAsync(),
+                GameForm = await collectiveService.GetGameFormAsync(),
+                MemberForm = memberForm,
+                AllMembers = await collectiveService.GetCollectiveMembersAsync()
+            };
+            return View("Dashboard", viewModel);
+        }
+
+        await collectiveService.UpdateCollectiveMemberAsync(memberForm);
+        TempData["SuccessMessage"] = "Member updated successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-members" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteMember(int id)
+    {
+        await collectiveService.DeleteCollectiveMemberAsync(id);
+        TempData["SuccessMessage"] = "Member deleted successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-members" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateGame([Bind(Prefix = "GameForm")] GameFormViewModel gameForm)
+    {
+        if (!ModelState.IsValid)
+        {
+            var viewModel = new AdminDashboardViewModel
+            {
+                EventForm = await eventService.GetCreateEventFormAsync(),
+                GameForm = gameForm,
+                MemberForm = await collectiveService.GetMemberFormAsync(),
+                AllMembers = await collectiveService.GetCollectiveMembersAsync(),
+                AllGames = await collectiveService.GetGamesAsync()
+            };
+            return View("Dashboard", viewModel);
+        }
+
+        await collectiveService.UpdateGameAsync(gameForm);
+        TempData["SuccessMessage"] = "Game updated successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-games" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteGame(int id)
+    {
+        await collectiveService.DeleteGameAsync(id);
+        TempData["SuccessMessage"] = "Game deleted successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-games" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateBlogPost([Bind(Prefix = "BlogPostForm")] BlogPostFormViewModel blogPostForm)
+    {
+        bool hasFile = blogPostForm.ImageFile is not null && blogPostForm.ImageFile.Length > 0;
+        bool hasUrl = !string.IsNullOrWhiteSpace(blogPostForm.ImageUrl?.Trim());
+
+        if (!hasFile && !hasUrl)
+        {
+            ModelState.AddModelError("", "Please provide an image by uploading a file or entering a URL.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            var viewModel = new AdminDashboardViewModel
+            {
+                EventForm = await eventService.GetCreateEventFormAsync(),
+                GameForm = await collectiveService.GetGameFormAsync(),
+                MemberForm = await collectiveService.GetMemberFormAsync(),
+                BlogPostForm = blogPostForm,
+                AllBlogPosts = await blogPostService.GetAllBlogPostsAsync()
+            };
+            return View("Dashboard", viewModel);
+        }
+
+        await blogPostService.CreateBlogPostAsync(blogPostForm);
+        TempData["SuccessMessage"] = "Blog post created successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "blog-posts" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateBlogPost([Bind(Prefix = "BlogPostForm")] BlogPostFormViewModel blogPostForm)
+    {
+        if (!ModelState.IsValid)
+        {
+            var viewModel = new AdminDashboardViewModel
+            {
+                EventForm = await eventService.GetCreateEventFormAsync(),
+                GameForm = await collectiveService.GetGameFormAsync(),
+                MemberForm = await collectiveService.GetMemberFormAsync(),
+                BlogPostForm = blogPostForm,
+                AllBlogPosts = await blogPostService.GetAllBlogPostsAsync()
+            };
+            return View("Dashboard", viewModel);
+        }
+
+        await blogPostService.UpdateBlogPostAsync(blogPostForm);
+        TempData["SuccessMessage"] = "Blog post updated successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-blog-posts" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteBlogPost(int id)
+    {
+        await blogPostService.DeleteBlogPostAsync(id);
+        TempData["SuccessMessage"] = "Blog post deleted successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-blog-posts" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateEvent([Bind(Prefix = "EventForm")] EventFormViewModel eventForm)
+    {
+        if (!ModelState.IsValid)
+        {
+            var viewModel = new AdminDashboardViewModel
+            {
+                EventForm = eventForm,
+                GameForm = await collectiveService.GetGameFormAsync(),
+                MemberForm = await collectiveService.GetMemberFormAsync(),
+                AllEvents = await eventService.GetUpcomingEventsAsync()
+            };
+            return View("Dashboard", viewModel);
+        }
+
+        await eventService.UpdateEventAsync(eventForm);
+        TempData["SuccessMessage"] = "Event updated successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-events" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteEvent(int id)
+    {
+        await eventService.DeleteEventAsync(id);
+        TempData["SuccessMessage"] = "Event deleted successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "manage-events" });
+    }
+
+    [ServiceFilter(typeof(AdminAuthorizationFilter))]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateDisplaySettings([Bind(Prefix = "DisplaySettings")] DisplaySettingsViewModel displaySettings)
+    {
+        await collectiveService.UpdateDisplaySettingsAsync(displaySettings);
+        TempData["SuccessMessage"] = "Display settings updated successfully!";
+        return RedirectToAction(nameof(Dashboard), new { tab = "display-settings" });
+    }
+
+    private void ValidateMemberFormByMembershipType(CollectiveMemberFormViewModel memberForm)
+    {
+        switch (memberForm.MembershipType)
+        {
+            case Night.Models.MembershipType.Unsubscribed:
+                // Unsubscribed members don't need Position or Quote
+                // Clear any errors for these fields if they exist
+                ModelState.Remove("MemberForm.Position");
+                ModelState.Remove("MemberForm.Quote");
+                break;
+
+            case Night.Models.MembershipType.Subscribed:
+                // Subscribed members need Position but not Quote
+                if (string.IsNullOrWhiteSpace(memberForm.Position))
+                {
+                    ModelState.AddModelError("MemberForm.Position", "Position is required for Subscribed members.");
+                }
+                ModelState.Remove("MemberForm.Quote");
+                break;
+
+            case Night.Models.MembershipType.Full:
+                // Full members need both Position and Quote
+                if (string.IsNullOrWhiteSpace(memberForm.Position))
+                {
+                    ModelState.AddModelError("MemberForm.Position", "Position is required for Full members.");
+                }
+                if (string.IsNullOrWhiteSpace(memberForm.Quote))
+                {
+                    ModelState.AddModelError("MemberForm.Quote", "Quote is required for Full members.");
+                }
+                break;
+        }
+    }
+}
