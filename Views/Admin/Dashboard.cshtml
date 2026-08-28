@@ -18,7 +18,10 @@
     </div>
 }
 
-<ul class="nav nav-tabs mb-4 flex-nowrap overflow-auto text-nowrap" id="adminTabs" role="tablist">
+<ul class="nav nav-pills mb-2 flex-wrap gap-2" id="adminCreateTabs" role="tablist">
+    <li class="nav-item w-100">
+        <small class="text-muted text-uppercase fw-bold">Create</small>
+    </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link @(activeTab == "events" ? "active" : "")" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
             📅 Create Event
@@ -35,8 +38,19 @@
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link @(activeTab == "manage-members" ? "active" : "")" id="manage-members-tab" data-bs-toggle="tab" data-bs-target="#manage-members" type="button" role="tab">
-            📋 Manage Members
+        <button class="nav-link @(activeTab == "blog-posts" ? "active" : "")" id="blog-posts-tab" data-bs-toggle="tab" data-bs-target="#blog-posts" type="button" role="tab">
+            📝 Create Blog Post
+        </button>
+    </li>
+</ul>
+
+<ul class="nav nav-pills mb-4 flex-wrap gap-2" id="adminManageTabs" role="tablist">
+    <li class="nav-item w-100">
+        <small class="text-muted text-uppercase fw-bold">Manage Existing</small>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link @(activeTab == "manage-events" ? "active" : "")" id="manage-events-tab" data-bs-toggle="tab" data-bs-target="#manage-events" type="button" role="tab">
+            📅 Manage Events
         </button>
     </li>
     <li class="nav-item" role="presentation">
@@ -45,8 +59,8 @@
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link @(activeTab == "blog-posts" ? "active" : "")" id="blog-posts-tab" data-bs-toggle="tab" data-bs-target="#blog-posts" type="button" role="tab">
-            📝 Create Blog Post
+        <button class="nav-link @(activeTab == "manage-members" ? "active" : "")" id="manage-members-tab" data-bs-toggle="tab" data-bs-target="#manage-members" type="button" role="tab">
+            📋 Manage Members
         </button>
     </li>
     <li class="nav-item" role="presentation">
@@ -54,10 +68,11 @@
             📰 Manage Blog Posts
         </button>
     </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link @(activeTab == "manage-events" ? "active" : "")" id="manage-events-tab" data-bs-toggle="tab" data-bs-target="#manage-events" type="button" role="tab">
-            📅 Manage Events
-        </button>
+</ul>
+
+<ul class="nav nav-pills mb-4 flex-wrap gap-2" id="adminSettingsTabs" role="tablist">
+    <li class="nav-item w-100">
+        <small class="text-muted text-uppercase fw-bold">Settings</small>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link @(activeTab == "display-settings" ? "active" : "")" id="display-settings-tab" data-bs-toggle="tab" data-bs-target="#display-settings" type="button" role="tab">
@@ -65,6 +80,7 @@
         </button>
     </li>
 </ul>
+
 
 <div class="tab-content" id="adminTabsContent">
     <!-- Events Tab -->
@@ -249,6 +265,10 @@
                                     </td>
                                     <td>
                                         <strong>@member.Name</strong>
+                                        @if (member.IsHidden)
+                                        {
+                                            <span class="badge bg-secondary ms-1"><i class="bi bi-eye-slash"></i> Hidden</span>
+                                        }
                                     </td>
                                     <td class="text-muted">
                                         <small>@member.Position</small>
@@ -341,6 +361,10 @@
                                         </td>
                                         <td>
                                             <strong>@game.Title</strong>
+                                            @if (game.IsHidden)
+                                            {
+                                                <span class="badge bg-secondary ms-1"><i class="bi bi-eye-slash"></i> Hidden</span>
+                                            }
                                             <br />
                                             <small class="text-muted">@game.GenreGameplayType</small>
                                         </td>
@@ -768,6 +792,7 @@
                                 Position = member.Position,
                                 Quote = member.Quote,
                                 MembershipType = member.MembershipType,
+                                IsHidden = member.IsHidden,
                                 FeaturedGameId = member.FeaturedGame?.Id,
                                 SelectedGameIds = member.Games.Select(g => g.Id).ToList(),
                                 AvailableGames = Model.AllGames
@@ -878,10 +903,13 @@
                                 ExistingImageMediumUrl = game.ImageMediumUrl,
                                 ExistingImageLargeUrl = game.ImageLargeUrl,
                                 ReleaseYear = game.ReleaseYear,
+                                IsReleased = game.IsReleased,
+                                ReleaseDate = game.ReleaseDate,
                                 DeveloperPublisher = game.DeveloperPublisher,
                                 Platforms = game.Platforms,
                                 GenreGameplayType = game.GenreGameplayType,
                                 FromCollective = game.FromCollective,
+                                IsHidden = game.IsHidden,
                                 Description = game.Description,
                                 YouTubeTrailerUrl = game.YouTubeTrailerUrl,
                                 AvailableMembers = Model.GameForm.AvailableMembers,

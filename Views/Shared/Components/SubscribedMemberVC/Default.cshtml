@@ -12,6 +12,8 @@
                      class="rounded-circle border border-2 border-primary shadow-sm"
                      width="100" 
                      height="100"
+                     loading="lazy"
+                     decoding="async"
                      style="object-fit: cover;" />
                 <span class="position-absolute bottom-0 end-0 badge bg-primary rounded-circle p-2" title="Subscribed Member">
                     <i class="bi bi-star-fill"></i>
@@ -43,6 +45,8 @@
                             <img src="@(Model.FeaturedGame.ImageSmallUrl ?? Model.FeaturedGame.Image)" 
                                  alt="@Model.FeaturedGame.Title" 
                                  class="img-fluid rounded-start h-100"
+                                 loading="lazy"
+                                 decoding="async"
                                  style="height: 120px; width: 100%; object-fit: cover;" />
                         </div>
                         <div class="col-7 d-flex flex-column">

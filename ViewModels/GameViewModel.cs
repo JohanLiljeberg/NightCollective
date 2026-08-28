@@ -10,6 +10,10 @@ public class GameViewModel
 
     public int ReleaseYear { get; init; }
 
+    public bool IsReleased { get; init; } = true;
+
+    public DateTime? ReleaseDate { get; init; }
+
     public string Image { get; init; } = string.Empty;
 
     public string? ImageSmallUrl { get; init; }
@@ -25,6 +29,8 @@ public class GameViewModel
     public genreGameplayType GenreGameplayType { get; init; } = genreGameplayType.Action;
 
     public bool FromCollective { get; init; }
+
+    public bool IsHidden { get; init; }
 
     public string Description { get; init; } = string.Empty;
 

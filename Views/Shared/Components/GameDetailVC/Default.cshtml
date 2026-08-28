@@ -6,9 +6,14 @@
         <div class="col-lg-5">
             @if (!string.IsNullOrEmpty(Model.ImageLargeUrl))
             {
-                <img src="@Model.ImageLargeUrl" 
+                @* srcset lets the browser pick the smallest suitable size instead of always loading the large image *@
+                <img src="@Model.ImageMediumUrl"
+                     srcset="@Model.ImageSmallUrl 640w, @Model.ImageMediumUrl 1024w, @Model.ImageLargeUrl 1600w"
+                     sizes="(max-width: 991px) 100vw, 40vw"
                      class="img-fluid rounded-4 shadow w-100" 
                      style="aspect-ratio: 3 / 4; object-fit: cover;"
+                     loading="lazy"
+                     decoding="async"
                      alt="@Model.Title" />
             }
             else
@@ -37,6 +42,19 @@
                 {
                     <span class="badge badge-gold px-3 py-2">
                         Made by Night Collective
+                    </span>
+                }
+                @if (Model.IsReleased)
+                {
+                    <span class="badge bg-success px-3 py-2">
+                        <i class="bi bi-check-circle"></i> Released
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark px-3 py-2">
+                        <i class="bi bi-hourglass-split"></i> 
+                        @(Model.ReleaseDate.HasValue ? $"Coming {Model.ReleaseDate.Value:MMM d, yyyy}" : "Coming Soon")
                     </span>
                 }
             </div>
@@ -69,6 +87,7 @@
                             };
                             <div class="list-group-item border-0 border-bottom rounded-0 px-0 py-3">
                                 <div class="d-flex align-items-center gap-3">
+                                    @* Fixed 48px avatar size: no direct Bootstrap utility for custom pixel dimensions *@
                                     @if (!string.IsNullOrEmpty(contribution.ImageMediumUrl))
                                     {
                                         <img src="@contribution.ImageMediumUrl"
@@ -135,35 +154,62 @@
                 @foreach (var screenshot in Model.Screenshots.OrderBy(s => s.DisplayOrder))
                 {
                     <div class="col-sm-6 col-lg-4">
-                        <img src="@screenshot.ImageMediumUrl" 
-                             class="img-fluid rounded-4 shadow-sm w-100" 
-                             style="aspect-ratio: 16 / 9; object-fit: cover; cursor: pointer; transition: transform 0.2s;"
+                        @* Nested Bootstrap modals are not supported (backdrop/focus stacking breaks the page),
+                           so screenshots open in a lightweight custom lightbox instead of a second modal. *@
+                        <img src="@screenshot.ImageMediumUrl"
+                             data-full-src="@screenshot.ImageLargeUrl"
+                             class="img-fluid rounded-4 shadow-sm w-100 screenshot-thumb screenshot-lightbox-trigger-@Model.Id"
+                             style="aspect-ratio: 16 / 9; object-fit: cover;"
                              alt="Screenshot @screenshot.DisplayOrder"
-                             data-bs-toggle="modal" 
-                             data-bs-target="#screenshotModal-@screenshot.Id"
-                             onmouseover="this.style.transform='scale(1.03)'"
-                             onmouseout="this.style.transform='scale(1)'" />
-
-                        <!-- Modal for full-size screenshot -->
-                        <div class="modal fade" id="screenshotModal-@screenshot.Id" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-xl modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">@Model.Title - Screenshot @screenshot.DisplayOrder</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body text-center">
-                                        <img src="@screenshot.ImageLargeUrl" class="img-fluid" alt="Full size screenshot" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                             loading="lazy"
+                             decoding="async" />
                     </div>
                 }
             </div>
         </div>
     }
 </div>
+
+<!-- Lightbox overlay for full-size screenshots, scoped per game so multiple game modals on one page don't conflict -->
+<div class="screenshot-lightbox" id="screenshot-lightbox-@Model.Id" tabindex="-1">
+    <button type="button" class="screenshot-lightbox-close" aria-label="Close">&times;</button>
+    <img src="" alt="Full size screenshot" />
+</div>
+
+<script>
+    (function () {
+        var lightbox = document.getElementById('screenshot-lightbox-@Model.Id');
+        if (!lightbox || lightbox.dataset.lightboxInit) return;
+        lightbox.dataset.lightboxInit = 'true';
+
+        var lightboxImg = lightbox.querySelector('img');
+        var closeBtn = lightbox.querySelector('.screenshot-lightbox-close');
+
+        function openLightbox(fullSrc) {
+            lightboxImg.src = fullSrc;
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            lightboxImg.src = '';
+        }
+
+        document.querySelectorAll('.screenshot-lightbox-trigger-@Model.Id').forEach(function (thumb) {
+            thumb.addEventListener('click', function () {
+                openLightbox(thumb.dataset.fullSrc || thumb.src);
+            });
+        });
+
+        closeBtn.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', function (e) {
+            if (e.target === lightbox) closeLightbox();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeLightbox();
+        });
+    })();
+</script>
 
 @functions {
     private string? ExtractYouTubeVideoId(string url)

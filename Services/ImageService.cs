@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Night.Models;
 using SixLabors.ImageSharp;
@@ -9,22 +9,23 @@ using System.Text;
 
 namespace Night.Services
 {
+    // Handles saving, downloading, resizing (to WebP) and deleting images for the site.
     public class ImageService : IImageService
     {
         private readonly IWebHostEnvironment _environment;
         private readonly HttpClient _httpClient;
 
-        // Mobile-first optimized breakpoints
-        private const int WidthTiny = 320;      // Old phones, portrait
-        private const int WidthSmall = 640;     // Modern phones @2x, portrait
-        private const int WidthMedium = 1024;   // Tablets @2x, portrait
-        private const int WidthLarge = 1600;    // Desktop @2x
-        private const int WidthXLarge = 2400;   // Retina displays @2x
+        // Responsive image breakpoints
+        private const int WidthTiny = 320;
+        private const int WidthSmall = 640;
+        private const int WidthMedium = 1024;
+        private const int WidthLarge = 1600;
+        private const int WidthXLarge = 2400;
 
-        // WebP quality settings optimized for mobile
-        private const int QualitySmall = 85;    // Higher quality for small images (more noticeable compression)
-        private const int QualityMedium = 80;   // Balanced quality/size
-        private const int QualityLarge = 75;    // Lower quality acceptable on large screens
+        // WebP quality per size
+        private const int QualitySmall = 85;
+        private const int QualityMedium = 80;
+        private const int QualityLarge = 75;
 
         public ImageService(IWebHostEnvironment environment, HttpClient httpClient)
         {
@@ -32,21 +33,25 @@ namespace Night.Services
             _httpClient = httpClient;
         }
 
+        // Builds a short folder name from today's date plus a random 4-char code, e.g. "20260815_a1b2".
         private string GenerateBaseFileName()
         {
-            var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
-            var hash = GenerateShortHash();
-            return $"{timestamp}_{hash}";
+            var date = DateTime.UtcNow.ToString("yyyyMMdd");
+            var code = GenerateShortCode();
+            return $"{date}_{code}";
         }
 
-        private string GenerateShortHash()
+        private string GenerateShortCode()
         {
+            const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
             var randomBytes = new byte[4];
-            using (var rng = RandomNumberGenerator.Create())
+            RandomNumberGenerator.Fill(randomBytes);
+            var result = new char[4];
+            for (var i = 0; i < result.Length; i++)
             {
-                rng.GetBytes(randomBytes);
+                result[i] = chars[randomBytes[i] % chars.Length];
             }
-            return BitConverter.ToString(randomBytes).Replace("-", "").ToLower().Substring(0, 4);
+            return new string(result);
         }
 
         public async Task<ImageSizeUrls?> UploadImageAsync(IFormFile? file, ImageType type)
@@ -81,7 +86,6 @@ namespace Night.Services
             using var stream = file.OpenReadStream();
             using var image = await Image.LoadAsync(stream);
 
-            // Save multiple sizes optimized for mobile-first
             await SaveResizedWebPAsync(image, Path.Combine(imageFolder, smallName), WidthSmall, QualitySmall);
             await SaveResizedWebPAsync(image, Path.Combine(imageFolder, mediumName), WidthMedium, QualityMedium);
             await SaveResizedWebPAsync(image, Path.Combine(imageFolder, largeName), WidthLarge, QualityLarge);
@@ -99,7 +103,6 @@ namespace Night.Services
 
             try
             {
-             
                 var imageBytes = await _httpClient.GetByteArrayAsync(imageUrl);
                 if (imageBytes.Length == 0) return null;
 
@@ -145,21 +148,26 @@ namespace Night.Services
             }
             catch (Exception ex)
             {
-            
                 Console.WriteLine($"Error downloading and processing image from URL {imageUrl}: {ex.Message}");
                 return null;
             }
         }
         private async Task SaveResizedWebPAsync(Image sourceImage, string outputPath, int targetWidth, int quality)
         {
+            // Don't upscale images smaller than the target width - avoids larger, blurrier files on mobile.
+            var effectiveWidth = Math.Min(targetWidth, sourceImage.Width);
+
             using var clonedImage = sourceImage.Clone(ctx =>
             {
+                // Auto-rotate based on EXIF orientation - phone cameras commonly store images
+                // sideways/upside-down with an orientation tag that must be applied manually.
+                ctx.AutoOrient();
                 ctx.Resize(new ResizeOptions
                 {
-                    Size = new Size(targetWidth, 0),
+                    Size = new Size(effectiveWidth, 0),
                     Mode = ResizeMode.Max,
-                    Sampler = KnownResamplers.Lanczos3, 
-                    Compand = true 
+                    Sampler = KnownResamplers.Lanczos3,
+                    Compand = true
                 });
             });
 

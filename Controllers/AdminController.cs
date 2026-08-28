@@ -11,6 +11,8 @@ public class AdminController(
     ICollectiveService collectiveService,
     IBlogPostService blogPostService) : Controller
 {
+    [HttpGet("admin")]
+    [HttpGet("admin/login")]
     public IActionResult Login()
     {
         // If already logged in, redirect to dashboard
@@ -22,7 +24,8 @@ public class AdminController(
         return View();
     }
 
-    [HttpPost]
+    [HttpPost("admin")]
+    [HttpPost("admin/login")]
     [ValidateAntiForgeryToken]
     public IActionResult Login(string password)
     {

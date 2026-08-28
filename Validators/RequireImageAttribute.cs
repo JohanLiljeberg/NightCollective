@@ -13,12 +13,10 @@ public class RequireImageAttribute : ValidationAttribute
     {
         if (value is not EventFormViewModel model)
             return false;
-
-        // At least one must be provided: file upload OR URL
+   
         bool hasFile = model.ImageFile is not null && model.ImageFile.Length > 0;
         bool hasUrl = !string.IsNullOrWhiteSpace(model.ImageUrl);
 
-        // Return true if at least one is provided
         bool isValid = hasFile || hasUrl;
         return isValid;
     }

@@ -102,10 +102,13 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
         existingGame.ImageMediumUrl = game.ImageMediumUrl;
         existingGame.ImageLargeUrl = game.ImageLargeUrl;
         existingGame.ReleaseYear = game.ReleaseYear;
+        existingGame.IsReleased = game.IsReleased;
+        existingGame.ReleaseDate = game.ReleaseDate;
         existingGame.DeveloperPublisher = game.DeveloperPublisher;
         existingGame.Platforms = game.Platforms;
         existingGame.GenreGameplayType = game.GenreGameplayType;
         existingGame.FromCollective = game.FromCollective;
+        existingGame.IsHidden = game.IsHidden;
         existingGame.Description = game.Description;
         existingGame.YouTubeTrailerUrl = game.YouTubeTrailerUrl;
 
@@ -203,6 +206,7 @@ public class SqlCollectiveRepository(AppDbContext dbContext) : ICollectiveReposi
         existingMember.Position = member.Position;
         existingMember.Quote = member.Quote;
         existingMember.MembershipType = member.MembershipType;
+        existingMember.IsHidden = member.IsHidden;
         existingMember.FeaturedGameId = member.FeaturedGameId;
         existingMember.Games.Clear();
         existingMember.Games.AddRange(await GetSelectedGamesAsync(gameIds));

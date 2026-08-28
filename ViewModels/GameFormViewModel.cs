@@ -29,6 +29,12 @@ public class GameFormViewModel
     [Range(1970, 2100)]
     public int ReleaseYear { get; set; } = DateTime.Today.Year;
 
+    // Admin-controlled release status/visual indicator
+    public bool IsReleased { get; set; } = true;
+
+    // Optional specific release date, used to display a "coming soon" date for unreleased games
+    public DateTime? ReleaseDate { get; set; }
+
     [Required]
     [StringLength(160)]
     public string DeveloperPublisher { get; set; } = string.Empty;
@@ -38,6 +44,9 @@ public class GameFormViewModel
     public genreGameplayType GenreGameplayType { get; set; } = genreGameplayType.Action;
 
     public bool FromCollective { get; set; } = true;
+
+    // Hide from public pages without deleting
+    public bool IsHidden { get; set; }
 
     [StringLength(2000)]
     public string Description { get; set; } = string.Empty;

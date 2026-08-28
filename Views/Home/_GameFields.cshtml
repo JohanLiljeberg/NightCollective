@@ -77,6 +77,52 @@
                required />
     </div>
 
+    <div class="col-12">
+        <fieldset class="border border-2 rounded p-3">
+            <legend class="form-label d-block mb-2">Release Status</legend>
+            <div class="form-check mb-2">
+                <input class="form-check-input game-released-toggle" 
+                       id="game-released-@Model.Id" 
+                       name="GameForm.IsReleased" 
+                       value="true" 
+                       type="checkbox" 
+                       data-target="release-date-wrapper-@Model.Id"
+                       @(Model.IsReleased ? "checked" : string.Empty) />
+                <input name="GameForm.IsReleased" value="false" type="hidden" />
+                <label class="form-check-label" for="game-released-@Model.Id">
+                    This game has been released
+                </label>
+            </div>
+
+            <div id="release-date-wrapper-@Model.Id" class="@(Model.IsReleased ? "d-none" : string.Empty)">
+                <label class="form-label" for="game-releasedate-@Model.Id">Expected / Actual Release Date <small class="text-muted">(optional)</small></label>
+                <input class="form-control" 
+                       id="game-releasedate-@Model.Id" 
+                       name="GameForm.ReleaseDate" 
+                       value="@(Model.ReleaseDate?.ToString("yyyy-MM-dd"))" 
+                       type="date" />
+                <small class="form-text text-muted">Shown as "Coming soon" with this date until the game is marked as released</small>
+            </div>
+        </fieldset>
+    </div>
+
+    <div class="col-12">
+        <div class="form-check form-switch">
+            <input class="form-check-input" 
+                   type="checkbox" 
+                   role="switch" 
+                   id="game-hidden-@Model.Id" 
+                   name="GameForm.IsHidden" 
+                   value="true" 
+                   @(Model.IsHidden ? "checked" : string.Empty) />
+            <input name="GameForm.IsHidden" value="false" type="hidden" />
+            <label class="form-check-label" for="game-hidden-@Model.Id">
+                <i class="bi bi-eye-slash"></i> Hide this game from public pages
+            </label>
+            <small class="form-text text-muted d-block">The game stays fully editable here; it just won't show on the public Games gallery.</small>
+        </div>
+    </div>
+
     <div class="col-md-6">
         <label class="form-label" for="game-dev-@Model.Id">Developer / Publisher</label>
         <input class="form-control" 
@@ -269,6 +315,15 @@
 
         if (platformSelect) platformSelect.value = '@((int)Model.Platforms)';
         if (genreSelect) genreSelect.value = '@((int)Model.GenreGameplayType)';
+
+        // Toggle release date visibility based on release status checkbox
+        const releasedToggle = document.getElementById('game-released-@Model.Id');
+        if (releasedToggle) {
+            releasedToggle.addEventListener('change', function() {
+                const target = document.getElementById(this.dataset.target);
+                if (target) target.classList.toggle('d-none', this.checked);
+            });
+        }
 
         // Initialize game form handler (use "new" as id when creating a new game)
         const gameFormHandler = new GameFormHandler('@(Model.Id?.ToString() ?? "new")', @Model.MemberContributions.Count);

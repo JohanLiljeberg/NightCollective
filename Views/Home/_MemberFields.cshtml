@@ -23,6 +23,23 @@
     </div>
 
     <div class="col-12">
+        <div class="form-check form-switch">
+            <input class="form-check-input" 
+                   type="checkbox" 
+                   role="switch" 
+                   id="member-hidden-@Model.Id" 
+                   name="MemberForm.IsHidden" 
+                   value="true" 
+                   @(Model.IsHidden ? "checked" : string.Empty) />
+            <input name="MemberForm.IsHidden" value="false" type="hidden" />
+            <label class="form-check-label" for="member-hidden-@Model.Id">
+                <i class="bi bi-eye-slash"></i> Hide this member from public pages
+            </label>
+            <small class="form-text text-muted d-block">The member stays fully editable here; it just won't show on the public Members page.</small>
+        </div>
+    </div>
+
+    <div class="col-12">
         <fieldset class="border border-2 rounded p-3">
             <legend class="form-label d-block mb-3">Member Image</legend>
             <p class="small text-muted mb-4">Choose one: Upload a file <strong>OR</strong> provide an image URL</p>

@@ -22,6 +22,8 @@ public class CollectiveMemberViewModel
 
     public MembershipType MembershipType { get; init; } = MembershipType.Full;
 
+    public bool IsHidden { get; init; }
+
     // For Subscribed members
     public GameViewModel? FeaturedGame { get; init; }
 

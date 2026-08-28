@@ -28,6 +28,9 @@ public class CollectiveMemberFormViewModel
     [Required]
     public MembershipType MembershipType { get; set; } = MembershipType.Full;
 
+    // Hide from public pages without deleting
+    public bool IsHidden { get; set; }
+
     // For Subscribed members - their featured game
     public int? FeaturedGameId { get; set; }
 

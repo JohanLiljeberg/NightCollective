@@ -18,5 +18,6 @@
          decoding="async"
          @if (Model.Width.HasValue) { <text>width="@Model.Width"</text> }
          @if (Model.Height.HasValue) { <text>height="@Model.Height"</text> }
+         @* Dynamic aspect ratio passed by caller: no Bootstrap utility supports arbitrary ratios *@
          @if (!string.IsNullOrEmpty(Model.AspectRatio)) { <text>style="aspect-ratio: @Model.AspectRatio; object-fit: cover;"</text> }>
 </picture>

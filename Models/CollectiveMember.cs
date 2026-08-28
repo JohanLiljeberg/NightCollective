@@ -10,6 +10,9 @@ public class CollectiveMember
     // Membership
     public MembershipType MembershipType { get; set; } = MembershipType.Full;
 
+    // Allows an admin to hide this member from public pages without deleting them
+    public bool IsHidden { get; set; }
+
     // For Subscribed members - their featured game
     public int? FeaturedGameId { get; set; }
     public Game? FeaturedGame { get; set; }

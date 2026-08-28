@@ -13,7 +13,6 @@ builder.Services.AddSession(options =>
 builder.Services.AddScoped<Night.Filters.AdminAuthorizationFilter>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddNightCollectiveServices(builder.Configuration);
-//builder.Services.AddScoped<IImageService, ImageService>();
 
 var app = builder.Build();
 

@@ -1,3 +1,4 @@
+/* Site-wide theme overrides and custom styles layered on top of Bootstrap. */
 :root {
   --night-cream: #fdfded;
   --night-purple: #4b19a3;
@@ -291,6 +292,17 @@ body {
 .event-form .form-control {
   border-color: var(--night-border);
 }
+
+/* Screenshot thumbnails: pointer cursor + hover zoom (no Bootstrap equivalent) */
+.screenshot-thumb {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.screenshot-thumb:hover {
+    transform: scale(1.03);
+}
+
 .img-fluid {
     max-width: 100%;
     height: auto;
@@ -299,44 +311,6 @@ body {
 .card-img-top {
     aspect-ratio: 16 / 9;
     object-fit: cover;
-}
-
-/* Game Portfolio Grid Styles */
-.game-portfolio-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-}
-
-.game-card-hover {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.game-card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
-}
-
-.work-areas-pills {
-    max-height: 60px;
-    overflow: hidden;
-}
-
-@media (max-width: 767px) {
-    .game-portfolio-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Blog Post Cards */
-.blog-post-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
-}
-
-.blog-post-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 .5rem 1.5rem rgba(75, 25, 163, 0.15) !important;
 }
 
 .blog-card-image {
@@ -400,4 +374,39 @@ body {
 
 .unsubscribed-member-card {
     border-top-color: var(--night-grey-400) !important;
+}
+
+/* Lightweight screenshot lightbox (avoids nesting a second Bootstrap modal, which breaks backdrop/focus stacking) */
+.screenshot-lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1080;
+    background: rgba(0, 0, 0, 0.85);
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.screenshot-lightbox.active {
+    display: flex;
+}
+
+.screenshot-lightbox img {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 0.5rem;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+}
+
+.screenshot-lightbox-close {
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 2.5rem;
+    line-height: 1;
+    cursor: pointer;
 }

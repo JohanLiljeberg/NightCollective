@@ -176,6 +176,9 @@ namespace Night.Migrations
                     b.Property<string>("ImageSmallUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("bit");
+
                     b.Property<int>("MembershipType")
                         .HasColumnType("int");
 
@@ -203,6 +206,7 @@ namespace Night.Migrations
                         {
                             Id = 1,
                             Image = "/images/collective-members/night-collective.jpg",
+                            IsHidden = false,
                             MembershipType = 2,
                             Name = "Night Collective",
                             Position = "Curator",
@@ -350,8 +354,17 @@ namespace Night.Migrations
                     b.Property<string>("ImageSmallUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsReleased")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Platforms")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("ReleaseDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("ReleaseYear")
                         .HasColumnType("int");

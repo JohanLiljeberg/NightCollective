@@ -33,6 +33,12 @@
                         <button class="btn btn-sm btn-outline-secondary" data-filter="external">
                             External Games (@Model.Count(g => !g.FromCollective))
                         </button>
+                        <button class="btn btn-sm btn-outline-success" data-filter="released">
+                            Released (@Model.Count(g => g.IsReleased))
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" data-filter="upcoming">
+                            Coming Soon (@Model.Count(g => !g.IsReleased))
+                        </button>
                     </div>
                 </div>
                 <div class="col-md-6 text-md-end">
@@ -54,6 +60,7 @@
             {
                 <div class="col-sm-6 col-lg-4 col-xl-3 game-card-wrapper" 
                      data-collective="@game.FromCollective.ToString().ToLower()"
+                     data-released="@game.IsReleased.ToString().ToLower()"
                      data-title="@game.Title"
                      data-year="@game.ReleaseYear"
                      data-developer="@game.DeveloperPublisher">
@@ -104,6 +111,10 @@
                             card.style.display = card.dataset.collective === 'true' ? '' : 'none';
                         } else if (filter === 'external') {
                             card.style.display = card.dataset.collective === 'false' ? '' : 'none';
+                        } else if (filter === 'released') {
+                            card.style.display = card.dataset.released === 'true' ? '' : 'none';
+                        } else if (filter === 'upcoming') {
+                            card.style.display = card.dataset.released === 'false' ? '' : 'none';
                         }
                     });
                 });

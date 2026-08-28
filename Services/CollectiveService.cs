@@ -171,16 +171,31 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
         });
     }
 
-    private static bool IsMemberVisible(CollectiveMember member, SiteDisplaySettings settings) => member.MembershipType switch
+    private static bool IsMemberVisible(CollectiveMember member, SiteDisplaySettings settings)
     {
-        MembershipType.Full => settings.ShowFullMembers,
-        MembershipType.Subscribed => settings.ShowSubscribedMembers,
-        MembershipType.Unsubscribed => settings.ShowUnsubscribedMembers,
-        _ => true
-    };
+        if (member.IsHidden)
+        {
+            return false;
+        }
 
-    private static bool IsGameVisible(Game game, SiteDisplaySettings settings) =>
-        game.FromCollective ? settings.ShowCollectiveGames : settings.ShowExternalGames;
+        return member.MembershipType switch
+        {
+            MembershipType.Full => settings.ShowFullMembers,
+            MembershipType.Subscribed => settings.ShowSubscribedMembers,
+            MembershipType.Unsubscribed => settings.ShowUnsubscribedMembers,
+            _ => true
+        };
+    }
+
+    private static bool IsGameVisible(Game game, SiteDisplaySettings settings)
+    {
+        if (game.IsHidden)
+        {
+            return false;
+        }
+
+        return game.FromCollective ? settings.ShowCollectiveGames : settings.ShowExternalGames;
+    }
 
     private static ProjectCardViewModel MapProject(CollectiveProject project) => new()
     {
@@ -220,6 +235,7 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
         Position = member.Position,
         Quote = member.Quote,
         MembershipType = member.MembershipType,
+        IsHidden = member.IsHidden,
         FeaturedGame = member.FeaturedGame is not null ? MapGame(member.FeaturedGame) : null,
         Games = member.Games.OrderBy(game => game.Title).Select(MapGame).ToList(),
         GameContributions = member.GameContributions
@@ -244,6 +260,8 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
         Id = game.Id,
         Title = game.Title,
         ReleaseYear = game.ReleaseYear,
+        IsReleased = game.IsReleased,
+        ReleaseDate = game.ReleaseDate,
         Image = game.Image,
         ImageSmallUrl = game.ImageSmallUrl,
         ImageMediumUrl = game.ImageMediumUrl,
@@ -252,6 +270,7 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
         Platforms = game.Platforms,
         GenreGameplayType = game.GenreGameplayType,
         FromCollective = game.FromCollective,
+        IsHidden = game.IsHidden,
         Description = game.Description,
         YouTubeTrailerUrl = game.YouTubeTrailerUrl,
         Screenshots = game.Screenshots
@@ -341,6 +360,7 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
             Position = viewModel.Position,
             Quote = viewModel.Quote,
             MembershipType = viewModel.MembershipType,
+            IsHidden = viewModel.IsHidden,
             FeaturedGameId = viewModel.FeaturedGameId
         };
     }
@@ -434,10 +454,13 @@ public class CollectiveService(ICollectiveRepository collectiveRepository, IBlog
             ImageMediumUrl = mediumUrl,
             ImageLargeUrl = largeUrl,
             ReleaseYear = viewModel.ReleaseYear,
+            IsReleased = viewModel.IsReleased,
+            ReleaseDate = viewModel.IsReleased ? null : viewModel.ReleaseDate,
             DeveloperPublisher = viewModel.DeveloperPublisher,
             Platforms = viewModel.Platforms,
             GenreGameplayType = viewModel.GenreGameplayType,
             FromCollective = viewModel.FromCollective,
+            IsHidden = viewModel.IsHidden,
             Description = viewModel.Description,
             YouTubeTrailerUrl = viewModel.YouTubeTrailerUrl,
             Screenshots = screenshots
